@@ -1,0 +1,15 @@
+#SewerSearchBrowse{
+    padding: 0 0.3em;
+    text-align: center;
+}
+
+#SewerSearchBrowse_label{
+    display: block !important;
+}
+
+#grid {
+    width: 100%;
+}
+
+#grid .dgrid-row-odd {
+    background: #F2F5F9;}

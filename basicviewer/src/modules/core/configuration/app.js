@@ -14,34 +14,35 @@ define(["dojo/_base/declare", "dojox/html/entities", "dojo/_base/lang", "dojo/Ev
                     appid: "",
                     //The ID for a web map from ArcGIS Online (AGO)
                     //If not going to specify a Web Map in AGO, then use empty quotes ("") here
-                    webmap: "d1201eea7afb4ed49f08a310e9803f2f",
+                    webmap:   '',
+                    //    "d1201eea7afb4ed49f08a310e9803f2f",
                     // The URL to an ArcGIS Web Map- if not using ArcGIS.com.
                     // Can be relative to index.html. For example, if in basicviewer root- "webmap.js"
                     // If both webmap and webmapurl are empty, then a map must be programmatically defined in map.js
                     webmapurl: "webmap.js",
                     //Enter a description for the application. This description will appear in the left pane
                     //if no description is entered, the webmap description (if populated) will be used.
-                    description: "This is the development version of iMap, for use as a template.",
+                    description: "Charles County Water and Waster Water System Map",
                     //specify an owner for the app - used by the print option. The default value will be the web map's owner
                     owner: '',
 
                     //*** Layout ***
                     //Specify a color theme for the app. Valid options are gray,blue,purple,green and orange
-                    theme: "imap",
+                    theme: "blue",
                     //set to true to display the title
                     displaytitle: true,
                     //Enter a title, if no title is specified, the webmap's title is used.
                     title: "",
                     //URL to title logo, if none specified, then defaults to assets/MDLogo.gif
-                    titleLogoUrl: "assets/MDlogo-small.gif",
+                    titleLogoUrl: "",
                     //The hyperlink for the title logo,
-                    titleLogoLink: "http://www.maryland.gov/Pages/default.aspx",
+                    titleLogoLink: "http://www.charlescountymd.gov/",
                     //Provide an image and url for a logo that will be displayed as a clickable image
                     //in the lower right corner of the map. If nothing is specified then the esri logo will appear.
                     //Example customLogoImage: "http://serverapi.arcgisonline.com/jsapi/arcgis/2.4compact/images/map/logo-med.png"
                     customlogo: {
-                        image: 'assets/mdimaplogo.png',
-                        link: 'http://mdimap.towson.edu/portal/'
+                        image: 'assets/MDlogo-small.gif',
+                        link: 'http://www.maryland.gov/Pages/default.aspx'
                     },
                     //specify the width of the panel that holds the editor, legend, details
                     leftpanewidth: '350',
@@ -73,6 +74,7 @@ define(["dojo/_base/declare", "dojox/html/entities", "dojo/_base/lang", "dojo/Ev
                     , displaydetails: true,
                     tablecontents: true,
                     displayeditor: false,
+                    searchresults: true,
                     startupwidget: 'displaydetails',
                     ////When editing you need to specify a proxyurl (see below) if the service is on a different domain
                     //Specify a proxy url if you will be editing, using the elevation profile or have secure services or web maps that are not shared with everyone.
@@ -104,7 +106,7 @@ define(["dojo/_base/declare", "dojox/html/entities", "dojo/_base/lang", "dojo/Ev
                     }],
                     displaybasemaps: true,
                     displaybookmarks: true,
-                    displaymeasure: false,
+                    displaymeasure: true,
                     displaylocation: true,
                     displayshare: true,//if enabled enter bitly key and login below.
                     //The application allows users to share the map with social networking sites like twitter
@@ -190,6 +192,9 @@ define(["dojo/_base/declare", "dojox/html/entities", "dojo/_base/lang", "dojo/Ev
                             if (response.values.tablecontents != undefined) {
                                 configOptions.tablecontents = response.values.tablecontents;
                             }
+                            if (response.values.searchresults != undefined) {
+                                configOptions.searchresults = response.values.searchresults;
+                            }
                             /*if (response.values.displayeditor != undefined) {
                                 configOptions.displayeditor = response.values.displayeditor;
                             }*/
@@ -205,9 +210,9 @@ define(["dojo/_base/declare", "dojox/html/entities", "dojo/_base/lang", "dojo/Ev
 /*                            if (response.values.displaybookmarks != undefined) {
                                 configOptions.displaybookmarks = response.values.displaybookmarks;
                             }*/
-/*                            if (response.values.displaymeasure != undefined) {
+                            if (response.values.displaymeasure != undefined) {
                                 configOptions.displaymeasure = response.values.displaymeasure;
-                            }*/
+                            }
                             if (response.values.displaylocation != undefined) {
                                 configOptions.displaylocation = response.values.displaylocation;
                             }

@@ -30,7 +30,10 @@ body {
     vertical-align: middle;
     display:none;
 }
-
+#header {
+    background-image: url(../../assets/CharlesBanner.png);
+    background-repeat: no-repeat;
+}
 .titleDiv {
     margin-left: 20px;
     position: absolute;
@@ -669,7 +672,6 @@ div#editDiv.templatePicker .grid  .selectedItem {
     margin-right: 15px;
     padding-top: 8px;
 }
-
 .claro .dijitButtonText{
     display: none !important;
 }

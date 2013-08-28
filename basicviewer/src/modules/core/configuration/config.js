@@ -10,7 +10,7 @@
         "displaybasemaps": true,
             "tablecontents": true,
             "displayshare": false,
-            "displaymeasure": false,
+            "displaymeasure": true,
             "displaylocation": true,
             "displayelevation": false,
             "showelevationdifference": false,

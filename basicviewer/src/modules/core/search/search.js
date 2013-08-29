@@ -93,39 +93,99 @@ define(["dojo/_base/declare",
 
                 var SelectedSewerVal;
 
+                var emptyStore = new Memory({
+                    idProperty: "OBJECTID",
+                    data: { identifier: 'OBJECTID',
+                        items: []}
+                });
+                //Create Grid
+                grid = new (declare([OnDemandGrid, Selection]))({
+                    // use Infinity so that all data is available in the grid
+                    bufferRows: Infinity,
+                    columns: {
+                        "Results": "Results",
+                    },
+                    loadingMessage: "Loading data..." ,
+                    noDataMessage: "No results found.",
+                    store: emptyStore
+                }, "grid");
+
                 //Create the FilterSelect box
                 var SewerSystemSearchSelect = new FilteringSelect({
                     name: "SewerSearchSelect",
-                    placeHolder: "Select Sewer System",
+                    placeHolder: "Select Pump Station",
                     store: SewerSystemStore,
-                    onChange: function(val){
+                    maxHeight: 200,
+                    onChange: lang.hitch(this, function(val){
                     SelectedSewerVal   = val
-                    document.getElementById("value").innerHTML = val;
-                    document.getElementById("displayedValue").innerHTML = this.get("displayedValue");
+                 //   document.getElementById("value").innerHTML = val;
+                //    document.getElementById("displayedValue").innerHTML = this.get("displayedValue");
 
-                }
+
+
+                        this.outFields =  ["OBJECTID", "NAME"];
+
+                        // create a feature layer
+                        var featureLayer = new FeatureLayer("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/1", {
+                            id: "systems",
+                            mode: 1,
+                            outFields: this.outFields
+                        });
+
+                        this.map.addLayer(featureLayer)
+
+                        var query = new Query();
+                        var qt = new QueryTask("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/1");
+                        query.where = "OBJECTID = '" + SelectedSewerVal + "'";
+                        query.outFields = ["OBJECTID", "NAME" ];
+                        query.returnGeometry  = false;
+
+                        qt.execute(query, lang.hitch(this, function(results){
+                            var mydata = array.map(results.features, function(feature) {
+                                return {
+                                    "id": feature.attributes[query.outFields[0]],
+                                    "name": feature.attributes[query.outFields[1]]
+                                }
+                            });
+                            var myTestStore = new Memory({ data: mydata });
+
+                            //Set Columns on Grid
+                            grid.set ("columns", {
+                                "id": "ID",
+                                "name": "Name"
+                            });
+                            grid.set("store", myTestStore)    ;
+                            grid.refresh();
+
+                            // add a click listener on the ID column
+                            grid.on(".dgrid-row:click", lang.hitch(this, this.SelectSewerSystem));
+                            //grid.set("store", SewerSystemStore)
+
+                        }));
+                } )
                 }, "SewerSearchSelect");
 
-                var SewerSearchButton = new Button({
+   /*             var SewerSearchButton = new Button({
                     name: "SewerSearchBrowse",
                     type: "button",
 
                     label: "Zoom to Selection",
                     style: "width: 300px",
-                    onClick: function(){
+                    onClick: lang.hitch(this,  function(){
+                        this.grid.destroy()})
+  *//*                  onClick: lang.hitch(this,  function(){
                         // Do something:
-                        //queryFeatureLayer
-                        //TESTING
+                        //Create Grid
                         grid = new (declare([OnDemandGrid, Selection]))({
                             // use Infinity so that all data is available in the grid
                             bufferRows: Infinity,
                             columns: {
-                                /*                     "id": "ID",
-                                 "name": "name"*/
+                                                     "id": "ID",
+                                 "name": "name"
                                 "id": "ID",
                                 "name": "Name"
-                            }
-
+                            },
+                            loadingMessage: "Loading data..."
                         }, "grid");
 
                         this.outFields =  ["OBJECTID", "NAME"];
@@ -137,7 +197,7 @@ define(["dojo/_base/declare",
                             outFields: this.outFields
                         });
 
-
+                        this.map.addLayer(featureLayer)
 
                         //var data,features, sampleData, myTestStore;
 //                var features, sampleData;
@@ -149,7 +209,7 @@ define(["dojo/_base/declare",
                         query.outFields = ["OBJECTID", "NAME" ];
                         query.returnGeometry  = false;
 
-                        qt.execute(query, function(results){
+                        qt.execute(query, lang.hitch(this, function(results){
                             var mydata = array.map(results.features, function(feature) {
                                 return {
                                     "id": feature.attributes[query.outFields[0]],
@@ -159,12 +219,15 @@ define(["dojo/_base/declare",
                             var myTestStore = new Memory({ data: mydata });
                             // myTestStore.data = DATA;
                             grid.set("store", myTestStore)    ;
+                            grid.refresh();
+                            // add a click listener on the ID column
+                            grid.on(".dgrid-row:click", lang.hitch(this, this.SelectSewerSystem));
                             //grid.set("store", SewerSystemStore)
 
-                        });
+                        }));
 
                          //-------------------TEST SAMPLE - THIS POPULATES GRID WITH SAMPLE DATA
-                  /*      var myTestStore2 = new Memory({
+                        var myTestStore2 = new Memory({
                             idProperty: "OBJECTID",
                             data: { identifier: 'OBJECTID',
                                     items: [
@@ -185,34 +248,34 @@ define(["dojo/_base/declare",
                             store: myTestStore2
                         }, "grid2");
 
-                       grid2.startup();*/
+                       grid2.startup();
                         //-------------------TEST SAMPLE - THIS POPULATES GRID WITH SAMPLE DATA
 
-                                           }                      //End On Click
+                        })                      //End On Click*//*
 
 
-                }, "SewerSearchBrowse")
+                }, "SewerSearchBrowse")*/
 
                 SewerSystemSearchSelect.startup();
-                SewerSearchButton.startup();
+               //SewerSearchButton.startup();
 
 
             }
-            , SelectSewerSystem: function(e){
-                var id = e.graphic.attributes.OBJECTID;
-                // select the feature that was clicked
+            , SelectSewerSystem:  function(e){
+                // select the feature
+                var fl = this.map.getLayer("systems");
                 var query = new Query();
-                query.objectIds = [id];
-                var systems = this.map.getLayer("systems");
-                systems.selectFeatures(query, FeatureLayer.SELECTION_NEW);
-                // select the corresponding row in the grid
-                // and make sure it is in view
-                grid.clearSelection();
-                grid.select(id);
-                grid.row(id).element.scrollIntoView();
+                query.objectIds = [parseInt(e.target.innerHTML)];
+                fl.selectFeatures(query, FeatureLayer.SELECTION_NEW, lang.hitch(this, function(result) {
+                    if ( result.length ) {
+                        // re-center the map to the selected feature
+                        this.map.centerAt(result[0].geometry.getExtent().getCenter());
+                        this.map.setExtent(result[0].geometry.getExtent());
+                    } else {
+                        console.log("Feature Layer query returned no features... ", result);
+                    }
+                }));;
             }
-
-
              /*, queryFeatureLayer: function(features) {
                 // create a feature layer
                 var featureLayer = new FeatureLayer("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/1", {

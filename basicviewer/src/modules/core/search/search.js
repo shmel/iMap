@@ -20,6 +20,8 @@ define(["dojo/_base/declare",
     "dojo/json",
     "dijit/form/FilteringSelect",
     "dojo/text!./SewerSystemsList.js",
+    "dojo/text!./Streets_AL.js",
+    "dojo/text!./Streets_MZ.js",
     "esri/layers/FeatureLayer",
     "dijit/form/Button",
     "dojo/on",
@@ -48,7 +50,7 @@ define(["dojo/_base/declare",
              language,
              array,
              domStyle, mapHandler, topic, TemplatedMixin, template,
-            Memory, json , FilteringSelect, sewersystems, FeatureLayer , Button, on, Map, Query, QueryTask,
+            Memory, json , FilteringSelect, sewersystems, streetsAL, streetsMZ, FeatureLayer , Button, on, Map, Query, QueryTask,
             OnDemandGrid, Selection, dom , filestore, dojoNum
         ){
         return declare([WidgetBase, TemplatedMixin],{
@@ -86,38 +88,59 @@ define(["dojo/_base/declare",
                 this.inherited(arguments);
                 //Get Data Store
                 // create store instance referencing data from states.json
+                //------SEWER SYSTEM / PUMP STATION
                 var SewerSystemStore = new Memory({
                     idProperty: "OBJECTID",
                     data: json.parse(sewersystems)
                 });
-
                 var SelectedSewerVal;
+
+                //------Streets A_L
+                var StreetsALStore = new Memory({
+                    idProperty: "ID",
+                    data: json.parse(streetsAL)
+                });
+                //------Streets MZ
+                var StreetsMZStore = new Memory({
+                    idProperty: "ID",
+                    data: json.parse(streetsMZ)
+                });
+                var SelectedStreetALID, SelectedStreetALVal, SelectedStreetMZID, SelectedStreetMZVal;
+
 
                 var emptyStore = new Memory({
                     idProperty: "OBJECTID",
                     data: { identifier: 'OBJECTID',
                         items: []}
                 });
+
                 //Create Grid
                 grid = new (declare([OnDemandGrid, Selection]))({
                     // use Infinity so that all data is available in the grid
                     bufferRows: Infinity,
                     columns: {
-                        "Results": "Results",
+                        "Results": "Results"
                     },
                     loadingMessage: "Loading data..." ,
                     noDataMessage: "No results found.",
                     store: emptyStore
                 }, "grid");
 
-                //Create the FilterSelect box
+                //Create the Pump Station FilterSelect box
                 var SewerSystemSearchSelect = new FilteringSelect({
                     name: "SewerSearchSelect",
+                    id: "SewerSearchSelect",
                     placeHolder: "Select Pump Station",
                     store: SewerSystemStore,
                     maxHeight: 200,
                     onChange: lang.hitch(this, function(val){
-                    SelectedSewerVal   = val
+                        SelectedSewerVal   = val
+
+                        if (SelectedSewerVal != ''){
+                            //Clear Other Drop Downs
+                            StreetALSearchSelect.reset();
+                            StreetMZSearchSelect.reset();
+
                  //   document.getElementById("value").innerHTML = val;
                 //    document.getElementById("displayedValue").innerHTML = this.get("displayedValue");
 
@@ -162,9 +185,134 @@ define(["dojo/_base/declare",
                             //grid.set("store", SewerSystemStore)
 
                         }));
-                } )
+                }} )
                 }, "SewerSearchSelect");
 
+                //Create the Street A-L Search FilterSelect box
+                var StreetALSearchSelect = new FilteringSelect({
+                    id: "StreetAL",
+                    name: "StreetALSelect",
+                    placeHolder: "Select Street A-L",
+                    store: StreetsALStore,
+                    maxHeight: 200,
+                    onChange: lang.hitch(this, function(val){
+                        SelectedStreetALID   = val     ;
+                        SelectedStreetALVal = StreetALSearchSelect.get("displayedValue")    ;
+
+                        if (SelectedStreetALVal != ''){
+                        //Clear Other Drop Downs
+                        SewerSystemSearchSelect.reset();
+                        StreetMZSearchSelect.reset();
+
+                        this.outFields =  ["STREET", "LCITY", "ZIPCODE"];
+
+                        // create a feature layer
+                        var featureLayer = new FeatureLayer("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/0", {
+                            id: "streets",
+                            mode: 1,
+                            outFields: this.outFields,
+                            maxScale: 50000
+                        });
+
+                        this.map.addLayer(featureLayer) ;
+
+
+                        var query = new Query();
+                        var qt = new QueryTask("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/0");
+                        query.where = "STREET = '" + SelectedStreetALVal + "'";
+                        query.outFields = ["STREET", "LCITY", "ZIPCODE" ];
+                        query.returnGeometry  = false;
+
+                        qt.execute(query, lang.hitch(this, function(results){
+                            var mydata = array.map(results.features, function(feature) {
+                                return {
+                                    "street": feature.attributes[query.outFields[0]],
+                                    "city": feature.attributes[query.outFields[1]],
+                                    "zipcode": feature.attributes[query.outFields[2]]
+
+                                }
+                            });
+                            var streetALStore = new Memory({ data: mydata });
+
+                            //Set Columns on Grid
+                            grid.set ("columns", {
+                                "street": "STREET",
+                                "city": "CITY",
+                                "zipcode": "ZIPCODE"
+                            });
+                            grid.set("store", streetALStore)    ;
+                            grid.refresh();
+
+                            // add a click listener on the ID column
+                            grid.on(".dgrid-row:click", lang.hitch(this, this.SelectStreet));
+                            //grid.set("store", SewerSystemStore)
+
+                        }));
+                    }} )
+                }, "Street_AL_SearchSelect");
+
+                //Create the Street M-Z Search FilterSelect box
+                var StreetMZSearchSelect = new FilteringSelect({
+                    id: "StreetMZ",
+                    name: "StreetMZSelect",
+                    placeHolder: "Select Street M-Z",
+                    store: StreetsMZStore,
+                    maxHeight: 200,
+                    onChange: lang.hitch(this, function(val){
+                        SelectedStreetMZID   = val     ;
+                        SelectedStreetMZVal = StreetMZSearchSelect.get("displayedValue")    ;
+
+                        if (SelectedStreetMZVal != ''){
+                        //Clear Other Drop Downs
+                        SewerSystemSearchSelect.reset();
+                        StreetALSearchSelect.reset();
+
+                        this.outFields =  ["STREET", "LCITY", "ZIPCODE"];
+
+                        // create a feature layer
+                        var featureLayer = new FeatureLayer("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/0", {
+                            id: "streets",
+                            mode: 1,
+                            outFields: this.outFields,
+                            maxScale: 50000
+                        });
+
+                        this.map.addLayer(featureLayer) ;
+
+
+                        var query = new Query();
+                        var qt = new QueryTask("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/0");
+                        query.where = "STREET = '" + SelectedStreetMZVal + "'";
+                        query.outFields = ["STREET", "LCITY", "ZIPCODE" ];
+                        query.returnGeometry  = false;
+
+                        qt.execute(query, lang.hitch(this, function(results){
+                            var mydata = array.map(results.features, function(feature) {
+                                return {
+                                    "street": feature.attributes[query.outFields[0]],
+                                    "city": feature.attributes[query.outFields[1]],
+                                    "zipcode": feature.attributes[query.outFields[2]]
+
+                                }
+                            });
+                            var streetMZStore = new Memory({ data: mydata });
+
+                            //Set Columns on Grid
+                            grid.set ("columns", {
+                                "street": "STREET",
+                                "city": "CITY",
+                                "zipcode": "ZIPCODE"
+                            });
+                            grid.set("store", streetMZStore)    ;
+                            grid.refresh();
+
+                            // add a click listener on the ID column
+                            grid.on(".dgrid-row:click", lang.hitch(this, this.SelectStreet));
+                            //grid.set("store", SewerSystemStore)
+
+                        }));
+                    }} )
+                }, "Street_MZ_SearchSelect");
    /*             var SewerSearchButton = new Button({
                     name: "SewerSearchBrowse",
                     type: "button",
@@ -173,7 +321,7 @@ define(["dojo/_base/declare",
                     style: "width: 300px",
                     onClick: lang.hitch(this,  function(){
                         this.grid.destroy()})
-  *//*                  onClick: lang.hitch(this,  function(){
+  /*                  onClick: lang.hitch(this,  function(){
                         // Do something:
                         //Create Grid
                         grid = new (declare([OnDemandGrid, Selection]))({
@@ -251,14 +399,14 @@ define(["dojo/_base/declare",
                        grid2.startup();
                         //-------------------TEST SAMPLE - THIS POPULATES GRID WITH SAMPLE DATA
 
-                        })                      //End On Click*//*
+                        })                      //End On Click
 
 
                 }, "SewerSearchBrowse")*/
 
                 SewerSystemSearchSelect.startup();
-               //SewerSearchButton.startup();
-
+                StreetALSearchSelect.startup();
+                StreetMZSearchSelect.startup();
 
             }
             , SelectSewerSystem:  function(e){
@@ -276,47 +424,22 @@ define(["dojo/_base/declare",
                     }
                 }));;
             }
-             /*, queryFeatureLayer: function(features) {
-                // create a feature layer
-                var featureLayer = new FeatureLayer("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/1", {
-                    outFields:["OBJECTID", "NAME"]
-                });
 
-                // create the query to fetch object IDs for SewerSystems with selected val
-                var query = new esri.tasks.Query();
-                query.where = "NAME = 'Bryans Road'";
-                query.objectIds = [features[0].attributes.OBJECTID];
-                query.outFields = [ "OBJECTID", "NAME" ];
-                featureLayer.queryFeatures(query, function(results){
-
-                var fset = results[features[0].attributes.OBJECTID];
-
-                //return an array of feature attributes to provide to the dojo data store.
-                var items = this.map(fset.features, function(feature) {
-                    return feature.attributes;
-                });
-
-                //Create data object to be used in store
-                        var data = {
-                            identifier: "OBJECTID",  //This field needs to have unique values
-                            label: "OBJECTID", //Name field for display. Not pertinent to a grid but may be used elsewhere.
-                            items: items
-                        };
-
-                //Create data store and bind to grid.
-                store = new dojo.data.ItemFileReadStore({ data:data });
-                });
-
-                // create a dgrid
-
-                var grid = new OnDemandGrid({
-                    store: data,
-                    columns:{
-                        id: {
-                            label: "ID"
-                        }
+            , SelectStreet:  function(e){
+                // select the feature
+                var fl = this.map.getLayer("streets");
+                var query = new Query();
+                //query.objectIds = [parseInt(e.target.innerHTML)];
+                query.where = "STREET = '" + (e.target.innerHTML) + "'";
+                fl.selectFeatures(query, FeatureLayer.SELECTION_NEW, lang.hitch(this, function(result) {
+                    if ( result.length ) {
+                        // re-center the map to the selected feature
+                        this.map.centerAt(result[0].geometry.getExtent().getCenter());
+                        this.map.setExtent(result[0].geometry.getExtent());
+                    } else {
+                        console.log("Feature Layer query returned no features... ", result);
                     }
-                }, "grid");
-                }*/
-                });
+                }));;
+            }
+        });
         });

@@ -41,8 +41,8 @@ define(["dojo/_base/declare", "dojox/html/entities", "dojo/_base/lang", "dojo/Ev
                     //in the lower right corner of the map. If nothing is specified then the esri logo will appear.
                     //Example customLogoImage: "http://serverapi.arcgisonline.com/jsapi/arcgis/2.4compact/images/map/logo-med.png"
                     customlogo: {
-                        image: 'assets/MDlogo-small.gif',
-                        link: 'http://www.maryland.gov/Pages/default.aspx'
+                        image: 'assets/CC_Logo.png',
+                        link: 'http://www.charlescountymd.gov/'
                     },
                     //specify the width of the panel that holds the editor, legend, details
                     leftpanewidth: '350',
@@ -70,12 +70,12 @@ define(["dojo/_base/declare", "dojox/html/entities", "dojo/_base/lang", "dojo/Ev
 
                     //*** Widgets ***
                     //Set startupwidget to one of variable names to show on startup.
-                    // To hide on startup, set startupwidget to 'none'
-                    , displaydetails: true,
+                    // To hide on startup, set startupwidget to 'none' shmel
+                    , displaydetails: false,
                     tablecontents: true,
                     displayeditor: false,
                     searchresults: true,
-                    startupwidget: 'displaydetails',
+                    startupwidget: 'tablecontents',
                     ////When editing you need to specify a proxyurl (see below) if the service is on a different domain
                     //Specify a proxy url if you will be editing, using the elevation profile or have secure services or web maps that are not shared with everyone.
                     proxyurl: "proxy.ashx",

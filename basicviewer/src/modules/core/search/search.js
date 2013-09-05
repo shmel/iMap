@@ -149,7 +149,7 @@ define(["dojo/_base/declare",
                         this.outFields =  ["OBJECTID", "NAME"];
 
                         // create a feature layer
-                        var featureLayer = new FeatureLayer("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/1", {
+                        var featureLayer = new FeatureLayer("https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/CharlesUtilities/MapServer/81", {
                             id: "systems",
                             mode: 1,
                             outFields: this.outFields
@@ -158,9 +158,10 @@ define(["dojo/_base/declare",
                         this.map.addLayer(featureLayer)
 
                         var query = new Query();
-                        var qt = new QueryTask("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/1");
+                        var qt = new QueryTask("https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/CharlesUtilities/MapServer/81");
                         query.where = "OBJECTID = '" + SelectedSewerVal + "'";
                         query.outFields = ["OBJECTID", "NAME" ];
+                        query.orderByFields = ["NAME ASC"];
                         query.returnGeometry  = false;
 
                         qt.execute(query, lang.hitch(this, function(results){
@@ -204,10 +205,10 @@ define(["dojo/_base/declare",
                         SewerSystemSearchSelect.reset();
                         StreetMZSearchSelect.reset();
 
-                        this.outFields =  ["STREET", "LCITY", "ZIPCODE"];
+                        this.outFields =  ["STREET", "LCITY", "l_zip"];
 
                         // create a feature layer
-                        var featureLayer = new FeatureLayer("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/0", {
+                        var featureLayer = new FeatureLayer("https://prod1.spatialsys.com/arcgis/rest/services/Charles/BasemapSimple/MapServer/0", {
                             id: "streets",
                             mode: 1,
                             outFields: this.outFields,
@@ -218,9 +219,10 @@ define(["dojo/_base/declare",
 
 
                         var query = new Query();
-                        var qt = new QueryTask("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/0");
+                        var qt = new QueryTask("https://prod1.spatialsys.com/arcgis/rest/services/Charles/BasemapSimple/MapServer/0");
                         query.where = "STREET = '" + SelectedStreetALVal + "'";
-                        query.outFields = ["STREET", "LCITY", "ZIPCODE" ];
+                        query.outFields = ["STREET", "LCITY", "l_zip" ];
+                        query.orderByFields = ["LCITY ASC"];
                         query.returnGeometry  = false;
 
                         qt.execute(query, lang.hitch(this, function(results){
@@ -267,10 +269,10 @@ define(["dojo/_base/declare",
                         SewerSystemSearchSelect.reset();
                         StreetALSearchSelect.reset();
 
-                        this.outFields =  ["STREET", "LCITY", "ZIPCODE"];
+                        this.outFields =  ["STREET", "LCITY", "l_zip"];
 
                         // create a feature layer
-                        var featureLayer = new FeatureLayer("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/0", {
+                        var featureLayer = new FeatureLayer("https://prod1.spatialsys.com/arcgis/rest/services/Charles/BasemapSimple/MapServer/0", {
                             id: "streets",
                             mode: 1,
                             outFields: this.outFields,
@@ -281,9 +283,10 @@ define(["dojo/_base/declare",
 
 
                         var query = new Query();
-                        var qt = new QueryTask("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/0");
+                        var qt = new QueryTask("https://prod1.spatialsys.com/arcgis/rest/services/Charles/BasemapSimple/MapServer/0");
                         query.where = "STREET = '" + SelectedStreetMZVal + "'";
-                        query.outFields = ["STREET", "LCITY", "ZIPCODE" ];
+                        query.outFields = ["STREET", "LCITY", "l_zip" ];
+                        query.orderByFields = ["LCITY ASC"];
                         query.returnGeometry  = false;
 
                         qt.execute(query, lang.hitch(this, function(results){
@@ -313,96 +316,42 @@ define(["dojo/_base/declare",
                         }));
                     }} )
                 }, "Street_MZ_SearchSelect");
-   /*             var SewerSearchButton = new Button({
-                    name: "SewerSearchBrowse",
+                var ClearSearchButton = new Button({
+                    name: "ClearResults",
                     type: "button",
-
-                    label: "Zoom to Selection",
-                    style: "width: 300px",
+                    label: "Clear Search Results",
+                    style: "width: 300px; height:25px; line-height:25px; text-align: center",
                     onClick: lang.hitch(this,  function(){
-                        this.grid.destroy()})
-  /*                  onClick: lang.hitch(this,  function(){
                         // Do something:
-                        //Create Grid
-                        grid = new (declare([OnDemandGrid, Selection]))({
-                            // use Infinity so that all data is available in the grid
-                            bufferRows: Infinity,
-                            columns: {
-                                                     "id": "ID",
-                                 "name": "name"
-                                "id": "ID",
-                                "name": "Name"
-                            },
-                            loadingMessage: "Loading data..."
-                        }, "grid");
+                      /*  for(var j = 0; j < this.map.graphicsLayerIds.length; j++) {
+                            var layer = this.map.getLayer(this.map.graphicsLayerIds[j]);
+                            //alert(layer.id + ' ' + layer.opacity + ' ' + layer.visible);
 
-                        this.outFields =  ["OBJECTID", "NAME"];
+                            if(layer.id = "systems") {
+                                this.map.removeLayer(layer)          ;
+                            } else {}
+                        }*/
 
-                        // create a feature layer
-                        var featureLayer = new FeatureLayer("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/1", {
-                            id: "systems",
-                            mode: 1,
-                            outFields: this.outFields
-                        });
+                        //Remove Layers
+                        var systemLayer = this.map.getLayer("systems");
+                        if (typeof systemLayer != 'undefined'){
+                            this.map.removeLayer(systemLayer) ;
+                        }   else {}
 
-                        this.map.addLayer(featureLayer)
+                        var streetLayer = this.map.getLayer("streets");
+                        if (typeof streetLayer != 'undefined') {
+                            this.map.removeLayer(streetLayer) ;
+                        } else {}
 
-                        //var data,features, sampleData, myTestStore;
-//                var features, sampleData;
-                        //var myTestStore = new Memory()     ;
 
-                        var query = new Query();
-                        var qt = new QueryTask("https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer/1");
-                        query.where = "OBJECTID = '" + SelectedSewerVal + "'";
-                        query.outFields = ["OBJECTID", "NAME" ];
-                        query.returnGeometry  = false;
-
-                        qt.execute(query, lang.hitch(this, function(results){
-                            var mydata = array.map(results.features, function(feature) {
-                                return {
-                                    "id": feature.attributes[query.outFields[0]],
-                                    "name": feature.attributes[query.outFields[1]]
-                                }
-                            });
-                            var myTestStore = new Memory({ data: mydata });
-                            // myTestStore.data = DATA;
-                            grid.set("store", myTestStore)    ;
-                            grid.refresh();
-                            // add a click listener on the ID column
-                            grid.on(".dgrid-row:click", lang.hitch(this, this.SelectSewerSystem));
-                            //grid.set("store", SewerSystemStore)
-
-                        }));
-
-                         //-------------------TEST SAMPLE - THIS POPULATES GRID WITH SAMPLE DATA
-                        var myTestStore2 = new Memory({
-                            idProperty: "OBJECTID",
-                            data: { identifier: 'OBJECTID',
-                                    items: [
-                                    { objectid: "123", name: 'Test1'},
-                                    { objectid: "345", name: 'Test2'},
-                                    { objectid: "456", name: 'Test3'},
-                                    { objectid: "567", name: 'Test4'},
-                                    { objectid: "678", name: 'Test5'}]}
-                        });
-
-                        // create a dgrid
-
-                        var grid2 = new OnDemandGrid({
-                            columns: {
-                                "objectid":"ID",
-                                "name": "NAME"
-                            }                 ,
-                            store: myTestStore2
-                        }, "grid2");
-
-                       grid2.startup();
-                        //-------------------TEST SAMPLE - THIS POPULATES GRID WITH SAMPLE DATA
-
+                        //Clear Selection Boxes
+                        SewerSystemSearchSelect.reset();
+                        StreetALSearchSelect.reset();
+                        StreetMZSearchSelect.reset();
+                        grid.set("store", emptyStore)    ;
+                        grid.refresh();
                         })                      //End On Click
-
-
-                }, "SewerSearchBrowse")*/
+                }, "ClearResults")
 
                 SewerSystemSearchSelect.startup();
                 StreetALSearchSelect.startup();

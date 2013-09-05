@@ -130,6 +130,7 @@ define(["dojo/_base/declare", "dojo/_base/lang", "dojo/on", "dojo/Evented", "../
                         wrapAround180: !this._AppConfig.constrainmapextent,
                         showAttribution:true, //set wraparound to false if the extent is limited.
                         logo: !this._AppConfig.customlogo.image //hide esri logo if custom logo is provided
+
                     };
                     if (mobilePop) //Set the popup to the mobile dijit, if applicable
                         options.infoWindow = mobilePop;

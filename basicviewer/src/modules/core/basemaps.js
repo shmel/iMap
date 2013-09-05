@@ -41,7 +41,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dojo/_base/lang", "dojo/topi
                 }
                 var cp = new ContentPane({
                     id: 'basemapGallery',
-                    style: "max-height:448px;width:380px;"
+                    style: "max-height:448px;max-width:380px;"
                 });
 
                 //if a bing maps key is provided - display bing maps too.

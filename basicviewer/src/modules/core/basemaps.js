@@ -4,9 +4,9 @@
  */
 define(["dojo/_base/declare", "dijit/_WidgetBase", "dojo/_base/lang", "dojo/topic", "./utilities/maphandler", "dijit/layout/ContentPane"
     , "dijit/Menu", "esri/dijit/BasemapGallery", "dijit/registry", "dojo/aspect" /*, "./custommenu"*/
-    , "dijit/form/DropDownButton", "dojo/dom", "dojo/dom-construct"],
+    , "dijit/form/DropDownButton", "dojo/dom", "dojo/dom-construct", "esri/dijit/BasemapLayer"],
     function(declare, WidgetBase, lang, topic, mapHandler, ContentPane, Menu, BasemapGallery, registry, aspect /*, custommenu*/
-        , DropDownButton, dom, domConstruct){
+        , DropDownButton, dom, domConstruct, BasemapLayer){
         return declare([WidgetBase, DropDownButton], {
             // The ESRI map object to bind to the TOC. Set in constructor
             map: null,
@@ -46,12 +46,41 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dojo/_base/lang", "dojo/topi
 
                 //if a bing maps key is provided - display bing maps too.
                 var basemapGallery = new BasemapGallery({
-                    showArcGISBasemaps: true,
+                    showArcGISBasemaps: false,
                     basemapsGroup: basemapGroup,
                     bingMapsKey: this.AppConfig.bingmapskey,
                     map: this.map
                 }, domConstruct.create('div'));
 
+                var ssaCharleslayer = new BasemapLayer({
+                    url:"https://prod1.spatialsys.com/arcgis/rest/services/Charles/Gazetteer/MapServer"
+                    //url:"https://demo3.spatialsys.com/ArcGIS/rest/services/CharlesCounty/CharlesBasemap/MapServer"
+                });
+                var ssaCharlesbasemap = new esri.dijit.Basemap({
+                    layers:[ssaCharleslayer],
+                    title:"Charles Basemap",
+                    thumbnailUrl:"assets/charles_basemap.png"
+                });
+
+
+                var mdImaplayer = new BasemapLayer({
+                    //url:"https://prod1.spatialsys.com/arcgis/rest/services/CharlesStormWater/Basemap/MapServer"
+                    url:"http://www.mdimap.us/ArcGIS/rest/services/ImageryBaseMapsEarthCover/MD.State.6InchImagery/MapServer"
+                });
+
+                var ssaCharlesOrtholayer = new BasemapLayer({
+                    //url:"https://prod1.spatialsys.com/arcgis/rest/services/CharlesStormWater/Basemap/MapServer"
+                    url:"https://prod1.spatialsys.com/arcgis/rest/services/Charles/Orthos_2011/MapServer"
+                });
+
+                var mdImapbasemap = new esri.dijit.Basemap({
+                    layers:[ssaCharlesOrtholayer, mdImaplayer],
+                    title:"iMap Orthophoto",
+                    thumbnailUrl: "assets/imap_basemap.png"
+                });
+
+                basemapGallery.add(ssaCharlesbasemap);
+                basemapGallery.add(mdImapbasemap);
                 cp.set('content', basemapGallery.domNode);
                 //Set this dropdownbutton's drop down content
                 this.dropDown = cp;

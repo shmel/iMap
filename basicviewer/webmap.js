@@ -8141,12 +8141,11 @@
     ],
         "baseMap": {
         "baseMapLayers": [{
-            "id": "OpenStreetMap",
             "opacity": 1,
             "visibility": true,
-            "type": "OpenStreetMap"
+            "url": "https://prod1.spatialsys.com/arcgis/rest/services/Charles/Gazetteer/MapServer"
         }],
-            "title": "OpenStreetMap"
+            "title": "Charles Basemap"
     },
     "version": "1.5",
         "bookmarks": [

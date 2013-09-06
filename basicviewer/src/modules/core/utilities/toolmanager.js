@@ -30,11 +30,25 @@ define(["dojo/_base/declare", "../utilities/environment", "dojo/_base/lang", "do
              * This is the place to create new buttons for new widgets. See existing displayinterop below for the best sample.*/
             , CreateTools: function () {
                 if (this._AppConfig.displayprint === "true" || this._AppConfig.displayprint == true) {
-                    require(["esri/dijit/Print"],
-                        lang.hitch(this, function(PrintDijit) {
-                            this._addPrint(PrintDijit);
-                        })
-                    );
+                   /* require(["esri/dijit/Print"],
+                     lang.hitch(this, function(PrintDijit) {
+                     this._addPrint(PrintDijit);
+                     })
+                     );*/
+                    //*** Give button a unique btnId, set title, iconClass as appropriate
+                    var btnId = 'tglbtnPrint';
+                    var btnTitle = 'Print';
+                    var btnIconClass = 'esriPrintIcon';
+                    //*** Constructor parameters object you want passed into your module
+                    //*** Provide a unique ID for the parent div of the floating panel (if applicable)
+                    var widgetParams = {
+                        floaterDivId: 'floaterPrint',
+                        AppConfig: this._AppConfig
+                    };
+                    //*** The relative path to your module
+                    var modulePath = "../print/print";
+
+                    this._CreateToolButton(widgetParams, btnId, btnTitle, btnIconClass, modulePath, true);
                 }
 
                 //The measure tool with options in a floating pane - there is a bug in measure with the floating pane

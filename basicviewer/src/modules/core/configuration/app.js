@@ -85,7 +85,9 @@ define(["dojo/_base/declare", "dojox/html/entities", "dojo/_base/lang", "dojo/Ev
                     displaytimeslider: true,
                     //Print options - Default is to not display on mobile devices, but can be overriden manually or in AGO
                     displayprint: !(environment.TouchEnabled),
-                    printtask: "http://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task",
+                    printtask: "https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/HighQualityPrinting/GPServer/HighQualityPrinting", //SS
+                    printtemplatesfolder: "D:\\CharlesCountyUtilities\\GPTools\\ExportMapTemplates",    //SS
+                    //Set the label in the nls file for your browsers language (basicviewer PrintWidget only)
                     //Set the label in the nls file for your browsers language
                     printlayouts: [{
                         layout: 'Letter ANSI A Landscape',

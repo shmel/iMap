@@ -317,7 +317,7 @@ body {
     margin: 4px 0 4px 4px;
 }
 .esriPrint .dijitComboButton .dijitIcon{
-    background-image:url(../../assets/toolbar/Print.PNG);
+    background-image:url(../../assets/toolbar/PrintButton.PNG);
     background-repeat:no-repeat;
     display:inline-block;
     height:48px;
@@ -325,7 +325,7 @@ body {
     margin:4px -7px 4px 4px;
 }
 .esriPrintIcon{
-    background-image:url(../../assets/toolbar/Print.PNG);
+    background-image:url(../../assets/toolbar/PrintButton.PNG);
     background-repeat:no-repeat;
     display:inline-block;
     height:48px;
@@ -674,8 +674,16 @@ div#editDiv.templatePicker .grid  .selectedItem {
     margin-right: 15px;
     padding-top: 8px;
 }
-.claro .dijitButtonText{
+/*.claro .dijitButtonText{
     display: none !important;
+}*/
+
+span#basemapBtn_label.dijitReset.dijitInline.dijitButtonText{
+    padding: 0;
+}
+
+div#dijit_form_ComboButton_0_label .dijitReset .dijitInline .dijitButtonText{
+    display:none !important;
 }
 
 .esriGeocoderContainer{

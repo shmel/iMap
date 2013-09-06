@@ -5,6 +5,8 @@
 
 #ClearResults_label{
     display: block !important;
+    height:25px;
+    line-height:25px;
 }
 
 #grid {

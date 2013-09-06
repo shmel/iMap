@@ -689,3 +689,10 @@ div#editDiv.templatePicker .grid  .selectedItem {
 .claro .dijitSplitterV .dijitSplitterThumb {
     left: 4px;
 }
+
+#dijit_form_Button_0_label{
+    display: block !important;
+}
+#dijit_form_Button_1_label{
+    display: block !important;
+}

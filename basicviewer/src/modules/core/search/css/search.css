@@ -15,5 +15,8 @@
 
 #grid .dgrid-row-odd {
     background: #F2F5F9;}
+.dgrid-row {cursor: pointer; }
 .field-id { cursor: pointer; }
-.field-street { cursor: pointer; }
+.dgrid-column-id {
+    width: 4em;
+}

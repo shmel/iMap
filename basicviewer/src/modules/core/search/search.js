@@ -50,8 +50,8 @@ define(["dojo/_base/declare",
              language,
              array,
              domStyle, mapHandler, topic, TemplatedMixin, template,
-            Memory, json , FilteringSelect, sewersystems, streetsAL, streetsMZ, FeatureLayer , Button, on, Map, Query, QueryTask,
-            OnDemandGrid, Selection, dom , filestore, dojoNum
+             Memory, json , FilteringSelect, sewersystems, streetsAL, streetsMZ, FeatureLayer , Button, on, Map, Query, QueryTask,
+             OnDemandGrid, Selection, dom , filestore, dojoNum
         ){
         return declare([WidgetBase, TemplatedMixin],{
             //*** Properties needed for this style of module
@@ -141,52 +141,55 @@ define(["dojo/_base/declare",
                             StreetALSearchSelect.reset();
                             StreetMZSearchSelect.reset();
 
-                 //   document.getElementById("value").innerHTML = val;
-                //    document.getElementById("displayedValue").innerHTML = this.get("displayedValue");
+                            this.ClearLayers;
+                            //   document.getElementById("value").innerHTML = val;
+                            //    document.getElementById("displayedValue").innerHTML = this.get("displayedValue");
 
 
 
-                        this.outFields =  ["OBJECTID", "NAME"];
+                            this.outFields =  ["OBJECTID", "NAME"];
 
-                        // create a feature layer
-                        var featureLayer = new FeatureLayer("https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/CharlesUtilities/MapServer/81", {
-                            id: "systems",
-                            mode: 1,
-                            outFields: this.outFields
-                        });
-
-                        this.map.addLayer(featureLayer)
-
-                        var query = new Query();
-                        var qt = new QueryTask("https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/CharlesUtilities/MapServer/81");
-                        query.where = "OBJECTID = '" + SelectedSewerVal + "'";
-                        query.outFields = ["OBJECTID", "NAME" ];
-                        query.orderByFields = ["NAME ASC"];
-                        query.returnGeometry  = false;
-
-                        qt.execute(query, lang.hitch(this, function(results){
-                            var mydata = array.map(results.features, function(feature) {
-                                return {
-                                    "id": feature.attributes[query.outFields[0]],
-                                    "name": feature.attributes[query.outFields[1]]
-                                }
+                            // create a feature layer
+                            var featureLayer = new FeatureLayer("https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/CharlesUtilities/MapServer/81", {
+                                id: "systems",
+                                mode: 1,
+                                outFields: this.outFields
                             });
-                            var myTestStore = new Memory({ data: mydata });
 
-                            //Set Columns on Grid
-                            grid.set ("columns", {
-                                "id": "ID",
-                                "name": "Name"
-                            });
-                            grid.set("store", myTestStore)    ;
-                            grid.refresh();
+                            this.map.addLayer(featureLayer)
 
-                            // add a click listener on the ID column
-                            grid.on(".dgrid-row:click", lang.hitch(this, this.SelectSewerSystem));
-                            //grid.set("store", SewerSystemStore)
+                            var query = new Query();
+                            var qt = new QueryTask("https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/CharlesUtilities/MapServer/81");
+                            var random = (new Date()).getTime(); //Fix for 10.1 Bug NIM086349
+                            query.where = "OBJECTID = " + SelectedSewerVal + " AND " + random + "=" + random;
+                            //query.objectIds = SelectedSewerVal;
+                            query.outFields = ["OBJECTID", "NAME" ];
+                            query.orderByFields = ["NAME ASC"];
+                            query.returnGeometry  = false;
 
-                        }));
-                }} )
+                            qt.execute(query, lang.hitch(this, function(results){
+                                var mydata = array.map(results.features, function(feature) {
+                                    return {
+                                        "id": feature.attributes[query.outFields[0]],
+                                        "name": feature.attributes[query.outFields[1]]
+                                    }
+                                });
+                                var myTestStore = new Memory({ data: mydata });
+
+                                //Set Columns on Grid
+                                grid.set ("columns", {
+                                    "id": "ID",
+                                    "name": "Name"
+                                });
+                                grid.set("store", myTestStore)    ;
+                                grid.refresh();
+
+                                // add a click listener on the ID column
+                                grid.on(".dgrid-row:click", lang.hitch(this, this.SelectSewerSystem));
+                                //grid.set("store", SewerSystemStore)
+
+                            }));
+                        }} )
                 }, "SewerSearchSelect");
 
                 //Create the Street A-L Search FilterSelect box
@@ -201,56 +204,64 @@ define(["dojo/_base/declare",
                         SelectedStreetALVal = StreetALSearchSelect.get("displayedValue")    ;
 
                         if (SelectedStreetALVal != ''){
-                        //Clear Other Drop Downs
-                        SewerSystemSearchSelect.reset();
-                        StreetMZSearchSelect.reset();
+                            //Clear Other Drop Downs
+                            SewerSystemSearchSelect.reset();
+                            StreetMZSearchSelect.reset();
 
-                        this.outFields =  ["STREET", "LCITY", "l_zip"];
+                            var systemLayer = this.map.getLayer("systems");
+                            if (typeof systemLayer != 'undefined'){
+                                this.map.removeLayer(systemLayer) ;
+                            }   else {}
 
-                        // create a feature layer
-                        var featureLayer = new FeatureLayer("https://prod1.spatialsys.com/arcgis/rest/services/Charles/BasemapSimple/MapServer/0", {
-                            id: "streets",
-                            mode: 1,
-                            outFields: this.outFields,
-                            maxScale: 50000
-                        });
+                            this.outFields =  ["OBJECTID", "STREET", "LCITY", "l_zip"];
 
-                        this.map.addLayer(featureLayer) ;
-
-
-                        var query = new Query();
-                        var qt = new QueryTask("https://prod1.spatialsys.com/arcgis/rest/services/Charles/BasemapSimple/MapServer/0");
-                        query.where = "STREET = '" + SelectedStreetALVal + "'";
-                        query.outFields = ["STREET", "LCITY", "l_zip" ];
-                        query.orderByFields = ["LCITY ASC"];
-                        query.returnGeometry  = false;
-
-                        qt.execute(query, lang.hitch(this, function(results){
-                            var mydata = array.map(results.features, function(feature) {
-                                return {
-                                    "street": feature.attributes[query.outFields[0]],
-                                    "city": feature.attributes[query.outFields[1]],
-                                    "zipcode": feature.attributes[query.outFields[2]]
-
-                                }
+                            // create a feature layer
+                            var featureLayer = new FeatureLayer("https://prod1.spatialsys.com/arcgis/rest/services/Charles/BasemapSimple/MapServer/0", {
+                                id: "streets",
+                                mode: 1,
+                                outFields: this.outFields,
+                                maxScale: 50000
                             });
-                            var streetALStore = new Memory({ data: mydata });
 
-                            //Set Columns on Grid
-                            grid.set ("columns", {
-                                "street": "STREET",
-                                "city": "CITY",
-                                "zipcode": "ZIPCODE"
-                            });
-                            grid.set("store", streetALStore)    ;
-                            grid.refresh();
+                            this.map.addLayer(featureLayer) ;
 
-                            // add a click listener on the ID column
-                            grid.on(".dgrid-row:click", lang.hitch(this, this.SelectStreet));
-                            //grid.set("store", SewerSystemStore)
 
-                        }));
-                    }} )
+                            var query = new Query();
+                            var qt = new QueryTask("https://prod1.spatialsys.com/arcgis/rest/services/Charles/BasemapSimple/MapServer/0");
+                            var random = (new Date()).getTime(); //Fix for 10.1 Bug NIM086349
+                            query.where = "STREET = '" + SelectedStreetALVal + "'" + " AND " + random + "=" + random;
+                            query.outFields = ["OBJECTID", "STREET", "LCITY", "l_zip" ];
+                            query.orderByFields = ["LCITY ASC"];
+                            query.returnGeometry  = false;
+
+                            qt.execute(query, lang.hitch(this, function(results){
+                                var mydata = array.map(results.features, function(feature) {
+                                    return {
+                                        "id": feature.attributes[query.outFields[0]],
+                                        "street": feature.attributes[query.outFields[1]],
+                                        "city": feature.attributes[query.outFields[2]],
+                                        "zipcode": feature.attributes[query.outFields[3]]
+
+                                    }
+                                });
+                                var streetALStore = new Memory({ data: mydata });
+
+                                //Set Columns on Grid
+                                grid.set ("columns", {
+                                    "id": "ID",
+                                    "street": "STREET",
+                                    "city": "CITY",
+                                    "zipcode": "ZIPCODE"
+                                });
+                                grid.set("store", streetALStore)    ;
+                                grid.refresh();
+
+                                // add a click listener on the ID column
+                                grid.on(".dgrid-row:click", lang.hitch(this, this.SelectStreet));
+                                //grid.set("store", SewerSystemStore)
+
+                            }));
+                        }} )
                 }, "Street_AL_SearchSelect");
 
                 //Create the Street M-Z Search FilterSelect box
@@ -265,56 +276,64 @@ define(["dojo/_base/declare",
                         SelectedStreetMZVal = StreetMZSearchSelect.get("displayedValue")    ;
 
                         if (SelectedStreetMZVal != ''){
-                        //Clear Other Drop Downs
-                        SewerSystemSearchSelect.reset();
-                        StreetALSearchSelect.reset();
+                            //Clear Other Drop Downs
+                            SewerSystemSearchSelect.reset();
+                            StreetALSearchSelect.reset();
 
-                        this.outFields =  ["STREET", "LCITY", "l_zip"];
+                            var systemLayer = this.map.getLayer("systems");
+                            if (typeof systemLayer != 'undefined'){
+                                this.map.removeLayer(systemLayer) ;
+                            }   else {}
 
-                        // create a feature layer
-                        var featureLayer = new FeatureLayer("https://prod1.spatialsys.com/arcgis/rest/services/Charles/BasemapSimple/MapServer/0", {
-                            id: "streets",
-                            mode: 1,
-                            outFields: this.outFields,
-                            maxScale: 50000
-                        });
+                            this.outFields =  ["OBJECTID", "STREET", "LCITY", "l_zip"];
 
-                        this.map.addLayer(featureLayer) ;
-
-
-                        var query = new Query();
-                        var qt = new QueryTask("https://prod1.spatialsys.com/arcgis/rest/services/Charles/BasemapSimple/MapServer/0");
-                        query.where = "STREET = '" + SelectedStreetMZVal + "'";
-                        query.outFields = ["STREET", "LCITY", "l_zip" ];
-                        query.orderByFields = ["LCITY ASC"];
-                        query.returnGeometry  = false;
-
-                        qt.execute(query, lang.hitch(this, function(results){
-                            var mydata = array.map(results.features, function(feature) {
-                                return {
-                                    "street": feature.attributes[query.outFields[0]],
-                                    "city": feature.attributes[query.outFields[1]],
-                                    "zipcode": feature.attributes[query.outFields[2]]
-
-                                }
+                            // create a feature layer
+                            var featureLayer = new FeatureLayer("https://prod1.spatialsys.com/arcgis/rest/services/Charles/BasemapSimple/MapServer/0", {
+                                id: "streets",
+                                mode: 1,
+                                outFields: this.outFields,
+                                maxScale: 50000
                             });
-                            var streetMZStore = new Memory({ data: mydata });
 
-                            //Set Columns on Grid
-                            grid.set ("columns", {
-                                "street": "STREET",
-                                "city": "CITY",
-                                "zipcode": "ZIPCODE"
-                            });
-                            grid.set("store", streetMZStore)    ;
-                            grid.refresh();
+                            this.map.addLayer(featureLayer) ;
 
-                            // add a click listener on the ID column
-                            grid.on(".dgrid-row:click", lang.hitch(this, this.SelectStreet));
-                            //grid.set("store", SewerSystemStore)
 
-                        }));
-                    }} )
+                            var query = new Query();
+                            var qt = new QueryTask("https://prod1.spatialsys.com/arcgis/rest/services/Charles/BasemapSimple/MapServer/0");
+                            var random = (new Date()).getTime(); //Fix for 10.1 Bug NIM086349
+                            query.where = "STREET = '" + SelectedStreetMZVal + "'" + " AND " + random + "=" + random;
+                            query.outFields = ["OBJECTID", "STREET", "LCITY", "l_zip" ];
+                            query.orderByFields = ["LCITY ASC"];
+                            query.returnGeometry  = false;
+
+                            qt.execute(query, lang.hitch(this, function(results){
+                                var mydata = array.map(results.features, function(feature) {
+                                    return {
+                                        "id": feature.attributes[query.outFields[0]],
+                                        "street": feature.attributes[query.outFields[1]],
+                                        "city": feature.attributes[query.outFields[2]],
+                                        "zipcode": feature.attributes[query.outFields[3]]
+                                    }
+                                });
+                                var streetMZStore = new Memory({ data: mydata });
+
+                                //Set Columns on Grid
+                                grid.set ("columns", {
+                                    "id": "ID",
+                                    "street": "STREET",
+                                    "city": "CITY",
+                                    "zipcode": "ZIPCODE"
+                                });
+
+                                grid.set("store", streetMZStore)    ;
+                                grid.refresh();
+
+                                // add a click listener on the ID column
+                                grid.on(".dgrid-row:click", lang.hitch(this, this.SelectStreet));
+                                //grid.set("store", SewerSystemStore)
+
+                            }));
+                        }} )
                 }, "Street_MZ_SearchSelect");
                 var ClearSearchButton = new Button({
                     name: "ClearResults",
@@ -323,25 +342,17 @@ define(["dojo/_base/declare",
                     style: "width: 300px; height:25px; line-height:25px; text-align: center",
                     onClick: lang.hitch(this,  function(){
                         // Do something:
-                      /*  for(var j = 0; j < this.map.graphicsLayerIds.length; j++) {
-                            var layer = this.map.getLayer(this.map.graphicsLayerIds[j]);
-                            //alert(layer.id + ' ' + layer.opacity + ' ' + layer.visible);
+                        /*  for(var j = 0; j < this.map.graphicsLayerIds.length; j++) {
+                         var layer = this.map.getLayer(this.map.graphicsLayerIds[j]);
+                         //alert(layer.id + ' ' + layer.opacity + ' ' + layer.visible);
 
-                            if(layer.id = "systems") {
-                                this.map.removeLayer(layer)          ;
-                            } else {}
-                        }*/
+                         if(layer.id = "systems") {
+                         this.map.removeLayer(layer)          ;
+                         } else {}
+                         }*/
 
                         //Remove Layers
-                        var systemLayer = this.map.getLayer("systems");
-                        if (typeof systemLayer != 'undefined'){
-                            this.map.removeLayer(systemLayer) ;
-                        }   else {}
-
-                        var streetLayer = this.map.getLayer("streets");
-                        if (typeof streetLayer != 'undefined') {
-                            this.map.removeLayer(streetLayer) ;
-                        } else {}
+                        this.ClearLayers();
 
 
                         //Clear Selection Boxes
@@ -350,7 +361,7 @@ define(["dojo/_base/declare",
                         StreetMZSearchSelect.reset();
                         grid.set("store", emptyStore)    ;
                         grid.refresh();
-                        })                      //End On Click
+                    })                      //End On Click
                 }, "ClearResults")
 
                 SewerSystemSearchSelect.startup();
@@ -361,25 +372,47 @@ define(["dojo/_base/declare",
             , SelectSewerSystem:  function(e){
                 // select the feature
                 var fl = this.map.getLayer("systems");
+                if (typeof fl != 'undefined'){
+
                 var query = new Query();
-                query.objectIds = [parseInt(e.target.innerHTML)];
-                fl.selectFeatures(query, FeatureLayer.SELECTION_NEW, lang.hitch(this, function(result) {
-                    if ( result.length ) {
+//              query.objectIds = [parseInt(e.target.innerHTML)];
+                query.objectIds = [parseInt(e.target.parentElement.firstChild.innerHTML)];
+
+
+
+                //query.where = "OBJECTID = '" + [parseInt(e.target.innerHTML)] + "'";
+                //query.returnGeometry = true;
+                fl.queryFeatures(query,  lang.hitch(this, function(result) {
+                    if ( result.features.length ) {
                         // re-center the map to the selected feature
-                        this.map.centerAt(result[0].geometry.getExtent().getCenter());
-                        this.map.setExtent(result[0].geometry.getExtent());
+                        this.map.centerAt(result.features[0].geometry.getExtent().getCenter());
+                        this.map.setExtent(result.features[0].geometry.getExtent());
                     } else {
                         console.log("Feature Layer query returned no features... ", result);
                     }
                 }));;
+                }   else {}
+            }
+            , ClearLayers: function(){
+                //Remove Layers
+                var systemLayer = this.map.getLayer("systems");
+                if (typeof systemLayer != 'undefined'){
+                    this.map.removeLayer(systemLayer) ;
+                }   else {}
+
+                var streetLayer = this.map.getLayer("streets");
+                if (typeof streetLayer != 'undefined') {
+                    this.map.removeLayer(streetLayer) ;
+                } else {}
             }
 
             , SelectStreet:  function(e){
                 // select the feature
                 var fl = this.map.getLayer("streets");
+                if (typeof fl != 'undefined'){
                 var query = new Query();
-                //query.objectIds = [parseInt(e.target.innerHTML)];
-                query.where = "STREET = '" + (e.target.innerHTML) + "'";
+                query.objectIds = [parseInt(e.target.parentElement.firstChild.innerHTML)];
+                //query.where = "STREET = '" + (e.target.innerHTML) + "'";
                 fl.selectFeatures(query, FeatureLayer.SELECTION_NEW, lang.hitch(this, function(result) {
                     if ( result.length ) {
                         // re-center the map to the selected feature
@@ -389,6 +422,7 @@ define(["dojo/_base/declare",
                         console.log("Feature Layer query returned no features... ", result);
                     }
                 }));;
+                }   else {}
             }
         });
-        });
+    });

@@ -322,7 +322,7 @@ body {
     display:inline-block;
     height:48px;
     width:48px;
-    margin:4px -7px 4px 4px;
+    margin:4px 0px 4px 4px;
 }
 .esriPrintIcon{
     background-image:url(../../assets/toolbar/PrintButton.PNG);
@@ -330,7 +330,7 @@ body {
     display:inline-block;
     height:48px;
     width:48px;
-    margin:4px -7px 4px 4px;
+    margin:4px 0px 4px 4px;
 }
 
 .esriPrint .dijitArrowButtonInner{

@@ -212,7 +212,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
 	            }
 	            //this.rootLayerTOC._layerWidgets.push(this);
 	        },
-	        _createLegendNode: function(rendLeg) {
+	        _OLDcreateLegendNode: function(rendLeg) {
 	            //{label:, url: , imageData}
 	            // here we use a pre-defined rule: if there is a definition expression we will make this layer's unique value on/off
 	            // note, there is a bug in ArcGIS server (as of 10.01) if the service expession has "OR", the request expression has no effect
@@ -237,6 +237,23 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
 	            this.labelNode.appendChild(document.createTextNode(rendLeg.label));
 	
 	        },
+
+            _createLegendNode: function(rendLeg){
+                this._noCheckNode = true;
+                dojo.destroy(this.containerNode);
+                dojo.addClass(this.labelNode, 'agsjsTOCLegendLabel');
+                this._setIconNode(rendLeg, this.iconNode, this);
+                var label = rendLeg.label;
+                if (rendLeg.label === undefined) {
+                    if (rendLeg.value !== undefined) {
+                        label = rendLeg.value;
+                    }
+                    if (rendLeg.maxValue !== undefined) {
+                        label = '' + rendLeg.minValue + ' - ' + rendLeg.maxValue;
+                    }
+                }
+                this.labelNode.appendChild(document.createTextNode(label));
+            },
 	        // set url or replace node
 	        _setIconNode: function(rendLeg, iconNode, tocNode) {
 	            var src = this._getLegendIconUrl(rendLeg);
@@ -378,9 +395,11 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
 	        _onClick: function(evt) {
 	
 	            var t = evt.target;
+                var lay;
 	            if (t == this.checkNode || dijit.getEnclosingWidget(t) == this.checkNode) {
 	                if (this.legend) {
-	                    // this is a check legend
+	                   /* // this is a check legend
+                        //2013-07-23: do not deal with checkbox legend any more.
 	                    var renderer = this.layer.renderer;
 	                    this.legend.visible = this.checkNode.checked;
 	                    var def = [];
@@ -414,7 +433,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
 	                            this.layer.visible = true;
 	                            this.layer._definitionExpression = renderer.attributeField + ' IN (' + def.join(',') + ')';// def.join(' OR ');
 	                        }
-	                    }
+	                    }*/
 	
 	                    this.rootLayer.setVisibleLayers(this._getVisibleLayers(), true);
 	                    this.rootLayer.setLayerDefinitions(this._getLayerDefs(), true);
@@ -423,27 +442,41 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
 	                    this.layer.visible = this.checkNode && this.checkNode.checked;
 	
 	                    // if a sublayer is checked on, force it's group layer to be on.
-	                    if (this.layer._parentLayerInfo && !this.layer._parentLayerInfo.visible) {
+/*	                    if (this.layer._parentLayerInfo && !this.layer._parentLayerInfo.visible) {
 	                        this.layer._parentLayerInfo.visible = true;
-	                    }
+	                    }*/
+                        // if a sublayer is checked on, force it's group layer to be on.
+                        // 2013-08-01 handler multiple level of groups
+                        if (this.layer.visible) {
+                            lay = this.layer;
+                            while (lay._parentLayerInfo) {
+                                if (!lay._parentLayerInfo.visible) {
+                                    lay._parentLayerInfo.visible = true;
+                                }
+                                lay = lay._parentLayerInfo;
+                            }
+                        }
 	                    // if a layer is on, it's service must be on.
 	                    if (this.layer.visible && !this.rootLayer.visible) {
 	                        this.rootLayer.show();//.visible = true;
 	                    }
 	                    if (this.layer._subLayerInfos) {
 	                        // this is a group layer;
-	                        dojo.forEach(this.layer._subLayerInfos, function(info) {
+/*	                        dojo.forEach(this.layer._subLayerInfos, function(info) {
 	                            info.visible = this.layer.visible;
-	                        }, this);
+	                        }, this);*/
+                            // 2013-08-01 handler multiple level of groups
+                            this._setSubLayerVisibilitiesFromGroup(this.layer);
 	                    }
-	                    if (this.layer.renderer) {
+                        /* 2013-07-23: do not deal with checkbox legend any more.*/
+/*	                    if (this.layer.renderer) {
 	                        dojo.forEach(this.layer.renderer.infos, function(info) {
 	
 	                            info.visible = this.layer.visible;
 	
 	                        }, this);
 	                        this.layer._definitionExpression = '';
-	                    }
+	                    }*/
 	                    this.rootLayer.setLayerDefinitions(this._getLayerDefs(), true);
 	                    this.rootLayer.setVisibleLayers(this._getVisibleLayers(), true);
 	                    this.rootLayerTOC._refreshLayer();
@@ -480,6 +513,17 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                 }
             },
             //end test
+            _setSubLayerVisibilitiesFromGroup: function(lay){
+                if (lay._subLayerInfos && lay._subLayerInfos.length > 0 ){
+                    dojo.forEach(lay._subLayerInfos, function(info){
+                        info.visible = lay.visible;
+                        if (info._subLayerInfos && info._subLayerInfos.length > 0){
+                            this._setSubLayerVisibilitiesFromGroup(info);
+                        }
+                    }, this);
+                }
+            },
+
 
 	        _getVisibleLayers: function() {
 	            var vis = [];

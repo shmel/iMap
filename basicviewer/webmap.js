@@ -94,6 +94,7 @@
             "visibility": true,
             "visibleLayers": [
                 0,
+				1,
                 2,
                 3,
                 4,
@@ -102,6 +103,7 @@
                 7,
                 8,
                 9,
+				10,
                 11,
                 12,
                 13,
@@ -127,11 +129,16 @@
                 33,
                 34,
                 35,
+				36,
+				37,
+				38,
+				39,
                 40,
                 41,
                 42,
                 43,
                 44,
+				45,
                 46,
                 47,
                 48,
@@ -157,6 +164,9 @@
                 71,
                 72,
                 73,
+				74,
+				75,
+				76,
                 77,
                 78,
                 79,
@@ -1901,16 +1911,6 @@
                                 "label": "SHAPE",
                                 "isEditable": false,
                                 "visible": false
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
                             }
                         ],
                         "description": null,
@@ -2110,26 +2110,7 @@
                                 "isEditable": false,
                                 "visible": false
                             },
-                            {
-                                "fieldName": "SHAPE.AREA",
-                                "label": "SHAPE.AREA",
-                                "isEditable": false,
-                                "visible": false,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            }
+
                         ],
                         "description": null,
                         "showAttachments": false,
@@ -2320,26 +2301,6 @@
                                 "label": "SHAPE",
                                 "isEditable": false,
                                 "visible": false
-                            },
-                            {
-                                "fieldName": "SHAPE.AREA",
-                                "label": "SHAPE.AREA",
-                                "isEditable": false,
-                                "visible": false,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
                             }
                         ],
                         "description": null,
@@ -7243,16 +7204,6 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
                                 "fieldName": "SYSTEMCODE",
                                 "label": "System Code",
                                 "isEditable": false,
@@ -7522,16 +7473,6 @@
                                 "isEditable": false,
                                 "visible": true,
                                 "stringFieldOption": "textbox"
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
                             },
                             {
                                 "fieldName": "SYSTEMCODE",
@@ -7805,16 +7746,6 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
                                 "fieldName": "SYSTEMCODE",
                                 "label": "System Code",
                                 "isEditable": false,
@@ -8014,16 +7945,6 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
                                 "fieldName": "SYSTEMCODE",
                                 "label": "System Code",
                                 "isEditable": false,
@@ -8216,16 +8137,6 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
                                 "fieldName": "SYSTEMCODE",
                                 "label": "System Code",
                                 "isEditable": false,
@@ -8410,26 +8321,6 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE.AREA",
-                                "label": "SHAPE.AREA",
-                                "isEditable": false,
-                                "visible": false,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
                                 "fieldName": "SYSTEMCODE",
                                 "label": "System Code",
                                 "isEditable": false,
@@ -8602,26 +8493,6 @@
                                 "isEditable": false,
                                 "visible": true,
                                 "stringFieldOption": "textbox"
-                            },
-                            {
-                                "fieldName": "SHAPE.AREA",
-                                "label": "SHAPE.AREA",
-                                "isEditable": false,
-                                "visible": false,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
                             },
                             {
                                 "fieldName": "SYSTEMCODE",
@@ -8866,26 +8737,6 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE.AREA",
-                                "label": "SHAPE.AREA",
-                                "isEditable": false,
-                                "visible": false,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
                                 "fieldName": "SYSTEMCODE",
                                 "label": "System Code",
                                 "isEditable": false,
@@ -9085,26 +8936,6 @@
                                 "isEditable": false,
                                 "visible": true,
                                 "stringFieldOption": "textbox"
-                            },
-                            {
-                                "fieldName": "SHAPE.AREA",
-                                "label": "SHAPE.AREA",
-                                "isEditable": false,
-                                "visible": false,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
                             },
                             {
                                 "fieldName": "SYSTEMCODE",
@@ -12940,16 +12771,6 @@
                                 }
                             },
                             {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
                                 "fieldName": "SYSTEMCODE",
                                 "label": "System Code",
                                 "isEditable": false,
@@ -13220,16 +13041,6 @@
                                 "visible": true,
                                 "format": {
                                     "places": 0,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
                                     "digitSeparator": true
                                 }
                             },
@@ -13508,16 +13319,6 @@
                                 }
                             },
                             {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
                                 "fieldName": "SYSTEMCODE",
                                 "label": "System Code",
                                 "isEditable": false,
@@ -13708,16 +13509,6 @@
                                 "isEditable": false,
                                 "visible": true,
                                 "stringFieldOption": "textbox"
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
                             },
                             {
                                 "fieldName": "SYSTEMCODE",
@@ -13912,16 +13703,6 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
                                 "fieldName": "SYSTEMCODE",
                                 "label": "System Code",
                                 "isEditable": false,
@@ -14112,16 +13893,6 @@
                                 "label": "SHAPE",
                                 "isEditable": false,
                                 "visible": false
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
                             },
                             {
                                 "fieldName": "SYSTEMCODE",
@@ -14494,16 +14265,6 @@
                                 "visible": true,
                                 "format": {
                                     "places": 0,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
                                     "digitSeparator": true
                                 }
                             },
@@ -14882,16 +14643,6 @@
                                 }
                             },
                             {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
                                 "fieldName": "SYSTEMCODE",
                                 "label": "System Code",
                                 "isEditable": false,
@@ -15262,16 +15013,6 @@
                                 "visible": true,
                                 "format": {
                                     "places": 0,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
                                     "digitSeparator": true
                                 }
                             },
@@ -15650,16 +15391,6 @@
                                 }
                             },
                             {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
                                 "fieldName": "SYSTEMCODE",
                                 "label": "System Code",
                                 "isEditable": false,
@@ -15902,26 +15633,6 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE.AREA",
-                                "label": "SHAPE.AREA",
-                                "isEditable": false,
-                                "visible": false,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
                                 "fieldName": "SYSTEMCODE",
                                 "label": "System Code",
                                 "isEditable": false,
@@ -16094,26 +15805,6 @@
                                 "isEditable": false,
                                 "visible": true,
                                 "stringFieldOption": "textbox"
-                            },
-                            {
-                                "fieldName": "SHAPE.AREA",
-                                "label": "SHAPE.AREA",
-                                "isEditable": false,
-                                "visible": false,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
                             },
                             {
                                 "fieldName": "SYSTEMCODE",
@@ -16305,26 +15996,6 @@
                                 "isEditable": false,
                                 "visible": true,
                                 "stringFieldOption": "textbox"
-                            },
-                            {
-                                "fieldName": "SHAPE.AREA",
-                                "label": "SHAPE.AREA",
-                                "isEditable": false,
-                                "visible": false,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
                             },
                             {
                                 "fieldName": "SYSTEMCODE",
@@ -16525,26 +16196,6 @@
                                 }
                             },
                             {
-                                "fieldName": "SHAPE.AREA",
-                                "label": "SHAPE.AREA",
-                                "isEditable": false,
-                                "visible": false,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
-                                "fieldName": "SHAPE.LEN",
-                                "label": "SHAPE.LEN",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
-                                }
-                            },
-                            {
                                 "fieldName": "SYSTEMCODE",
                                 "label": "System Code",
                                 "isEditable": false,
@@ -16570,73 +16221,300 @@
                 {
                     "id": 80,
                     "popupInfo": {
-                        "title": "Parcel Poly: {LOT}",
+                        "title": "Parcel Poly: {ADDRESS}",
                         "fieldInfos": [
                             {
-                                "fieldName": "OBJECTID",
-                                "label": "OBJECTID",
-                                "isEditable": false,
-                                "visible": false
+                                "fieldName":"OBJECTID",
+                                "label":"OBJECTID",
+                                "isEditable":false,
+                                "visible":false
                             },
                             {
-                                "fieldName": "SHAPE",
-                                "label": "SHAPE",
-                                "isEditable": false,
-                                "visible": false
+                                "fieldName":"LOT",
+                                "label":"LOT",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
                             },
                             {
-                                "fieldName": "LOT",
-                                "label": "LOT",
-                                "isEditable": false,
-                                "visible": true,
-                                "stringFieldOption": "textbox"
+                                "fieldName":"ACCTID",
+                                "label":"ACCTID",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
                             },
                             {
-                                "fieldName": "SQ_FT",
-                                "label": "SQ_FT",
-                                "isEditable": false,
-                                "visible": true,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
+                                "fieldName":"FCODE",
+                                "label":"FCODE",
+                                "isEditable":false,
+                                "visible":true,
+                                "format":{
+                                    "places":0,
+                                    "digitSeparator":true
                                 }
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
-                                "isEditable": false,
-                                "visible": false,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
+                                "fieldName":"COMP_CODE",
+                                "label":"COMP_CODE",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"PLAT_REF",
+                                "label":"PLAT_REF",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"ADDRESS",
+                                "label":"ADDRESS",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"STRTNUM",
+                                "label":"STRTNUM",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"STRTDIR",
+                                "label":"STRTDIR",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"STRTNAM",
+                                "label":"STRTNAM",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"STRTTYP",
+                                "label":"STRTTYP",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"STRTSFX",
+                                "label":"STRTSFX",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"STRTUNT",
+                                "label":"STRTUNT",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"ADDRTYP",
+                                "label":"ADDRTYP",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"CITY",
+                                "label":"CITY",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"OWNNAME1",
+                                "label":"OWNNAME1",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"OWNNAME2",
+                                "label":"OWNNAME2",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"PREMSNUM",
+                                "label":"PREMSNUM",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"PREMSDIR",
+                                "label":"PREMSDIR",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"PREMSNAM",
+                                "label":"PREMSNAM",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"PREMSTYP",
+                                "label":"PREMSTYP",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"PREMCITY",
+                                "label":"PREMCITY",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"LEGAL1",
+                                "label":"LEGAL1",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"LEGAL2",
+                                "label":"LEGAL2",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"LEGAL3",
+                                "label":"LEGAL3",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"DR1LIBER",
+                                "label":"DR1LIBER",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"DR1FOLIO",
+                                "label":"DR1FOLIO",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"SUBDIVSN",
+                                "label":"SUBDIVSN",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"PLAT",
+                                "label":"PLAT",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"SECTION_",
+                                "label":"SECTION_",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"BLOCK",
+                                "label":"BLOCK",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"MAP",
+                                "label":"MAP",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"GRID",
+                                "label":"GRID",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"PARCEL",
+                                "label":"PARCEL",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"ACRES",
+                                "label":"ACRES",
+                                "isEditable":false,
+                                "visible":true,
+                                "format":{
+                                    "places":2,
+                                    "digitSeparator":true
                                 }
                             },
                             {
-                                "fieldName": "SHAPE_Area",
-                                "label": "SHAPE_Area",
-                                "isEditable": false,
-                                "visible": false,
-                                "format": {
-                                    "places": 2,
-                                    "digitSeparator": true
+                                "fieldName":"LANDAREA",
+                                "label":"LANDAREA",
+                                "isEditable":false,
+                                "visible":false,
+                                "format":{
+                                    "places":2,
+                                    "digitSeparator":true
                                 }
+                            },
+                            {
+                                "fieldName":"PLTLIBER",
+                                "label":"PLTLIBER",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"PLTFOLIO",
+                                "label":"PLTFOLIO",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"DESCRIP",
+                                "label":"DESCRIP",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
+                            },
+                            {
+                                "fieldName":"SDAT_URL",
+                                "label":"SDAT_URL",
+                                "isEditable":false,
+                                "visible":true,
+                                "stringFieldOption":"textbox"
                             }
                         ],
                         "description": null,
-                        "showAttachments": false,
-                        "mediaInfos": [
-                            {
-                                "title": "Source Documents",
-                                "type": "image",
-                                "caption": "",
-                                "value": {
-                                    "sourceURL": "https://prod1.spatialsys.com/charlesww_imap/Assets/open.jpg",
-                                    "linkURL": "https://maps.spatialsys.com/charles/ImageLookupViewer/Default.aspx?feat_id={UTIL_ID}"
-                                },
-                                "_visible": true,
-                                "_pos": 0
-                            }
-                        ]
+                        "showAttachments": false
+
                     }
                 },
                 {

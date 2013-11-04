@@ -6,9 +6,9 @@
  */
 define(["dojo/_base/declare", "dijit/_WidgetBase", "dojo/dom", "dojo/json", "dojo/store/Memory", "dijit/tree/ObjectStoreModel", "dijit/Tree", "dijit/layout/ContentPane"
     , "../utilities/maphandler", "dojo/_base/lang", "dijit/TooltipDialog", "dijit/popup", "dojo/on", "dijit/form/Button", "dojox/widget/Standby"
-    , "dojo/dom-construct", "dojo/_base/connect", "../utilities/environment"],
+    , "dojo/dom-construct", "dojo/_base/connect", "../utilities/environment", "dojo/text!./AddLayersPopupTemplates.js"],
     function (declare, WidgetBase, dom, json, Memory, ObjectStoreModel, Tree, ContentPane, mapHandler, lang, TooltipDialog, popup, on, Button
-        , Standby, domConstruct, connect, environment) {
+        , Standby, domConstruct, connect, environment, popupTemplate) {
         return declare([WidgetBase, ContentPane], {
             //*** The ESRI map object
             map: null
@@ -28,6 +28,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dojo/dom", "dojo/json", "doj
             //These two items just track the currently selected node for adding to the map
             , _selectedItem: null
             , _selectedNode: null
+            , _popupTemplatesJsonLoc: ["AddLayersPopupTemplate.js"]
 
             //The event handlers below are not needed, unless for custom code.  They are here for reference.
             , constructor: function(args) {
@@ -237,15 +238,114 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dojo/dom", "dojo/json", "doj
                         if (node.serviceInfo && node.serviceInfo.singleFusedMapCache == true && node.serviceInfo.spatialReference.wkid == this.map.spatialReference.wkid)
                             layer = esri.layers.ArcGISTiledMapServiceLayer(item.url);
                         else //Otherwise add as dynamic layer
-                            layer = esri.layers.ArcGISDynamicMapServiceLayer(item.url);
+                        layer = esri.layers.ArcGISDynamicMapServiceLayer(item.url);
+
+                        //create new dynamic layer based on JSON
+                        layer.serviceInfo = node.serviceInfo;
+
+                        //title so that it gets added to custom TOC
+                        //addingLayer.title = item.title;
+                        //Add the new layer
+                        //this.map.addLayer(addingLayer);
+/* sjhtest                       var jsonRequest = esri.request({
+                            url: this._popupTemplatesJsonLoc,
+                            content: { f: "json" },
+                            handleAs: "json",
+                            callbackParamName: "callback"
+                        });*/
+
+
+                        //Add the popups for the individual feature layers of the mapservice
+                        if (layer.serviceInfo) {
+                            for (var j = 0; j < layer.serviceInfo.layers.length; j++) {
+                                //create popup using popupinfo object already existing in JSON file
+                                var popupTemplateStore = new Memory({
+                                    idProperty: "ID",
+                                    data: json.parse(popupTemplate)
+                                });
+                               // var PopupTemplate =  new esri.dijit.PopupTemplate(popupTemplateStore.get(layer.serviceInfo.layers[j].id))
+                               /* var PopupTemplate = new esri.dijit.PopupTemplate({
+                                    title: "{title}",
+                                    description:" Test {UTIL_ID}",
+                                    mediaInfos: [
+                                        {
+                                            "title": "Source Documents",
+                                            "type": "image",
+                                            "caption": "",
+                                            "value": {
+                                                "sourceURL": "https://prod1.spatialsys.com/charlesww_imap/Assets/OpenL.png",
+                                                "linkURL": "https://maps.spatialsys.com/charles/ImageLookupViewer/Default.aspx?feat_id={UTIL_ID}"
+                                            }
+                                        }
+                                    ]
+                                })*/
+                                var TemplatefromJson = popupTemplateStore.get(layer.serviceInfo.layers[j].id);
+                                var PopupTemplate = new esri.dijit.PopupTemplate({
+                                    title: TemplatefromJson.popupInfo.title,
+                                    fieldInfos: TemplatefromJson.popupInfo.fieldInfos,
+                                    showAttachments: TemplatefromJson.popupInfo.showAttachments,
+                                    description: TemplatefromJson.popupInfo.description,
+                                    mediaInfos: TemplatefromJson.popupInfo.mediaInfos
+                                })
+                             /*   jsonRequest.then(
+                                    lang.hitch(this, function(jsonResponse){
+                                            var layerid = {index: layer.serviceInfo.layers[j].id}
+
+                                            layerid.store = new Memory({
+                                                data: jsonResponse,
+                                                getChildren: function(object) {
+                                                    return object.children || [];
+                                                }
+                                            });
+
+                                            layerid.model = new ObjectStoreModel({
+                                               store: layerid.store,
+                                                query: {id: layer.serviceInfo.layers[j].id}
+                                            });
+
+                                            var pop = new esri.dijit.PopupTemplate(layerid.model.store)
+                                        }
+                                )
+                                );*/
+
+                                //create the feature layer and apply the popup template
+                                var fL = new esri.layers.FeatureLayer(item.url + "/" + layer.serviceInfo.layers[j].id, {
+                                    mode: 2,
+                                    layerId: layer.serviceInfo.layers[j].id,
+                                    id: item.id + "_" + layer.serviceInfo.layers[j].id,
+                                    infoTemplate: PopupTemplate,
+                                    outFields: ["*"]
+                                });
+                                this.map.addLayer(fL);
+                            }
+                        };
+
+                        /*                        //Add the popups for the individual feature layers of the mapservice
+                                                if (item.layers) {
+                                                    for (var j = 0; j < item.layers.length; j++) {
+                                                        //create popup using popupinfo object already existing in JSON file
+                                                        var pop = new esri.dijit.PopupTemplate(item.layers[j].popupInfo);
+                                                        //create the feature layer and apply the popup template
+                                                        var fL = new esri.layers.FeatureLayer(item.url + "/" + item.layers[j].id, {
+                                                            mode: 2,
+                                                            layerId: item.layers[j].id,
+                                                            id: item.id + "_" + item.layers[j].id,
+                                                            infoTemplate: pop,
+                                                            outFields: ["*"]
+                                                        });
+                                                        this.map.addLayer(fL);
+                                                    }
+                                                };*/
+
                     } else if (item.type === "ImageServer")
                         layer = esri.layers.ArcGISImageServiceLayer(item.url);
                     else if (item.type === "Feature Layer") {
-                       //Create a popup template for the feature layer - not implemented
+                     /*  //Create a popup template for the feature layer - not implemented
                         var strContent;
-    			//Creates a table of attributes for popup
-			if (node.serviceInfo){
-			    var contArray = ['<table>'];
+
+    			        //Creates a table of attributes for popup
+                        if (node.serviceInfo){
+                            var contArray = ['<table>'];
                             for (var s = 0; s < node.serviceInfo.fields.length; s++) {
                                 var name = node.serviceInfo.fields[s].name;
                                 if (name === 'objectid' || name === 'shape')
@@ -256,17 +356,19 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dojo/dom", "dojo/json", "doj
                             contArray.push('</table>');
                             strContent = contArray.join('');
 							
-			    //Checks to see if a field named popup exists.  If so uses it instead of table created above
-			    for (var s = 0; s < node.serviceInfo.fields.length; s++) {
-				var name = node.serviceInfo.fields[s].name;
-				if (name === 'popup')
-			 	    strContent = "${popup}";
-			    }
-			}
-		     var infoTemplate = new esri.InfoTemplate("Attributes", strContent);
-                     layer = esri.layers.FeatureLayer(item.url, { infoTemplate: infoTemplate,  outFields: ["*"] });
-                        
-                    } else if (item.type === "KML")
+                            //Checks to see if a field named popup exists.  If so uses it instead of table created above
+                            for (var s = 0; s < node.serviceInfo.fields.length; s++) {
+                            var name = node.serviceInfo.fields[s].name;
+                            if (name === 'popup')
+                                strContent = "${popup}";
+                            }
+                        }
+                             var infoTemplate = new esri.InfoTemplate("Attributes", strContent);
+                                     layer = esri.layers.FeatureLayer(item.url, { infoTemplate: infoTemplate,  outFields: ["*"] });
+*/
+                    }
+
+                    else if (item.type === "KML")
                         layer = esri.layers.KMLLayer(item.url);
                     else if (item.type === "WMS")
                         layer = esri.layers.WMSLayer(item.url);
@@ -274,10 +376,12 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dojo/dom", "dojo/json", "doj
                         alert("This layer type is not supported.");
                         return;
                     }
+                    //sjh testing
                     //Set the title for Legend to use.
-                    layer.title = item.name;
+                   layer.title = item.name;
                     //Take on the REST endpoint's serviceinfo JSON. Legend can then check for it and use it.
-                    layer.serviceInfo = node.serviceInfo;
+                   layer.serviceInfo = node.serviceInfo;
+
                     //Make sure the layer loads, or show the error, should be converted to layer's load event
                     connect.connect(this.map, "onLayerAddResult", lang.hitch(this, function (layer, error) {
                         if (error)
@@ -285,6 +389,8 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dojo/dom", "dojo/json", "doj
                         this._paneStandby.hide();
                     }));
                     this.map.addLayer(layer);
+                    this.map.addLayer(fL);
+                    //sjh testing
                 } catch (ex) {
                     alert("Service could not be loaded in map : " + ex.message);
                     this._paneStandby.hide();

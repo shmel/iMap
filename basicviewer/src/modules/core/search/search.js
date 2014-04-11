@@ -150,7 +150,7 @@ define(["dojo/_base/declare",
                             this.outFields =  ["OBJECTID", "NAME"];
 
                             // create a feature layer
-                            var featureLayer = new FeatureLayer("https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/CharlesUtilities/MapServer/81", {
+                            var featureLayer = new FeatureLayer("https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/CharlesUtilities/MapServer/105", {
                                 id: "systems",
                                 mode: 1,
                                 outFields: this.outFields
@@ -159,7 +159,7 @@ define(["dojo/_base/declare",
                             this.map.addLayer(featureLayer)
 
                             var query = new Query();
-                            var qt = new QueryTask("https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/CharlesUtilities/MapServer/81");
+                            var qt = new QueryTask("https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/CharlesUtilities/MapServer/105");
                             var random = (new Date()).getTime(); //Fix for 10.1 Bug NIM086349
                             query.where = "OBJECTID = " + SelectedSewerVal + " AND " + random + "=" + random;
                             //query.objectIds = SelectedSewerVal;

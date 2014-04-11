@@ -188,6 +188,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dojo/dom", "dojo/json", "doj
                         popup: this._toolTipDialog,
                         around: node.domNode
                     });
+
                     //If selected node's serviceinfo has not been retrieved for this node, go get it
                     if (!node.serviceInfo) {
                         var jsonRequest = esri.request({

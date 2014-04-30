@@ -88,7 +88,6 @@
                 2,
                 3,
                 4,
-                5,
                 6,
                 7,
                 8
@@ -123,7 +122,8 @@
             "visibleLayers": [
                 0,
                 1,
-                2
+                2,
+                3
             ],
             "opacity": 1,
             "title": "Property",

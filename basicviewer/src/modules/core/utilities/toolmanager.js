@@ -61,7 +61,7 @@ define(["dojo/_base/declare", "../utilities/environment", "dojo/_base/lang", "do
                     //*** Provide a unique ID for the parent div of the floating panel (if applicable)
                     var widgetParams = { floaterDivId: 'floaterMeas' };
                     //*** The relative path to your module
-                    var modulePath = "../measure";
+                    var modulePath = "../measure/measure";
 
                     this._CreateToolButton(widgetParams, btnId, btnTitle, btnIconClass, modulePath, true);
                 }

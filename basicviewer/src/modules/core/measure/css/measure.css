@@ -1,0 +1,60 @@
+    #floaterMeas{
+        padding: 0px !important;
+        width: 249px;
+    }
+
+    #dijit_form_ToggleButton_0{
+        height: 30px;
+        border: 0;
+    }
+
+    #dijit_form_ToggleButton_1{
+        height: 30px;
+        border: 0;
+    }
+
+    #dijit_form_ToggleButton_2{
+        height: 30px;
+        border: 0;
+    }
+
+    #esri_dijit_Measurement_0 .dijitArrowButtonInner {
+        width: 15px;
+        height: 15px;
+        margin: 0 auto;
+        background-image: url("../../../../../assets/buttonArrows.png");
+        background-repeat: no-repeat;
+        background-position: -51px 53%;
+    }
+
+    #dijit_form_DropDownButton_0_label{
+        font-size: small;
+    }
+
+/*
+    .dijitSelect, .dijitSelect *, .dijitButtonNode, .dijitButtonNode * {
+        cursor: pointer;
+        height: 30px;
+        width: 32px;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .esriButton .dijitButtonNode {
+        color: #666666 !important;
+        height: 30px;
+        width: 32px;
+        vertical-align: middle;
+        padding-top: 3px !important;
+        padding-bottom: 0;
+        padding-left: 0;
+        padding-right: 0;
+        font-size: medium !important;
+        border-color: none !important;
+        border: none !important;
+        background: none;
+    }*/
+    #floaterIO{
+    	padding: 0px !important;
+    }
+    #interop {
+        width: 170px;
+    }

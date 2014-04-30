@@ -9,6 +9,9 @@
     line-height:25px;
 }
 
+#GOIDSearch {
+    width: 80px; !important;
+}
 #grid {
     width: 100%;
 }

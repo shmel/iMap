@@ -5,8 +5,8 @@
  *  in order to work with modules, dojo/aspect after() or before() functions should be used.
  */
 define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dijit/_WidgetsInTemplateMixin", "dojo/aspect", "dojo/dom-construct", "dojo/on", "dijit/registry", "dojo/ready", "dojo/parser"
-    , "dojo/_base/fx", "dojo/_base/lang", "dojo/dom", "dojox/layout/FloatingPane", "dojo/query", "./utilities/maphandler", "dojo/has", "dojo/json", "dojo/_base/Color", "dojo/dnd/move", "dojo/dom-style"
-    , "esri/dijit/Measurement"],
+    , "dojo/_base/fx", "dojo/_base/lang", "dojo/dom", "dojox/layout/FloatingPane", "dojo/query", "./../utilities/maphandler", "dojo/has", "dojo/json", "dojo/_base/Color", "dojo/dnd/move", "dojo/dom-style"
+    , "esri/dijit/Measurement", "xstyle/css!./css/measure.css"],
     function(declare, WidgetBase, TemplatedMixin, WidgetsInTemplateMixin, aspect, domConstruct, on, registry, ready, parser, fxer, lang
             , dom, floatingPane, query, mapHandler, has, JSON, Color, move, domstyle, MeasurementDijit){
         return declare([WidgetBase],{
@@ -66,19 +66,19 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
 	 				resizable: false,
 	 				dockable: false,
 	 				closable: false,
-	 				style: "position:absolute;top:20px;left:20px;width:245px;height:265px;z-index:100;visibility:hidden;",
+	 				style: "position:absolute;top:20px;left:20px;width:245px;height:200px;z-index:100;visibility:hidden;",
 	 				id: this.floaterDivId
-                    , parseOnLoad:false
+
 			    }, dom.byId(this.floaterDivId));
   				//fpI.startup();
   				//Create a title bar for Floating Pane
-  				var titlePane = query('#floaterIO .dojoxFloatingPaneTitle')[0];
+  				var titlePane = query('#floaterMeas .dojoxFloatingPaneTitle')[0];
   				//Add close button to title pane. dijit.registry is used to obtain a reference to this floating pane's parentModule
   				var closeDiv = domConstruct.create('div', {
     				id: "closeBtn",
     				innerHTML: esri.substitute({
-      				close_title: 'Close', //i18n.panel.close.title,
-      				close_alt: 'Close'//i18n.panel.close.label
+      				    close_title: 'Close', //i18n.panel.close.title,
+      				    close_alt: 'Close'//i18n.panel.close.label
     				}, '<a alt=${close_alt} title=${close_title} href="JavaScript:dijit.registry.byId(\'' + this.floaterDivId + '\').parentModule.ToggleTool();"><img  src="assets/close.png"/></a>')
   				}, titlePane);
   				//Set the content of the Floating Pane to the Measurement Dijit.

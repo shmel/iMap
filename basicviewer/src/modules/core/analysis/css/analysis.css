@@ -1,0 +1,112 @@
+.analysisToolDiv {
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-bottom: 5px;
+    padding-right: 5px;
+    height: 25%;
+    border: solid;
+    border-color: #999999;
+    border-radius: 5px;
+    border-width: 2px;
+    background-color: #FFFFFF;
+    margin: 5px;
+}
+
+.ErrorMsg {
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+    font-weight: bold;
+    color: red;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+.divWidgetButtonContainer {
+    width: 45%;
+    display: inline-block;
+    text-align: center;
+}
+.divResultsButtonContainer{
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+    padding-top: 10px;
+}
+
+#UpstreamTrace .dijitButton .dijitButtonNode  {
+    display: block;
+    height: 30px;
+    width: 85px;
+    padding: 7px;
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
+#msgWarning{
+    color: red;
+    text-align: center;
+    font-weight: bolder;
+}
+
+#UpstreamTrace .dijitButtonText {
+    padding: 0 0.3em;
+    text-align: center;
+    white-space: normal;
+}
+
+#WaterValveTrace .dijitButton .dijitButtonNode  {
+    display: block;
+    height: 30px;
+    width: 85px;
+    padding: 7px;
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
+#WaterValveTrace .dijitButtonText {
+    padding: 0 0.3em;
+    text-align: center;
+    white-space: normal;
+}
+
+
+.analysisButtonLabel {
+    height: 50px
+
+}
+/*#UpstreamTrace, #WaterValveTrace{
+    padding-top: 5px;
+    padding-left: 5px;
+    height: 25%;
+    border: solid;
+    border-color: #cccccc;
+    border-radius: 5px;
+    border-width: 1px;
+    background-color: #FFFFFF;
+    margin: 5px;
+}*/
+
+
+
+/*
+#ClearResults_label{
+    display: block !important;
+    height:25px;
+    line-height:25px;
+}
+
+#GOIDSearch {
+    width: 80px; !important;
+}
+#grid {
+    width: 100%;
+}
+
+#grid .dgrid-row-odd {
+    background: #F2F5F9;}
+.dgrid-row {cursor: pointer; }
+.field-id { cursor: pointer; }
+.dgrid-column-id {
+    width: 4em;
+}
+*/

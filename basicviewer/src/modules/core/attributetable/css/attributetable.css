@@ -1,0 +1,109 @@
+.attributeTableDiv {
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-bottom: 5px;
+    padding-right: 5px;
+    height: 100%;
+    width: auto;
+    border: solid;
+    border-color: #999999;
+    border-radius: 5px;
+    border-width: 2px;
+    background-color: #FFFFFF;
+    margin: 5px;
+}
+.attributeTableDiv .dgrid{
+    width: 100%;
+    height: 150px;
+    overflow: auto;
+}
+.attributeTableDiv .dgrid .dgrid-cell {
+    width: 80px;
+    font-weight: normal;
+}
+
+.attributeTableDiv .dijitTabContainerTop-tabs .dijitTab {
+    -moz-border-radius: 2px 2px 0 0;
+    border-radius: 5px 5px 0 0;
+    margin-left: 4px;
+    margin-right: 2px;
+}
+
+/*.attributeTableDiv .dgrid-scroller {
+    overflow-x: n;
+    overflow-y: hidden;
+    position: absolute;
+    top: 0px;
+    margin-top: 25px;
+    bottom: 0px;
+    width: 100%;
+}*/
+
+.dijitTabListContainer-top .tabStripButton {
+    background-image: none !important;
+    display: none !important;
+}
+
+#floaterAttribute{
+        padding: 0px !important;
+        width: 100% !important;
+        left: 0px !important;
+        top: 70% !important;
+        height: 30% !important;
+       }
+
+    #dijit_form_ToggleButton_0{
+        height: 30px;
+        border: 0;
+    }
+
+    #dijit_form_ToggleButton_1{
+        height: 30px;
+        border: 0;
+    }
+
+    #dijit_form_ToggleButton_2{
+        height: 30px;
+        border: 0;
+    }
+
+    #esri_dijit_Measurement_0 .dijitArrowButtonInner {
+        width: 15px;
+        height: 15px;
+        margin: 0 auto;
+        background-image: url("../../../../../assets/buttonArrows.png");
+        background-repeat: no-repeat;
+        background-position: -51px 53%;
+    }
+
+    #dijit_form_DropDownButton_0_label{
+        font-size: small;
+    }
+
+/*
+    .dijitSelect, .dijitSelect *, .dijitButtonNode, .dijitButtonNode * {
+        cursor: pointer;
+        height: 30px;
+        width: 32px;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .esriButton .dijitButtonNode {
+        color: #666666 !important;
+        height: 30px;
+        width: 32px;
+        vertical-align: middle;
+        padding-top: 3px !important;
+        padding-bottom: 0;
+        padding-left: 0;
+        padding-right: 0;
+        font-size: medium !important;
+        border-color: none !important;
+        border: none !important;
+        background: none;
+    }*/
+    #floaterIO{
+    	padding: 0px !important;
+    }
+    #interop {
+        width: 170px;
+    }

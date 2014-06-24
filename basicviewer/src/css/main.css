@@ -215,7 +215,7 @@ body {
 }
 
 .claro .dijitButton .dijitButtonNode{
-    border: none;
+    /*border: none;*/
     padding: 0;
 }
 

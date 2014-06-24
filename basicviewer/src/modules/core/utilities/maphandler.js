@@ -20,13 +20,21 @@ define(["dojo/_base/declare", "dojo/on"],
 
             //Some tools, such as measurement and draw need to toggle on/off popups, so a popup doesn't appear when drawing on the map.
             , EnableMapPopups: function () {
-                if (this._clickListener)
-                    this._clickHandler = on(this.map, "onClick", this._clickListener);
+                //                if (this._clickListener)
+                //                    this._clickHandler = on(this.map, "onClick", this._clickListener);
+                if (this._clickListener) {
+                    this._clickHandler = this.map.on("click", this._clickListener);
+                    console.log("Popups should be enabled");
+                };
             }
 
             , DisableMapPopups: function () {
-                if (this._clickHandler)
-                    this._clickHandler.remove();
+                /*if (this._clickHandler)
+                    this._clickHandler.remove();*/
+
+                if (this._clickHandler) {
+                    dojo.disconnect(this._clickHandler);
+                }
             }
 
             // Takes the Web Map configuration object (including any overrides) from map.js and creates the MapLayerStore object.
@@ -36,6 +44,24 @@ define(["dojo/_base/declare", "dojo/on"],
 
             , CreateWebMapOverrideObject: function () {
                 //not implemented
+            }
+
+            , ShowLoadingIcon: function() {
+                var loading = dojo.byId("loadingImg");  //loading image. id
+                esri.show(loading);
+                this.map.disableMapNavigation();
+                this.map.hideZoomSlider();
+            }
+            , HideLoadingIcon: function() {
+                var loading = dojo.byId("loadingImg");  //loading image. id
+                esri.hide(loading);
+                this.map.enableMapNavigation();
+                this.map.showZoomSlider();
+            }
+
+            , HideLoadingIcononStartup: function() {
+                var loading = dojo.byId("loadingImg");  //loading image. id
+                esri.hide(loading);
             }
         });
         if (!_instance) {

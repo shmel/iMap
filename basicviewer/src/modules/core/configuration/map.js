@@ -153,6 +153,8 @@ define(["dojo/_base/declare", "dojo/_base/lang", "dojo/on", "dojo/Evented", "../
                             mapHandler._clickListener = response.clickEventListener;
                             this._Map = response.map;
 
+                            mapHandler.HideLoadingIcononStartup();
+
                             //if an extent was specified using url params go to that extent now
                             if (this._AppConfig.extent) {
                                 this._Map.setExtent(new esri.geometry.Extent(dojo.fromJson(this._AppConfig.extent)));
@@ -160,6 +162,7 @@ define(["dojo/_base/declare", "dojo/_base/lang", "dojo/on", "dojo/Evented", "../
 
                             if (this._Map.loaded)
                                 this._FinishMapElements();
+
                             else
                                 dojo.connect(this._Map, "onLoad", this._FinishMapElements);
                         }));

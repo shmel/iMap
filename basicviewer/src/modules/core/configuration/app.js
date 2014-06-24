@@ -75,7 +75,9 @@ define(["dojo/_base/declare", "dojox/html/entities", "dojo/_base/lang", "dojo/Ev
                     tablecontents: true,
                     displayeditor: false,
                     searchresults: true,
-                    startupwidget: 'searchresults', //tablecontents',
+                    analysispanel: true,
+                    /*startupwidget: 'searchresults',  //'analysispanel', ////tablecontents',*/
+                    startupwidget: 'analysispanel', ////tablecontents',
                     ////When editing you need to specify a proxyurl (see below) if the service is on a different domain
                     //Specify a proxy url if you will be editing, using the elevation profile or have secure services or web maps that are not shared with everyone.
                     proxyurl: "proxy.ashx",

@@ -603,7 +603,7 @@ define(["dojo/_base/declare",
                     name: "ClearResults",
                     type: "button",
                     label: "Clear Search Results",
-                    style: "width: 300px; height:25px; line-height:25px; text-align: center",
+                    /*style: "width: 300px; height:25px; line-height:25px; text-align: center",*/
                     onClick: lang.hitch(this,  function(){
                         // Do something:
                         /*  for(var j = 0; j < this.map.graphicsLayerIds.length; j++) {

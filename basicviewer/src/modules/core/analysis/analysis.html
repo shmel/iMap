@@ -1,0 +1,51 @@
+<div id="AnalysisDiv">
+    <div class ="analysisToolDiv">
+        <h1>Analysis Tools</h1>
+        The following analysis tools use background processes to return features and information regarding data in the Utilities System Map.<br><br>
+    </div>
+    <div class ="analysisToolDiv" id="UpstreamTrace">
+        <div>
+            <strong><h1>Wastewater Upstream Trace</h1></strong>
+            Click a point along a Gravity Main to run an analysis that will trace upstream in the wastewater network. <br><br>
+            The point clicked and traced features will be displayed in the map.
+        </div><br>
+
+        <!--Divs for Buttons-->
+        <div class="divWidgetButtonContainer">
+         <div class="analysisButton" id="WWTraceButton" style="width: 50%"></div> <!--Divs for Buttons-->
+        </div>
+        <div class="divWidgetButtonContainer">
+            <div class="analysisClearButton" id="WWTraceClearButton" style="width: 50%"></div>
+        </div>
+        <div class="divResultsButtonContainer" >
+            <div id="WWResultsButton" style="visibility:visible;"></div>
+        </div>
+        <br>
+        <div class="ErrorMsg" id="msgWWTraceWarning" style="visibility:hidden;">The trace returned no result.</div>
+        <br>
+    </div>
+    <div class ="analysisToolDiv" id="WaterValveTrace">
+        <div>
+            <strong><h1>Water Valve Isolation</h1></strong>
+            Click a point along a water main to run an analysis that will trace along pressurized lines in the Water network and return the isolated valves. <br><br>
+            The point clicked and traced pipes and valves will be displayed in the map.
+
+        </div><br>
+        <!--Divs for Buttons-->
+        <div class="divWidgetButtonContainer">
+            <div class="analysisButton" id="WaterTraceButton" style="width: 50%"></div> <!--Divs for Buttons-->
+        </div>
+        <div class="divWidgetButtonContainer">
+            <div class="analysisButton" id="WaterTraceClearButton" style="width: 50%"></div>
+        </div>
+        <div class="divResultsButtonContainer" >
+            <div id="WaterResultsButton" style="visibility:hidden;"></div>
+        </div>
+        <br>
+        <div class="ErrorMsg" id="msgValveTraceWarning" style="visibility:hidden;">The trace returned no result.</div>
+        <br>
+        <br>
+    </div>
+
+</div>
+

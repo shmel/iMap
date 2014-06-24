@@ -88,6 +88,29 @@ define(["dojo/_base/declare", "../utilities/environment", "dojo/_base/lang", "do
                     this._CreateTabPane(leftTabCont, configParamName, tabParams, modulePath, constructorParams, resizeAfterStartup);
                 }
 
+
+
+                if ((this._AppConfig.analysispanel === 'true' || this._AppConfig.analysispanel == true)) {
+                    //*** Check if this pane was set to be the startup pane in app.js or AGO. Replace the param name in next line.
+                    var configParamName = 'analysispanel';
+                    //*** Constructor params for the tab (which is a contentpane- http://dojotoolkit.org/reference-guide/1.8/dijit/layout/ContentPane.html).
+                    //*** Give the tab's content pane a unique id.
+                    //*** and title to display in the tab
+                    var tabParams = {
+                        title: 'Analysis', //i18n.tools.details.title,
+                        id: 'analysisPanel',
+                        style: "padding: 0px"
+                    };
+                    //*** The relative path to your module file
+                    var modulePath = "../analysis/analysis";
+                    //*** If your widget requires specific constructor parameters to be passed in, you can set the object here.
+                    var constructorParams = { esriMap: this._Map, webMap: mapHandler.getWebMap() };
+                    //*** Does your widget's parent need to be resized after it's startup in order to layout properly? Default to false.
+                    var resizeAfterStartup = true;
+
+                    this._CreateTabPane(leftTabCont, configParamName, tabParams, modulePath, constructorParams, resizeAfterStartup);
+                }
+
                 // Editor Panel - not implemented yet
                 /*if (this._AppConfig.displayeditor == 'true' || this._AppConfig.displayeditor == true) {
                     //do we have any editable layers - if not then disregard

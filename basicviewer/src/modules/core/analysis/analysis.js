@@ -71,6 +71,7 @@ define(["dojo/_base/declare",
 
 
 
+
             //*** Creates
             , constructor: function(args) {
                 // safeMixin automatically sets the properties above that are passed in from the toolmanager.js
@@ -142,25 +143,28 @@ define(["dojo/_base/declare",
 
                 //var modulePath = "/src/modules/core/attributetable/attributetable"
 
-                var wwResultsTableButton = new ToggleButton({
+                wwResultsTableButton = new ToggleButton({
                     name: "wwResultsButton",
                     type: "button",
                     label: "View and Export Results",
                     showLabel: "true",
-                    style: "width: 100px; height:100%; line-height:100%; text-align: left; visibility:visible;"
+                    style: "width: 100px; height:100%; line-height:100%; text-align: left; visibility:hidden;"
                 }, "WWResultsButton");
 
 
-                var modulePath = "src/modules/core/attributetable/attributetable.js";
-                var toolClick = on(wwResultsTableButton, "click", lang.hitch(this, function () {
-                    toolClick.remove();
+                //var modulePath = "src/modules/core/attributetable/attributetable.js";
+                var wwResultstoolClick = on(wwResultsTableButton, "click", lang.hitch(this, function () {
+
+                    wwResultstoolClick.remove();
                     var widgetParams = {
                         buttonDivId:  "WWResultsButton",
                         floaterDivId: 'floaterAttribute',
-                        AppConfig: this._AppConfig
+                        AppConfig: this._AppConfig,
+                        clickSource: "ww"
                     };
 
                     this.AttWidget = new AttributeTable(widgetParams);
+
                 }));
 
                 // WATER ISOLATION TRACE
@@ -204,16 +208,27 @@ define(["dojo/_base/declare",
                 }, "WaterTraceClearButton");
 
                 //WaterResultsButton
-                var waterResultsTableButton = new Button({
+                var waterResultsTableButton = new ToggleButton({
                     name: "WaterResultsButton",
                     type: "button",
-                    label: "View Results",
+                    label: "View and Export Results",
                     showLabel: "true",
-                    style: "width: 100px; height:100%; line-height:100%; text-align: left; visibility:hidden;",
-                    onClick: lang.hitch(this, function(){
-
-                    })                      //End On Click for Trace Button
+                    style: "width: 100px; height:100%; line-height:100%; text-align: left; visibility:hidden;"
                 }, "WaterResultsButton");
+
+                //Modify Click Event and change on first Click
+                var waterResultstoolClick = on(waterResultsTableButton, "click", lang.hitch(this, function () {
+                    waterResultstoolClick.remove();
+                        var widgetParams = {
+                            buttonDivId:  "WaterResultsButton",
+                            floaterDivId: 'floaterAttribute',
+                            AppConfig: this._AppConfig,
+                            clickSource: "water"
+                        };
+
+                        this.AttWidget = new AttributeTable(widgetParams);
+
+                }));
 
                 // VALVE ISOLATION TRACE
             }
@@ -482,14 +497,43 @@ define(["dojo/_base/declare",
                 //show button for showing attribute table
 
                 domStyle.set(registry.byId("WWResultsButton").domNode, 'visibility', 'hidden');
+                registry.byId("WWResultsButton").set('label', "View and Export Results");
                 domStyle.set(registry.byId("WaterResultsButton").domNode, 'visibility', 'hidden');
+                registry.byId("WaterResultsButton").set('label', "View and Export Results");
+
+
 
                 //Hide Atribute Table
                 if (dom.byId("floaterAttribute")) {
-                    //dom.byId("floaterAttribute").style.visibility === 'hidden'
-                    this.AttWidget.ClearGrid();
-                    registry.byId("floaterAttribute").hide();
+                    registry.byId("floaterAttribute").destroyRecursive();
+
+                    //Reset the Click Event
+                    registry.byId("WWResultsButton").onClick = lang.hitch(this, function () {
+                        var widgetParams = {
+                            buttonDivId:  "WWResultsButton",
+                            floaterDivId: 'floaterAttribute',
+                            AppConfig: this._AppConfig,
+                            clickSource: "ww"
+                        };
+
+                        this.wwAttWidget = new AttributeTable(widgetParams);
+                    });
+
+                    registry.byId("WaterResultsButton").onClick = lang.hitch(this, function () {
+                        var widgetParams = {
+                            buttonDivId:  "WaterResultsButton",
+                            floaterDivId: 'floaterAttribute',
+                            AppConfig: this._AppConfig,
+                            clickSource: "water"
+                        };
+
+                        this.wwAttWidget = new AttributeTable(widgetParams);
+                    });
+
+
+                    console.log("Test")
                 }
+
 
 
 

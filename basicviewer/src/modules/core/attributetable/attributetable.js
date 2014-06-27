@@ -22,9 +22,21 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
             innerDivId: null,
             // The title for your panel
             panelTitle: 'Attribute Table',
+            clickSource: null,
             map: null,
             grid: null,
+            grid2: null,
+            tc: null,
+            cp1: null,
+            cp2: null,
             resultLayers: ["gpfLayer", "gpfMainsLayer", "gpfValvesLayer"],
+            resultFields: [["GISOBJID", "ENABLED", "SubtypeLabel", "INSTALLDATE", "LIFECYCLESTATUS", "WATERTYPE", "MATERIAL", "CROSSSECTIONSHAPE", "UPSTREAMINVERT",
+                "DOWNSTREAMINVERT", "MEASUREMENT1", "SLOPE", "PIPELENGTH", "UPSTREAMMH", "DOWNSTREAMMH", "SYSTEMCODE", "ORG", "DEPT"],
+                ["GISOBJID", "ENABLED", "INSTALLDATE", "LIFECYCLESTATUS", "SubtypeLabel", "WATERTYPE", "MATERIAL", "DIAMETER", "PIPELENGTH", "SYSTEMCODE"],
+                ["GISOBJID", "ENABLED", "SubtypeLabel", "INSTALLDATE", "LOCATIONDESCRIPTION", "OPERATIONALAREA", "ROTATION", "LIFECYCLESTATUS", "WATERTYPE", "DIAMETER", "BYPASSVALVE", "CLOCKWISETOCLOSE", "CURRENTLYOPEN", "MOTORIZED", "NORMALLYOPEN", "PERCENTOPEN", "PRESSURESETTING", "REGULATIONTYPE", "TURNSTOCLOSE", "OPERABLE", "SYSTEMCODE"]],
+            gpURLS: ["http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportMainstoCSV/GPServer/ExportMainstoCSV",
+                "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportPressMainstoCSV/GPServer/ExportPressMainstoCSV",
+                "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportValvestoCSV/GPServer/ExportValvestoCSV" ],
             gp: null
 
 
@@ -92,9 +104,19 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                 //Set the content of the Floating Pane
                 dom.byId(this.innerDivId).innerHTML = template;
 
+                //TODO: Change
+ /*               if (registry.byId("GridTabContainer")) {
+                    var tc = registry.byId("GridTabContainer");
+                }
+                else {
+                    var tc = new TabContainer({
+                        style: "height: 100%; width: 100%;"
+                    }, "GridTabContainer");
+                }*/
                 var tc = new TabContainer({
                     style: "height: 100%; width: 100%;"
                 }, "GridTabContainer");
+
 
                // var tc = registry.byID("")
 
@@ -116,41 +138,103 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                     noDataMessage: "No results found.",
                     store: emptyStore
                 });
-                //}, "AttributeTableGrid");
 
-                //Add Export Button
-                var exportButton =  new Button({
-                    name: "ExportTableButton",
-                    type: "button",
-                    label: "Export",
-                    /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
-                    onClick: lang.hitch(this, function(){
-                        this.ExportGrid("gpfLayer");
-                    })                      //End On Click for Trace Button
-                });
-                //}, "ExportButton");
+                //Check Button Source, create another grid if water
+                if (this.clickSource == 'water'){
+                    grid2 = new (declare([OnDemandGrid, Selection]))({
+                        // use Infinity so that all data is available in the grid
+                        bufferRows: 1000,
+                        columns: {
+                            "Results": "Results"
+                        },
+                        loadingMessage: "Loading data..." ,
+                        noDataMessage: "No results found.",
+                        store: emptyStore
+                    });
+
+                    //Add Export Button
+                    var exportButton =  new Button({
+                        name: "ExportTableButton",
+                        type: "button",
+                        label: "Export",
+                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
+                        onClick: lang.hitch(this, function(){
+                            this.ExportGrid("gpfMainsLayer");
+                        })                      //End On Click for Trace Button
+                    });
+                    //}, "ExportButton");
 
 
+                    //Add Export Button
+                    var exportButton2 =  new Button({
+                        name: "ExportTableButton",
+                        type: "button",
+                        label: "Export",
+                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
+                        onClick: lang.hitch(this, function(){
+                            this.ExportGrid("gpfValvesLayer");
+                        })                      //End On Click for Trace Button
+                    });
 
+                    fpI.startup();
 
-                //Add Export DDL
-                //Load Records from results layer
-                fpI.startup();
+                    var cp1 = new ContentPane({
+                        title: "Pressurized Mains",
+                        content: ""
+                    });
 
-                var cp1 = new ContentPane({
-                    title: "Gravity Mains",
-                    content: ""
-                });
+                    var cp2 = new ContentPane({
+                        title: "System Valves",
+                        content: ""
+                    });
 
-                //Add Items to ContentPane
-                cp1.set("content", [
-                    exportButton.domNode,
-                    grid.domNode
-                ])
+                    //Add Items to ContentPane
+                    cp1.set("content", [
+                        exportButton.domNode,
+                        grid.domNode
+                    ])
+
+                    cp2.set("content", [
+                        exportButton2.domNode,
+                        grid2.domNode
+                    ])
+
+                    //Add ContentPane to Tab Container
+                    tc.addChild(cp1);
+                    tc.addChild(cp2);
+                }
+                else {
+                    //Add Export Button
+                    var exportButton =  new Button({
+                        name: "ExportTableButton",
+                        type: "button",
+                        label: "Export",
+                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
+                        onClick: lang.hitch(this, function(){
+                            this.ExportGrid("gpfLayer");
+                        })                      //End On Click for Trace Button
+                    });
+
+                    fpI.startup();
+
+                    var cp1 = new ContentPane({
+                        title: "Gravity Mains",
+                        content: ""
+                    });
+
+                    //Add Items to ContentPane
+                    cp1.set("content", [
+                        exportButton.domNode,
+                        grid.domNode
+                    ])
+
+                    //Add ContentPane to Tab Container
+                    tc.addChild(cp1);
+
+                }
 
 
                 //Add ContentPane to Tab Container
-                tc.addChild(cp1);
                 tc.startup();
 
                 // On tool button click- toggle the floating pane
@@ -161,6 +245,136 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                 this.ToggleTool();
             }
 
+            //*** Update the Contents of the Tab Container based on the button clicked
+            , UpdateTabContainer: function(clickSource) {
+
+                var emptyStore = new Memory({
+                    idProperty: "OBJECTID",
+                    data: { identifier: 'OBJECTID',
+                        items: []}
+                });
+
+                //Add dojo OnDemandGrid
+                grid = new (declare([OnDemandGrid, Selection]))({
+                    // use Infinity so that all data is available in the grid
+                    bufferRows: 1000,
+                    columns: {
+                        "Results": "Results"
+                    },
+                    loadingMessage: "Loading data..." ,
+                    noDataMessage: "No results found.",
+                    store: emptyStore
+                });
+
+                //Check Button Source, create another grid if water
+                if (this.clickSource == 'water'){
+                    grid2 = new (declare([OnDemandGrid, Selection]))({
+                        // use Infinity so that all data is available in the grid
+                        bufferRows: 1000,
+                        columns: {
+                            "Results": "Results"
+                        },
+                        loadingMessage: "Loading data..." ,
+                        noDataMessage: "No results found.",
+                        store: emptyStore
+                    });
+
+                    //Add Export Button
+                    var exportButton =  new Button({
+                        name: "ExportTableButton",
+                        type: "button",
+                        label: "Export",
+                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
+                        onClick: lang.hitch(this, function(){
+                            this.ExportGrid("gpfMainsLayer");
+                        })                      //End On Click for Trace Button
+                    });
+                    //}, "ExportButton");
+
+
+                    //Add Export Button
+                    var exportButton2 =  new Button({
+                        name: "ExportTableButton",
+                        type: "button",
+                        label: "Export",
+                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
+                        onClick: lang.hitch(this, function(){
+                            this.ExportGrid("gpfValvesLayer");
+                        })                      //End On Click for Trace Button
+                    });
+
+                 //   fpI.startup();
+
+                    var cp1 = new ContentPane({
+                        title: "Pressurized Mains",
+                        content: ""
+                    });
+
+                    var cp2 = new ContentPane({
+                        title: "System Valves",
+                        content: ""
+                    });
+
+                    //Add Items to ContentPane
+                    cp1.set("content", [
+                        exportButton.domNode,
+                        grid.domNode
+                    ])
+
+                    cp2.set("content", [
+                        exportButton2.domNode,
+                        grid2.domNode
+                    ])
+
+                    //Add ContentPane to Tab Container
+                    tc.addChild(cp1);
+                    tc.addChild(cp2);
+                }
+                else {
+                    //Add Export Button
+                    var exportButton =  new Button({
+                        name: "ExportTableButton",
+                        type: "button",
+                        label: "Export",
+                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
+                        onClick: lang.hitch(this, function(){
+                            this.ExportGrid("gpfLayer");
+                        })                      //End On Click for Trace Button
+                    });
+
+                    //fpI.startup();
+
+                    var cp1 = new ContentPane({
+                        title: "Gravity Mains",
+                        content: ""
+                    });
+
+                    //Add Items to ContentPane
+                    cp1.set("content", [
+                        exportButton.domNode,
+                        grid.domNode
+                    ])
+
+                    //Add ContentPane to Tab Container
+                    tc.addChild(cp1);
+
+                }
+
+
+                //Add ContentPane to Tab Container
+                tc.startup();
+
+                // On tool button click- toggle the floating pane
+                on(registry.byId(this.buttonDivId), "click", lang.hitch(this, function () {
+                    this.ToggleTool();
+                }));
+                //Open it
+                this.ToggleTool();
+
+
+
+            }
+
             //*** This gets called by the Close (x) button in the floating pane created above. Re-use in your widget.
             , ToggleTool: function () {
                 if (dom.byId(this.floaterDivId).style.visibility === 'hidden') {
@@ -169,13 +383,27 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                     domstyle.set(this.floaterDivId, "top", "0px");
                     domstyle.set(this.floaterDivId, "left", "0px");
                     registry.byId(this.floaterDivId).show();
+                    registry.byId(this.buttonDivId).set('label', "Hide Results");
 
-                    this.LoadResults("gpfLayer");
+                    if (grid.store.data.length == 0) {
+                        if (this.clickSource =='ww') {
+                            this.LoadResults("gpfLayer");
+                        }
+                        else if (this.clickSource =='water') {
+                            this.LoadResults("gpfValvesLayer");
+                            this.LoadResults("gpfMainsLayer");
+                        }
+
+
+                    };
+
+
                    // this._measureDij.setTool("location",true);
                    // mapHandler.DisableMapPopups();
                 } else {
                     registry.byId(this.floaterDivId).hide();
-                    registry.byId(this.buttonDivId).set('checked', false); //uncheck the toggle button
+                    registry.byId(this.buttonDivId).set('checked', false);
+                    registry.byId(this.buttonDivId).set('label', "View and Export Results"); //uncheck the toggle button
                   //  mapHandler.EnableMapPopups(); //enable map popup windows
                     //deactivate the tool and clear the results
                     /*var measure = registry.byId('measureToolDij');
@@ -205,145 +433,299 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                 var query = new Query();
                 query.where = "1=1";
                 query.returnGeometry = false;
-                query.outFields =  ["GISOBJID", "ENABLED", "SubtypeLabel", "INSTALLDATE", "LIFECYCLESTATUS", "WATERTYPE", "MATERIAL", "CROSSSECTIONSHAPE", "UPSTREAMINVERT",
-                    "DOWNSTREAMINVERT", "MEASUREMENT1", "SLOPE", "PIPELENGTH", "UPSTREAMMH", "DOWNSTREAMMH", "SYSTEMCODE", "ORG", "DEPT"];
+
+
+                query.outFields = this.resultFields[this.resultLayers.indexOf(layername)];
+
+/*                query.outFields =  ["GISOBJID", "ENABLED", "SubtypeLabel", "INSTALLDATE", "LIFECYCLESTATUS", "WATERTYPE", "MATERIAL", "CROSSSECTIONSHAPE", "UPSTREAMINVERT",
+                    "DOWNSTREAMINVERT", "MEASUREMENT1", "SLOPE", "PIPELENGTH", "UPSTREAMMH", "DOWNSTREAMMH", "SYSTEMCODE", "ORG", "DEPT"];*/
                 query.orderByFields = ["GISOBJID ASC"];
 
-                qt.execute(query, lang.hitch(this, function(results){
-                    var mydata = array.map(results.features, function(feature) {
-                        return {
-                            "id": feature.attributes[query.outFields[0]],
-                            "ENABLED": feature.attributes[query.outFields[1]],
-                            "SubtypeLabel": feature.attributes[query.outFields[2]],
-                            "INSTALLDATE": feature.attributes[query.outFields[3]],
-                            "LIFECYCLESTATUS": feature.attributes[query.outFields[4]],
-                            "WATERTYPE": feature.attributes[query.outFields[5]],
-                            "MATERIAL": feature.attributes[query.outFields[6]],
-                            "CROSSSECTIONSHAPE": feature.attributes[query.outFields[7]],
-                            "UPSTREAMINVERT": feature.attributes[query.outFields[8]],
-                            "DOWNSTREAMINVERT": feature.attributes[query.outFields[9]],
-                            "MEASUREMENT1": feature.attributes[query.outFields[10]],
-                            "SLOPE": feature.attributes[query.outFields[11]],
-                            "PIPELENGTH": feature.attributes[query.outFields[12]],
-                            "UPSTREAMMH": feature.attributes[query.outFields[13]],
-                            "DOWNSTREAMMH": feature.attributes[query.outFields[14]],
-                            "SYSTEMCODE": feature.attributes[query.outFields[15]],
-                            "ORG": feature.attributes[query.outFields[16]],
-                            "DEPT": feature.attributes[query.outFields[17]]
-                        }
-                    });
-                    var myTestStore = new Memory({ data: mydata });
 
-/*                    //Set Columns on Grid
-                    grid.set ("columns", {
-                        "id": "GISOBJID",
-                        "ENABLED": "ENABLED",
-                        "SubtypeLabel": "SubtypeLabel",
-                        "INSTALLDATE": {label:"INSTALLDATE",formatter:date_formatter},
-                        "LIFECYCLESTATUS": "LIFECYCLESTATUS",
-                        "WATERTYPE": "WATERTYPE",
-                        "MATERIAL": "MATERIAL",
-                        "CROSSSECTIONSHAPE": "CROSSSECTIONSHAPE",
-                        "UPSTREAMINVERT": "UPSTREAMINVERT",
-                        "DOWNSTREAMINVERT": "DOWNSTREAMINVERT",
-                        "MEASUREMENT1": "MEASUREMENT1",
-                        "SLOPE": "SLOPE",
-                        "PIPELENGTH": "PIPELENGTH",
-                        "UPSTREAMMH": "UPSTREAMMH",
-                        "DOWNSTREAMMH": "DOWNSTREAMMH",
-                        "SYSTEMCODE": "SYSTEMCODE",
-                        "ORG": "ORG",
-                        "DEPT": "DEPT"
-                    });*/
-                    grid.set ("columns", [
-                    {	field: "id",
-                        label: "GISOBJID"
-                    },
-                    {
-                        field: "ENABLED",
-                            label: "ENABLED"
-                    },
-                    {
-                        field: "SubtypeLabel",
-                            label: "SubtypeLabel"
-                    },
-                    {
-                        field: "INSTALLDATE",
-                            label: "INSTALLDATE",
-                        formatter: this.date_formatter
-                    },
-                    {
-                        field: "LIFECYCLESTATUS",
-                            label: "LIFECYCLESTATUS"
-                    },
-                    {
-                        field: "WATERTYPE",
-                            label: "WATERTYPE"
-                    },
-                    {
-                        field: "MATERIAL",
-                            label: "MATERIAL"
-                    },
-                    {
-                        field: "CROSSSECTIONSHAPE",
-                            label: "CROSSSECTIONSHAPE"
-                    },
-                    {
-                        field: "UPSTREAMINVERT",
-                            label: "UPSTREAMINVERT"
-                    },
-                    {
-                        field: "DOWNSTREAMINVERT",
-                            label: "DOWNSTREAMINVERT"
-                    },
-                    {
-                        field: "MEASUREMENT1",
-                            label: "MEASUREMENT1"
-                    },
-                    {
-                        field: "SLOPE",
-                            label: "SLOPE"
-                    },
-                    {
-                        field: "PIPELENGTH",
-                            label: "PIPELENGTH"
-                    },
-                    {
-                        field: "UPSTREAMMH",
-                            label: "UPSTREAMMH"
-                    },
-                    {
-                        field: "DOWNSTREAMMH",
-                            label: "DOWNSTREAMMH"
-                    },
-                    {
-                        field: "SYSTEMCODE",
-                            label: "SYSTEMCODE"
-                    },
-                    {
-                        field: "ORG",
-                            label: "ORG"
-                    },
-                    {
-                        field: "DEPT",
-                            label: "DEPT"
-                    }])
-                    grid.set("store", myTestStore)    ;
-                    grid.refresh();
+                //Change Query Inputs and Grid Columns based on LayerName
+                if (layername == 'gpfLayer') {
+                    qt.execute(query, lang.hitch(this, function(results){
+                        var mydata = array.map(results.features, function(feature) {
+                            return {
+                                "id": feature.attributes[query.outFields[0]],
+                                "ENABLED": feature.attributes[query.outFields[1]],
+                                "SubtypeLabel": feature.attributes[query.outFields[2]],
+                                "INSTALLDATE": feature.attributes[query.outFields[3]],
+                                "LIFECYCLESTATUS": feature.attributes[query.outFields[4]],
+                                "WATERTYPE": feature.attributes[query.outFields[5]],
+                                "MATERIAL": feature.attributes[query.outFields[6]],
+                                "CROSSSECTIONSHAPE": feature.attributes[query.outFields[7]],
+                                "UPSTREAMINVERT": feature.attributes[query.outFields[8]],
+                                "DOWNSTREAMINVERT": feature.attributes[query.outFields[9]],
+                                "MEASUREMENT1": feature.attributes[query.outFields[10]],
+                                "SLOPE": feature.attributes[query.outFields[11]],
+                                "PIPELENGTH": feature.attributes[query.outFields[12]],
+                                "UPSTREAMMH": feature.attributes[query.outFields[13]],
+                                "DOWNSTREAMMH": feature.attributes[query.outFields[14]],
+                                "SYSTEMCODE": feature.attributes[query.outFields[15]],
+                                "ORG": feature.attributes[query.outFields[16]],
+                                "DEPT": feature.attributes[query.outFields[17]]
+                            }
+                        });
 
-                    document.body.style.cursor = "default";
-                    mapHandler.HideLoadingIcon();
-                    // add a click listener on the ID column
-                    //sjh 0618 grid.on(".dgrid-row:click", lang.hitch(this, this.SelectSewerSystem));
+                        var myTestStore = new Memory({ data: mydata });
+                        // TODO: Load this from a Json file
+                        grid.set ("columns", [
+                            {	field: "id",
+                                label: "GISOBJID"
+                            },
+                            {
+                                field: "ENABLED",
+                                label: "ENABLED"
+                            },
+                            {
+                                field: "SubtypeLabel",
+                                label: "SubtypeLabel"
+                            },
+                            {
+                                field: "INSTALLDATE",
+                                label: "INSTALLDATE",
+                                formatter: this.date_formatter
+                            },
+                            {
+                                field: "LIFECYCLESTATUS",
+                                label: "LIFECYCLESTATUS"
+                            },
+                            {
+                                field: "WATERTYPE",
+                                label: "WATERTYPE"
+                            },
+                            {
+                                field: "MATERIAL",
+                                label: "MATERIAL"
+                            },
+                            {
+                                field: "CROSSSECTIONSHAPE",
+                                label: "CROSSSECTIONSHAPE"
+                            },
+                            {
+                                field: "UPSTREAMINVERT",
+                                label: "UPSTREAMINVERT"
+                            },
+                            {
+                                field: "DOWNSTREAMINVERT",
+                                label: "DOWNSTREAMINVERT"
+                            },
+                            {
+                                field: "MEASUREMENT1",
+                                label: "MEASUREMENT1"
+                            },
+                            {
+                                field: "SLOPE",
+                                label: "SLOPE"
+                            },
+                            {
+                                field: "PIPELENGTH",
+                                label: "PIPELENGTH"
+                            },
+                            {
+                                field: "UPSTREAMMH",
+                                label: "UPSTREAMMH"
+                            },
+                            {
+                                field: "DOWNSTREAMMH",
+                                label: "DOWNSTREAMMH"
+                            },
+                            {
+                                field: "SYSTEMCODE",
+                                label: "SYSTEMCODE"
+                            },
+                            {
+                                field: "ORG",
+                                label: "ORG"
+                            },
+                            {
+                                field: "DEPT",
+                                label: "DEPT"
+                            }])
+                        grid.set("store", myTestStore)    ;
+                        grid.refresh();
+
+                        document.body.style.cursor = "default";
+                        mapHandler.HideLoadingIcon();
+                        // add a click listener on the ID column
+                        //sjh 0618 grid.on(".dgrid-row:click", lang.hitch(this, this.SelectSewerSystem));
+                    }));
+                }
+                else if (layername == 'gpfValvesLayer') {
+                    qt.execute(query, lang.hitch(this, function(results){
+                        var mydata = array.map(results.features, function(feature) {
+                            return {
+                                "id": feature.attributes[query.outFields[0]],
+                                "ENABLED": feature.attributes[query.outFields[1]],
+                                "SubtypeLabel": feature.attributes[query.outFields[2]],
+                                "INSTALLDATE": feature.attributes[query.outFields[3]],
+                                "LOCATIONDESCRIPTION": feature.attributes[query.outFields[4]],
+                                "OPERATIONALAREA": feature.attributes[query.outFields[5]],
+                                "ROTATION": feature.attributes[query.outFields[6]],
+                                "LIFECYCLESTATUS": feature.attributes[query.outFields[7]],
+                                "WATERTYPE": feature.attributes[query.outFields[8]],
+                                "DIAMETER": feature.attributes[query.outFields[9]],
+                                "BYPASSVALVE": feature.attributes[query.outFields[10]],
+                                "CLOCKWISETOCLOSE": feature.attributes[query.outFields[11]],
+                                "CURRENTLYOPEN": feature.attributes[query.outFields[12]],
+                                "MOTORIZED": feature.attributes[query.outFields[13]],
+                                "NORMALLYOPEN": feature.attributes[query.outFields[14]],
+                                "PERCENTOPEN": feature.attributes[query.outFields[15]],
+                                "PRESSURESETTING": feature.attributes[query.outFields[16]],
+                                "REGULATIONTYPE": feature.attributes[query.outFields[17]],
+                                "TURNSTOCLOSE": feature.attributes[query.outFields[18]],
+                                "OPERABLE": feature.attributes[query.outFields[19]],
+                                "SYSTEMCODE": feature.attributes[query.outFields[20]]
+
+                            }
+                        });
+
+                        var myTestStore = new Memory({ data: mydata });
+
+                        grid2.set ("columns", [
+                            {	field: "id",
+                                label: "GISOBJID"
+                            },
+                            {	field: "ENABLED",
+                                label: "ENABLED"
+                            },
+                            {	field: "SubtypeLabel",
+                                label: "SubtypeLabel"
+                            },
+                            {	field: "INSTALLDATE",
+                                label: "INSTALLDATE",
+                                formatter: this.date_formatter
+
+                            },
+                            {	field: "LOCATIONDESCRIPTION",
+                                label: "LOCATIONDESCRIPTION"
+                            },
+                            {	field: "OPERATIONALAREA",
+                                label: "OPERATIONALAREA"
+                            },
+                            {	field: "ROTATION",
+                                label: "ROTATION"
+                            },
+                            {	field: "LIFECYCLESTATUS",
+                                label: "LIFECYCLESTATUS"
+                            },
+                            {	field: "WATERTYPE",
+                                label: "WATERTYPE"
+                            },
+                            {	field: "DIAMETER",
+                                label: "DIAMETER"
+                            },
+                            {	field: "BYPASSVALVE",
+                                label: "BYPASSVALVE"
+                            },
+                            {	field: "CLOCKWISETOCLOSE",
+                                label: "CLOCKWISETOCLOSE"
+                            },
+                            {	field: "CURRENTLYOPEN",
+                                label: "CURRENTLYOPEN"
+                            },
+                            {	field: "MOTORIZED",
+                                label: "MOTORIZED"
+                            },
+                            {	field: "NORMALLYOPEN",
+                                label: "NORMALLYOPEN"
+                            },
+                            {	field: "PERCENTOPEN",
+                                label: "PERCENTOPEN"
+                            },
+                            {	field: "PRESSURESETTING",
+                                label: "PRESSURESETTING"
+                            },
+                            {	field: "REGULATIONTYPE",
+                                label: "REGULATIONTYPE"
+                            },
+                            {	field: "TURNSTOCLOSE",
+                                label: "TURNSTOCLOSE"
+                            },
+                            {	field: "OPERABLE",
+                                label: "OPERABLE"
+                            },
+                            {	field: "SYSTEMCODE",
+                                label: "SYSTEMCODE"
+                            }]
+                        )
+                        grid2.set("store", myTestStore);
+                        grid2.refresh();
+
+                        document.body.style.cursor = "default";
+                        mapHandler.HideLoadingIcon();
+                    }));
+                }
+
+                else if (layername == 'gpfMainsLayer') {
+                    qt.execute(query, lang.hitch(this, function(results){
+                        var mydata = array.map(results.features, function(feature) {
+                            return {
+                                "id": feature.attributes[query.outFields[0]],
+                                "ENABLED": feature.attributes[query.outFields[1]],
+                                "INSTALLDATE": feature.attributes[query.outFields[2]],
+                                "LIFECYCLESTATUS": feature.attributes[query.outFields[3]],
+                                "SubtypeLabel": feature.attributes[query.outFields[4]],
+                                "WATERTYPE": feature.attributes[query.outFields[5]],
+                                "MATERIAL": feature.attributes[query.outFields[6]],
+                                "DIAMETER": feature.attributes[query.outFields[7]],
+                                "PIPELENGTH": feature.attributes[query.outFields[8]],
+                                "SYSTEMCODE": feature.attributes[query.outFields[9]]
+                            }
+                        });
+
+                        var myTestStore = new Memory({ data: mydata });
+
+                        grid.set ("columns", [
+                            { field: "id",
+                                label: "GISOBJID"
+                            },
+                            { field: "ENABLED",
+                                label: "ENABLED"
+                            },
+                            { field: "INSTALLDATE",
+                                label: "INSTALLDATE",
+                                formatter: this.date_formatter
+
+                            },
+                            { field: "LIFECYCLESTATUS",
+                                label: "LIFECYCLESTATUS"
+                            },
+                            { field: "SubtypeLabel",
+                                label: "SubtypeLabel"
+                            },
+                            { field: "WATERTYPE",
+                                label: "WATERTYPE"
+                            },
+                            { field: "MATERIAL",
+                                label: "MATERIAL"
+                            },
+                            { field: "DIAMETER",
+                                label: "DIAMETER"
+                            },
+                            { field: "PIPELENGTH",
+                                label: "PIPELENGTH"
+                            },
+                            { field: "SYSTEMCODE",
+                                label: "SYSTEMCODE"
+                            }
+                        ])
+                        grid.set("store", myTestStore)    ;
+                        grid.refresh();
+
+                        document.body.style.cursor = "default";
+                        mapHandler.HideLoadingIcon();
+                    }));
+                }
 
 
-                }));
 
 
             }
-            , selectFeature: function() {
+            , selectFeature: function(layername) {
                 // select the feature
-                var fl = map.getLayer("states");
+                var fl = map.getLayer(layername);
                 var query = new Query();
                 query.objectIds = [parseInt(e.target.innerHTML)];
                 fl.selectFeatures(query, FeatureLayer.SELECTION_NEW, function(result) {
@@ -372,7 +754,8 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
 
             , ExportGrid: function(layername) {
                 //setup the geoprocessor task
-                gp = new esri.tasks.Geoprocessor("http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportMainstoCSV/GPServer/ExportMainstoCSV");
+                var gpURL = this.gpURLS[this.resultLayers.indexOf(layername)];
+                gp = new esri.tasks.Geoprocessor(gpURL);
                 gp.setOutSpatialReference({wkid:26985});
 
                 //Find layer with this id in the map
@@ -398,14 +781,14 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                         //alert(error);
                         //esri.hide(loading);
                     });
-                    document.body.style.cursor = "wait";
-
-                    //Show Loading Icon
-                    mapHandler.ShowLoadingIcon();
                 }));
             }
 
             , completeCallback: function(jobInfo){
+                document.body.style.cursor = "default";
+                //Show Loading Icon
+                mapHandler.HideLoadingIcon();
+
                 if(jobInfo.jobStatus !== "esriJobFailed"){
                     gp.getResultData(jobInfo.jobId,"OutFile", lang.hitch(this, function(outputFile) {
 
@@ -416,12 +799,14 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                     )
                    );
                 }
+
+
             }
 
             ,statusCallback: function(jobInfo) {
                 var status = jobInfo.jobStatus;
-                document.body.style.cursor = "default";
-                mapHandler.HideLoadingIcon();
+/*                document.body.style.cursor = "default";
+                mapHandler.HideLoadingIcon();*/
 
                 if(status === "esriJobFailed"){
                     alert(status);

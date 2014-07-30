@@ -29371,8 +29371,684 @@
                     }
                 }
             ]
-        }
-    ],
+        },
+		{
+            "url": "https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/water_vep_valves_fs/MapServer",
+            "id": "ValveExercise_1958",
+            "visibility": true,
+            "visibleLayers": [
+                0
+            ],
+            "opacity": 1,
+            "title": "Valve Exercise",
+			"layers": [
+				{
+					  "id": 0,
+					  "popupInfo": {
+							"title": "wExerciseSystemValves",
+							"fieldInfos": [
+							  {
+								"fieldName": "OBJECTID",
+								"label": "OBJECTID",
+								"isEditable": false,
+								"visible": false
+							  },
+							  {
+								"fieldName": "Shape",
+								"label": "Shape",
+								"isEditable": false,
+								"visible": false
+							  },
+							  {
+								"fieldName": "ANCILLARYROLE",
+								"label": "ANCILLARYROLE",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "ENABLED",
+								"label": "Enabled",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "ADMINISTRATIVEAREA",
+								"label": "AdministrativeArea",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "FACILITYID",
+								"label": "FACILITYID",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "INSTALLDATE",
+								"label": "INSTALLDATE",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "dateFormat": "shortDateShortTime",
+								  "timezone": "utc"
+								}
+							  },
+							  {
+								"fieldName": "LOCATIONDESCRIPTION",
+								"label": "LOCATIONDESCRIPTION",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "OPERATIONALAREA",
+								"label": "OperationalArea",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "ROTATION",
+								"label": "ROTATION",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "places": 2,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "LIFECYCLESTATUS",
+								"label": "LifecycleStatus",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "SUBTYPE",
+								"label": "Subtype",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "WORKORDERID",
+								"label": "WORKORDERID",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "ELEVATION",
+								"label": "ELEVATION",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "places": 2,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "WATERTYPE",
+								"label": "WaterType",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "DIAMETER",
+								"label": "Diameter",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "BYPASSVALVE",
+								"label": "BypassValve",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "CLOCKWISETOCLOSE",
+								"label": "ClockwiseToClose",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "CURRENTLYOPEN",
+								"label": "CurrentlyOpen",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "MOTORIZED",
+								"label": "Motorized",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "NORMALLYOPEN",
+								"label": "NormallyOpen",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "PERCENTOPEN",
+								"label": "PercentOpen",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "PRESSURESETTING",
+								"label": "PRESSURESETTING",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "REGULATIONTYPE",
+								"label": "RegulationType",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "TURNSTOCLOSE",
+								"label": "TURNSTOCLOSE",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "OPERABLE",
+								"label": "Operable",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "UTIL_ID",
+								"label": "UTIL_ID",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "UTILITYQUALITYLEVEL",
+								"label": "UTILITYQUALITYLEVEL",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "SOURCEDOCACCURACY",
+								"label": "SOURCEDOCACCURACY",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "CREATOR",
+								"label": "CREATOR",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "CREATIONDATE",
+								"label": "CREATIONDATE",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "dateFormat": "shortDateShortTime",
+								  "timezone": "utc"
+								}
+							  },
+							  {
+								"fieldName": "QCSTATUS",
+								"label": "QCSTATUS",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "COMMENTS",
+								"label": "COMMENTS",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "LOOPTAGID",
+								"label": "LOOPTAGID",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "ACTUATORTYPE",
+								"label": "ACTUATORTYPE",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "SYSTEMCODE",
+								"label": "System Code",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "ORG",
+								"label": "ORG",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "STATUS",
+								"label": "STATUS",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "DESC_",
+								"label": "DESC",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "DEPT",
+								"label": "DEPT",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "SubtypeLabel",
+								"label": "SubtypeLabel",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "YearBuilt",
+								"label": "YearBuilt",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "dateFormat": "shortDateShortTime",
+								  "timezone": "utc"
+								}
+							  },
+							  {
+								"fieldName": "ServiceLife",
+								"label": "ServiceLife",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "RemainingLife",
+								"label": "RemainingLife",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "Condition",
+								"label": "Condition",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "Criticality",
+								"label": "Criticality",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "OriginalCost",
+								"label": "OriginalCost",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "CurrentValue",
+								"label": "CurrentValue",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "ReplacementCost",
+								"label": "ReplacementCost",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "SalvageValue",
+								"label": "SalvageValue",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "ECO",
+								"label": "ECO",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "SeatMaterial",
+								"label": "SeatMaterial",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "MANAGED_FLAG",
+								"label": "MANAGED_FLAG",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "GISOBJID",
+								"label": "GISOBJID",
+								"isEditable": false,
+								"visible": true,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "Asset_MasterNbr",
+								"label": "Asset_MasterNbr",
+								"isEditable": false,
+								"visible": false,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "SYSTEMCODE2",
+								"label": "System Code 2 EAM",
+								"isEditable": false,
+								"visible": false,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "VEP_GPS_X",
+								"label": "VEP_GPS_X",
+								"isEditable": false,
+								"visible": true,
+								"format": {
+								  "places": 2,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "VEP_GPS_Y",
+								"label": "VEP_GPS_Y",
+								"isEditable": false,
+								"visible": true,
+								"format": {
+								  "places": 2,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "VEP_COMMENTS",
+								"label": "VEP_COMMENTS",
+								"isEditable": false,
+								"visible": true,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "VEP_OPERATOR",
+								"label": "VEP_OPERATOR",
+								"isEditable": false,
+								"visible": true,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "VEP_LAST_EDIT",
+								"label": "VEP_LAST_EDIT",
+								"isEditable": false,
+								"visible": true,
+								"format": {
+								  "dateFormat": "shortDateShortTime",
+								  "timezone": "utc"
+								}
+							  },
+							  {
+								"fieldName": "VEP_STARTED_ON",
+								"label": "VEP_STARTED_ON",
+								"isEditable": false,
+								"visible": true,
+								"format": {
+								  "dateFormat": "shortDateShortTime",
+								  "timezone": "utc"
+								}
+							  },
+							  {
+								"fieldName": "VEP_COMPLETE_ON",
+								"label": "VEP_COMPLETE_ON",
+								"isEditable": false,
+								"visible": true,
+								"format": {
+								  "dateFormat": "shortDateShortTime",
+								  "timezone": "utc"
+								}
+							  },
+							  {
+								"fieldName": "VEP_STATUS",
+								"label": "VEP_STATUS",
+								"isEditable": false,
+								"visible": true,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "VEP_VALVE_BOX_COND",
+								"label": "VEP_VALVE_BOX_COND",
+								"isEditable": false,
+								"visible": true,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "VEP_VALVE_BOX_COVER_COND",
+								"label": "VEP_VALVE_BOX_COVER_COND",
+								"isEditable": false,
+								"visible": true,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "VEP_VALVE_BOX_DEBRIS",
+								"label": "VEP_VALVE_BOX_DEBRIS",
+								"isEditable": false,
+								"visible": true,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "VEP_DEPTH_TO_NUT",
+								"label": "VEP_DEPTH_TO_NUT",
+								"isEditable": false,
+								"visible": true,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "VEP_VALVE_SIZE",
+								"label": "VEP_VALVE_SIZE",
+								"isEditable": false,
+								"visible": true,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "VEP_NUM_TURNS_TO_CLOSE",
+								"label": "VEP_NUM_TURNS_TO_CLOSE",
+								"isEditable": false,
+								"visible": true,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "VEP_NUM_TURNS_TO_OPEN",
+								"label": "VEP_NUM_TURNS_TO_OPEN",
+								"isEditable": false,
+								"visible": true,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  },
+							  {
+								"fieldName": "VEP_VALVE_LOCATION",
+								"label": "VEP_VALVE_LOCATION",
+								"isEditable": false,
+								"visible": true,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "VEP_SUR_COLLAR_COND",
+								"label": "VEP_SUR_COLLAR_COND",
+								"isEditable": false,
+								"visible": true,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "VEP_WO_ER_NEEDED",
+								"label": "VEP_WO_ER_NEEDED",
+								"isEditable": false,
+								"visible": true,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "VEP_VALVE_OPEN_DIR",
+								"label": "VEP_VALVE_OPEN_DIR",
+								"isEditable": false,
+								"visible": true,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "VEP_PHOTO_1",
+								"label": "VEP_PHOTO_1",
+								"isEditable": false,
+								"visible": true,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "VEP_PHOTO_2",
+								"label": "VEP_PHOTO_2",
+								"isEditable": false,
+								"visible": true,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "VEP_PHOTO_3",
+								"label": "VEP_PHOTO_3",
+								"isEditable": false,
+								"visible": true,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "GlobalID",
+								"label": "GlobalID",
+								"isEditable": false,
+								"visible": false
+							  },
+							  {
+								"fieldName": "VEP_VALVE_BOX_PLUMB",
+								"label": "VEP_VALVE_BOX_PLUMB",
+								"isEditable": false,
+								"visible": true,
+								"stringFieldOption": "textbox"
+							  },
+							  {
+								"fieldName": "VEP_VALVE_BOX_PLUMB_DEG",
+								"label": "VEP_VALVE_BOX_PLUMB_DEG",
+								"isEditable": false,
+								"visible": true,
+								"format": {
+								  "places": 0,
+								  "digitSeparator": true
+								}
+							  }
+							],
+							"description": null,
+							"showAttachments": false,
+							"mediaInfos": [
+							  
+							]
+			}
+		}
+			]
+		}
+		],
         "baseMap": {
         "baseMapLayers": [
             {

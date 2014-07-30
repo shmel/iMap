@@ -8,6 +8,7 @@ define(["dojo/_base/declare",
     "dijit/registry",
     "dojo/ready",
     "dojo/_base/lang",
+    "dojo/_base/connect",
     "dijit/layout/ContentPane",
     "dojo/dom-class",
     "dojo/dom-style",
@@ -45,6 +46,7 @@ define(["dojo/_base/declare",
              registry,
              ready,
              lang,
+             connect,
              ContentPane,
              domClass,
              domStyle,
@@ -68,6 +70,9 @@ define(["dojo/_base/declare",
             , map: null
             , toolbar: null
             , AttWidget : null
+            , drawHandler: null
+            , wwresultsHandler: null
+            , waterresultsHandler: null
 
 
 
@@ -96,13 +101,6 @@ define(["dojo/_base/declare",
                 this.toolbar = new Draw(this.map);
 
 
-               /* var wwTraceButton = new ToggleButton({
-                    name: "wwTraceButton",
-                    type: "button",
-                    label: "Wastewater Trace",
-                    *//*style: "width: 100px; height:100%; line-height:100%; text-align: left",*//*
-                    onClick: lang.hitch(this,  function(){*/
-
                 // WATER ISOLATION TRACE
                 var wwTraceButton = new Button({
                     name: "wwTraceButton",
@@ -123,7 +121,7 @@ define(["dojo/_base/declare",
 
                         esri.bundle.toolbars.draw.addPoint = "Click to place the origin point of the trace";
 
-                        dojo.connect(this.toolbar, "onDrawEnd", lang.hitch(this, this.executeUpstreamWWTrace));
+                        this.drawHandler =  dojo.connect(this.toolbar, "onDrawEnd", lang.hitch(this, this.executeUpstreamWWTrace));
 
                         this.toolbar.activate(Draw.POINT);
 
@@ -141,35 +139,8 @@ define(["dojo/_base/declare",
                              })                      //End On Click for Trace Button
                 }, "WWTraceClearButton");
 
-                //var modulePath = "/src/modules/core/attributetable/attributetable"
-
-                wwResultsTableButton = new ToggleButton({
-                    name: "wwResultsButton",
-                    type: "button",
-                    label: "View and Export Results",
-                    showLabel: "true",
-                    style: "width: 100px; height:100%; line-height:100%; text-align: left; visibility:hidden;"
-                }, "WWResultsButton");
-
-
-                //var modulePath = "src/modules/core/attributetable/attributetable.js";
-                var wwResultstoolClick = on(wwResultsTableButton, "click", lang.hitch(this, function () {
-
-                    wwResultstoolClick.remove();
-                    var widgetParams = {
-                        buttonDivId:  "WWResultsButton",
-                        floaterDivId: 'floaterAttribute',
-                        AppConfig: this._AppConfig,
-                        clickSource: "ww"
-                    };
-
-                    this.AttWidget = new AttributeTable(widgetParams);
-
-                }));
-
                 // WATER ISOLATION TRACE
 
-                // VALVE ISOLATION TRACE
                 var waterTraceButton = new Button({
                     name: "waterTraceButton",
                     type: "button",
@@ -190,7 +161,7 @@ define(["dojo/_base/declare",
 
                         esri.bundle.toolbars.draw.addPoint = "Click to place the origin point of the trace";
 
-                        dojo.connect(this.toolbar, "onDrawEnd", lang.hitch(this, this.executeWaterTrace));
+                        this.drawHandler =  dojo.connect(this.toolbar, "onDrawEnd", lang.hitch(this, this.executeWaterTrace));
 
                         this.toolbar.activate(Draw.POINT);
                     })                      //End On Click for Trace Button
@@ -207,30 +178,11 @@ define(["dojo/_base/declare",
                     })                      //End On Click for Trace Button
                 }, "WaterTraceClearButton");
 
-                //WaterResultsButton
-                var waterResultsTableButton = new ToggleButton({
-                    name: "WaterResultsButton",
-                    type: "button",
-                    label: "View and Export Results",
-                    showLabel: "true",
-                    style: "width: 100px; height:100%; line-height:100%; text-align: left; visibility:hidden;"
-                }, "WaterResultsButton");
 
-                //Modify Click Event and change on first Click
-                var waterResultstoolClick = on(waterResultsTableButton, "click", lang.hitch(this, function () {
-                    waterResultstoolClick.remove();
-                        var widgetParams = {
-                            buttonDivId:  "WaterResultsButton",
-                            floaterDivId: 'floaterAttribute',
-                            AppConfig: this._AppConfig,
-                            clickSource: "water"
-                        };
+                //Make Results Buttons and Set Click Events
+                this.MakeWWResultsButton();
+                this.MakeWaterResultsButton();
 
-                        this.AttWidget = new AttributeTable(widgetParams);
-
-                }));
-
-                // VALVE ISOLATION TRACE
             }
             , executeUpstreamWWTrace: function(geometry) {
                 this.map.graphics.clear();
@@ -268,7 +220,8 @@ define(["dojo/_base/declare",
 
                 //the code snippet assumes the featureLayer is the first layer in the result map service
                 var fLayerUrl = mapurl + "/0";
-                console.log (fLayerUrl);
+                console.log ("Feature Layer URL: " + fLayerUrl);
+
                 //create a feature layer
                 //the MODE_ONDEMAND property allows the client to restrictively download features for current web app extent
                 var featurelayer= FeatureLayer(fLayerUrl, {
@@ -292,16 +245,8 @@ define(["dojo/_base/declare",
                 var rend = new SimpleRenderer(simpleJson);
 
                 featurelayer.setRenderer(rend);
-/*
-                var msLayer  = new ArcGISDynamicMapServiceLayer(mapurl);
 
-                dojo.connect (featurelayer, "onLoad", function(){
-                    //Get Extent from Map Service
-                    console.log ("layer loaded")
-                    var zoomExtent = esri.graphicsExtent(featureLayer.graphics);
-                    this.map.setExtent(zoomExtent, true);
-                })
-*/
+
                 //Hide Loading Icon
                 mapHandler.HideLoadingIcon();
                 mapHandler.EnableMapPopups();
@@ -309,25 +254,23 @@ define(["dojo/_base/declare",
                 dojo.byId("msgWWTraceWarning").style.visibility = 'hidden';
                 dojo.byId("msgValveTraceWarning").style.visibility = 'hidden';
 
+                    var connectFirstLayerAdd = dojo.connect(this.map, "onLayerAddResult", this, lang.hitch (this, function(){
+
+                        dojo.disconnect(connectFirstLayerAdd);
+
+                        this.zoomToLayer(featurelayer);
+                        featurelayer.setSelectionSymbol(new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,new Color([0,255,255,.5]), 3));
+                    }));
+
+
 
                 this.map.addLayer(featurelayer);
 
-                var query = new esri.tasks.Query();
-                query.where = "1=1";
-                query.outSpatialReference = this.map.spatialReference;
-                featurelayer.queryFeatures(query, lang.hitch(this, function (featureSet) {
-                    var data = [];
-                    if (featureSet && featureSet.features && featureSet.features.length > 0) {
-                        data = featureSet.features;
-                    }
-                    var zoomExtent = esri.graphicsExtent(data);
-                    this.map.setExtent(zoomExtent);
-                }));
+
 
                  //show button for showing attribute table
+                  //  this.MakeWWResultsButton();
                     domStyle.set(registry.byId("WWResultsButton").domNode, 'visibility', 'visible');
-
-
                 }
                 else
                 {
@@ -336,6 +279,23 @@ define(["dojo/_base/declare",
                 }
 
               }
+            , zoomToLayer: function(featurelayer){
+                //var featurelayer = this.map.getLayer(layername)
+
+                var query = new esri.tasks.Query();
+                var random =(new Date()).getTime(); //Fix for 10.1 Bug NIM086349
+                query.where = random + " = " + random
+                query.outSpatialReference = this.map.spatialReference;
+                featurelayer.queryFeatures(query, lang.hitch(this, function (featureSet) {
+                    var data = [];
+                    if (featureSet && featureSet.features && featureSet.features.length > 0) {
+                        data = featureSet.features;
+                    }
+                    var zoomExtent = esri.graphicsExtent(data);
+                    this.map.setExtent(zoomExtent.expand(1.2));
+
+                }));
+            }
 
             , executeWaterTrace: function(geometry) {
                 this.map.graphics.clear();
@@ -375,8 +335,8 @@ define(["dojo/_base/declare",
                 var fMainsLayerUrl = mapurl + "/1";
                 var fValvesLayerUrl = mapurl + "/0";
 
-                console.log (fMainsLayerUrl);
-                console.log (fValvesLayerUrl);
+                console.log ("Mains Layer URL: " + fMainsLayerUrl);
+                console.log ("Valves Layer URL: " + fValvesLayerUrl);
 
                 //create  feature layer for Valves and Main Lines
                 //the MODE_ONDEMAND property allows the client to restrictively download features for current web app extent
@@ -427,36 +387,30 @@ define(["dojo/_base/declare",
 
                 gpfMainsLayer.setRenderer(mainsrend);
                 gpfValvesLayer.setRenderer(valvesrend);
-                /*
-                 var msLayer  = new ArcGISDynamicMapServiceLayer(mapurl);
 
-                 dojo.connect (featurelayer, "onLoad", function(){
-                 //Get Extent from Map Service
-                 console.log ("layer loaded")
-                 var zoomExtent = esri.graphicsExtent(featureLayer.graphics);
-                 this.map.setExtent(zoomExtent, true);
-                 })
-                 */
                 //Hide Loading Icon
                 mapHandler.HideLoadingIcon();
                 mapHandler.EnableMapPopups();
                 //dojo.byId("waterTraceButton").checked = 'false';
                 dojo.byId("msgWWTraceWarning").style.visibility = 'hidden';
                 dojo.byId("msgValveTraceWarning").style.visibility = 'hidden';
+
+                    var connectFirstLayerAdd = dojo.connect(this.map, "onLayerAddResult", this, lang.hitch (this, function(){
+
+                        dojo.disconnect(connectFirstLayerAdd);
+
+                        this.zoomToLayer(gpfValvesLayer);
+
+                        gpfMainsLayer.setSelectionSymbol(new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,new Color([0,255,255,.5]), 3));
+                        gpfValvesLayer.setSelectionSymbol(new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 16,
+                            new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+                                new Color([0,255,255,.5]), 1),
+                            new Color([0,255,255,.5])));
+                    }));
+
                 this.map.addLayer(gpfMainsLayer);
                 this.map.addLayer(gpfValvesLayer);
 
-                var query = new esri.tasks.Query();
-                query.where = "1=1";
-                query.outSpatialReference = this.map.spatialReference;
-                gpfValvesLayer.queryFeatures(query, lang.hitch(this, function (featureSet) {
-                    var data = [];
-                    if (featureSet && featureSet.features && featureSet.features.length > 0) {
-                        data = featureSet.features;
-                    }
-                    var zoomExtent = esri.graphicsExtent(data);
-                    this.map.setExtent(zoomExtent.expand(1.2));
-                }));
 
                     //show button for showing attribute table
                     domStyle.set(registry.byId("WaterResultsButton").domNode, 'visibility', 'visible');
@@ -470,7 +424,7 @@ define(["dojo/_base/declare",
             }
 
             , TraceError: function(source){
-                console.log (source);
+                //console.log (source);
                 if (source == "wwTrace") {
                     dojo.byId("msgWWTraceWarning").style.visibility = 'visible';
                 }
@@ -486,56 +440,147 @@ define(["dojo/_base/declare",
                 mapHandler.EnableMapPopups();
             }
 
+            , MakeWWResultsButton: function(){
+                if (registry.byId("WWResultsButton")){ }
+                else {
+                    domConstruct.create('div', { id: "WWResultsButton" }, "wwResultsButtonContainer");
+                }
+                wwResultsTableButton = new ToggleButton({
+                    name: "wwResultsButton",
+                    type: "button",
+                    label: "View and Export Results",
+                    showLabel: "true",
+                    checked: "false",
+                    style: "width: 100px; height:100%; line-height:100%; text-align: left; visibility:hidden;"
+                }, "WWResultsButton");
+
+
+                //var modulePath = "src/modules/core/attributetable/attributetable.js";
+                //var wwResultstoolClick = on(wwResultsTableButton, "click", lang.hitch(this, function () {
+                this.wwresultsHandler = on(wwResultsTableButton, "click", lang.hitch(this, function () {
+                    this.wwresultsHandler.remove();
+                    var widgetParams = {
+                        buttonDivId:  "WWResultsButton",
+                        floaterDivId: 'floaterAttribute',
+                        AppConfig: this._AppConfig,
+                        clickSource: "ww"
+                    };
+
+                    this.AttWidget = new AttributeTable(widgetParams);
+
+                }));
+            }
+
+            , MakeWaterResultsButton: function (){
+                if (registry.byId("WaterResultsButton")) {}
+                else {
+                    domConstruct.create('div', { id: "WaterResultsButton" }, "waterResultsButtonContainer");
+                }
+
+                //WaterResultsButton
+                waterResultsTableButton = new ToggleButton({
+                    name: "WaterResultsButton",
+                    type: "button",
+                    label: "View and Export Results",
+                    showLabel: "true",
+                    style: "width: 100px; height:100%; line-height:100%; text-align: left; visibility:hidden;"
+                }, "WaterResultsButton");
+
+                //Modify Click Event and change on first Click
+                this.waterresultsHandler = on(waterResultsTableButton, "click", lang.hitch(this, function () {
+                    this.waterresultsHandler.remove();
+                    var widgetParams = {
+                        buttonDivId:  "WaterResultsButton",
+                        floaterDivId: 'floaterAttribute',
+                        AppConfig: this._AppConfig,
+                        clickSource: "water"
+                    };
+
+                    this.AttWidget = new AttributeTable(widgetParams);
+
+                }));
+            }
 
             , ClearResults: function(){
                 var layersList = ["gpfLayer", "gpfMainsLayer", "gpfValvesLayer"]
                 //Clear the Feature Layer Result & Graphic
                 this.map.graphics.clear();
 
+                dojo.disconnect(this.drawHandler);
+
                 dojo.byId("msgWWTraceWarning").style.visibility = 'hidden';
                 dojo.byId("msgValveTraceWarning").style.visibility = 'hidden';
                 //show button for showing attribute table
 
-                domStyle.set(registry.byId("WWResultsButton").domNode, 'visibility', 'hidden');
-                registry.byId("WWResultsButton").set('label', "View and Export Results");
+                  domStyle.set(registry.byId("WWResultsButton").domNode, 'visibility', 'hidden');
+/*                registry.byId("WWResultsButton").set('label', "View and Export Results");
+                registry.byId("WWResultsButton").set('checked', false);*/
+
+
                 domStyle.set(registry.byId("WaterResultsButton").domNode, 'visibility', 'hidden');
-                registry.byId("WaterResultsButton").set('label', "View and Export Results");
+/*                registry.byId("WaterResultsButton").set('label', "View and Export Results");
+                registry.byId("WaterResultsButton").set('checked', false);*/
+                //console.log ("clearresults set checked false")
 
 
+                document.body.style.cursor = "default";
+/*                mapHandler.HideLoadingIcon();
+                mapHandler.EnableMapPopups();*/
 
                 //Hide Atribute Table
                 if (dom.byId("floaterAttribute")) {
-                    registry.byId("floaterAttribute").destroyRecursive();
+                    if (dom.byId("floaterAttribute").style.visibility === 'visible') {
 
-                    //Reset the Click Event
-                    registry.byId("WWResultsButton").onClick = lang.hitch(this, function () {
-                        var widgetParams = {
-                            buttonDivId:  "WWResultsButton",
-                            floaterDivId: 'floaterAttribute',
-                            AppConfig: this._AppConfig,
-                            clickSource: "ww"
-                        };
+                        // if (registry.byId("WWResultsButton").checked = 'true') {
+                        //Hide the Table
+                        registry.byId("floaterAttribute").hide();
 
-                        this.wwAttWidget = new AttributeTable(widgetParams);
-                    });
-
-                    registry.byId("WaterResultsButton").onClick = lang.hitch(this, function () {
-                        var widgetParams = {
-                            buttonDivId:  "WaterResultsButton",
-                            floaterDivId: 'floaterAttribute',
-                            AppConfig: this._AppConfig,
-                            clickSource: "water"
-                        };
-
-                        this.wwAttWidget = new AttributeTable(widgetParams);
-                    });
+                        /*                            registry.byId("WWResultsButton").set('checked', false);
+                         registry.byId("WWResultsButton").set('label', "View and Export Results"); //uncheck the toggle button}*/
+                        //  }
+                        //console.log("Test")
+                    }
+                };
 
 
-                    console.log("Test")
+                //Re Create the Results Buttons if it exists
+                if (registry.byId("WWResultsButton")){
+                    domStyle.set(registry.byId("WWResultsButton").domNode, 'visibility', 'hidden');
+                    registry.byId("WWResultsButton").destroyRecursive();
+                    if (registry.byId("floaterAttribute")){
+                        registry.byId("floaterAttribute").destroyRecursive();
+                    }
+                    this.MakeWWResultsButton();
+                } else {
+                   //this.MakeWWResultsButton();
+                };
+
+                if (registry.byId("WaterResultsButton")){
+                    domStyle.set(registry.byId("WaterResultsButton").domNode, 'visibility', 'hidden');
+                    registry.byId("WaterResultsButton").destroyRecursive();
+                    if (registry.byId("floaterAttribute")){
+                        registry.byId("floaterAttribute").destroyRecursive();
+                    }
+                    this.MakeWaterResultsButton();
+                } else {
+                    //this.MakeWWResultsButton();
+                };
+
+
+                //Hide Attribute Table
+                if (dom.byId("floaterAttribute")) {
+                    if (dom.byId("floaterAttribute").style.visibility === 'visible') {
+
+                       // if (registry.byId("WWResultsButton").checked = 'true') {
+                        //Hide the Table
+                            registry.byId("floaterAttribute").hide();
+
+/*                            registry.byId("WWResultsButton").set('checked', false);
+                            registry.byId("WWResultsButton").set('label', "View and Export Results"); //uncheck the toggle button}*/
+                      //  }
+                       // console.log("Test")
+                    }
                 }
-
-
-
 
                 //Find layer with this id in the map
                 for(var b = this.map.graphicsLayerIds.length -1; b > 0; --b) {
@@ -546,7 +591,6 @@ define(["dojo/_base/declare",
                         this.map.removeLayer(layer)
                     }
                 }
-
             }
             , NewFunctionHere: function(){
 

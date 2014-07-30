@@ -24,7 +24,7 @@ define(["dojo/_base/declare", "dojo/on"],
                 //                    this._clickHandler = on(this.map, "onClick", this._clickListener);
                 if (this._clickListener) {
                     this._clickHandler = this.map.on("click", this._clickListener);
-                    console.log("Popups should be enabled");
+                   // console.log("Popups should be enabled");
                 };
             }
 
@@ -34,6 +34,7 @@ define(["dojo/_base/declare", "dojo/on"],
 
                 if (this._clickHandler) {
                     dojo.disconnect(this._clickHandler);
+                    //console.log("Popups should be disabled");
                 }
             }
 

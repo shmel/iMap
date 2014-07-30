@@ -8,10 +8,12 @@
  *  in order to work with modules, dojo/aspect after() or before() functions should be used.
  */
 define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dijit/_WidgetsInTemplateMixin", "dojo/aspect", "dojo/dom-construct", "dojo/on", "dijit/registry", "dojo/ready", "dojo/parser"
-    , "dojo/_base/fx", "dojo/_base/lang", "dojo/_base/array", "dojo/dom", "dojox/layout/FloatingPane", "dojo/query", "./../utilities/maphandler", "dojo/text!./templates/attributetable.html", "dojo/has", "dojo/json", "dojo/_base/Color", "dojo/dnd/move", "dojo/dom-style",
-    "dijit/form/Button", "dgrid/OnDemandGrid", "dgrid/Selection", "dojo/store/Memory", "esri/tasks/query", "esri/tasks/QueryTask", "esri/tasks/Geoprocessor","esri/tasks/FeatureSet", "dijit/layout/TabContainer", "dijit/layout/ContentPane", "xstyle/css!./css/attributetable.css"],
+    , "dojo/_base/fx", "dojo/_base/lang", "dojo/_base/array", "dojo/dom", "dojox/layout/FloatingPane", "dojo/query", "./../utilities/maphandler", "dojo/text!./templates/attributetable.html", "dojo/has", "dojo/json",
+    "dojo/_base/Color", "dojo/dnd/move", "dojo/dom-style",
+    "dijit/form/Button",  "dgrid/Selection", "dojo/store/Memory", "esri/tasks/query", "esri/tasks/QueryTask", "esri/tasks/Geoprocessor","esri/tasks/FeatureSet", "esri/layers/FeatureLayer", "esri/geometry/Extent", "dijit/layout/TabContainer",
+    "dijit/layout/ContentPane", "dgrid/OnDemandGrid",  "xstyle/css!./css/attributetable.css"],
     function(declare, WidgetBase, TemplatedMixin, WidgetsInTemplateMixin, aspect, domConstruct, on, registry, ready, parser, fxer, lang, array,
-             dom, floatingPane, query, mapHandler, template, has, JSON, Color, move, domstyle, Button, OnDemandGrid, Selection, Memory, Query, QueryTask, Geoprocessor, FeatureSet, TabContainer, ContentPane){
+             dom, floatingPane, query, mapHandler, template, has, JSON, Color, move, domstyle, Button,  Selection, Memory, Query, QueryTask, Geoprocessor, FeatureSet, FeatureLayer, Extent, TabContainer, ContentPane, OnDemandGrid){
         return declare([WidgetBase],{
             //*** Properties needed for this style of module
             //Give a unique ID for the floating panel. Populated from constructor in toolmanager.js
@@ -37,7 +39,9 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
             gpURLS: ["http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportMainstoCSV/GPServer/ExportMainstoCSV",
                 "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportPressMainstoCSV/GPServer/ExportPressMainstoCSV",
                 "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportValvestoCSV/GPServer/ExportValvestoCSV" ],
-            gp: null
+            gp: null,
+            currLayerName: null
+
 
 
 
@@ -156,7 +160,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                     var exportButton =  new Button({
                         name: "ExportTableButton",
                         type: "button",
-                        label: "Export",
+                        label: "Export All Records to CSV",
                         /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
                         onClick: lang.hitch(this, function(){
                             this.ExportGrid("gpfMainsLayer");
@@ -164,16 +168,35 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                     });
                     //}, "ExportButton");
 
+                    var zoomAllButton = new Button({
+                        name: "ZoomAllButton",
+                        type: "button",
+                        label: "Zoom Extent of All Features",
+                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
+                        onClick: lang.hitch(this, function(){
+                        this.zoomToExtent("gpfMainsLayer");
+                        })                      //End On Click
+                    });
 
-                    //Add Export Button
+                    //Add Export Button2
                     var exportButton2 =  new Button({
                         name: "ExportTableButton",
                         type: "button",
-                        label: "Export",
+                        label: "Export All Records to CSV",
                         /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
                         onClick: lang.hitch(this, function(){
                             this.ExportGrid("gpfValvesLayer");
                         })                      //End On Click for Trace Button
+                    });
+
+                    var zoomAllButton2 = new Button({
+                        name: "ZoomAllButton",
+                        type: "button",
+                        label: "Zoom Extent of All Features",
+                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
+                        onClick: lang.hitch(this, function(){
+                            this.zoomToExtent("gpfValvesLayer");
+                        })                      //End On Click
                     });
 
                     fpI.startup();
@@ -191,11 +214,13 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                     //Add Items to ContentPane
                     cp1.set("content", [
                         exportButton.domNode,
+                        zoomAllButton.domNode,
                         grid.domNode
                     ])
 
                     cp2.set("content", [
                         exportButton2.domNode,
+                        zoomAllButton2.domNode,
                         grid2.domNode
                     ])
 
@@ -208,15 +233,27 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                     var exportButton =  new Button({
                         name: "ExportTableButton",
                         type: "button",
-                        label: "Export",
+                        label: "Export All Records to CSV",
                         /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
                         onClick: lang.hitch(this, function(){
                             this.ExportGrid("gpfLayer");
                         })                      //End On Click for Trace Button
+                    });
+
+                    var zoomAllButton = new Button({
+                        name: "ZoomAllButton",
+                        type: "button",
+                        label: "Zoom Extent of All Features",
+                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
+                        onClick: lang.hitch(this, function(){
+                            this.zoomToExtent("gpfLayer");
+                        })
                     });
 
                     fpI.startup();
 
+
+
                     var cp1 = new ContentPane({
                         title: "Gravity Mains",
                         content: ""
@@ -225,6 +262,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                     //Add Items to ContentPane
                     cp1.set("content", [
                         exportButton.domNode,
+                        zoomAllButton.domNode,
                         grid.domNode
                     ])
 
@@ -237,132 +275,6 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                 //Add ContentPane to Tab Container
                 tc.startup();
 
-                // On tool button click- toggle the floating pane
-                on(registry.byId(this.buttonDivId), "click", lang.hitch(this, function () {
-                    this.ToggleTool();
-                }));
-                //Open it
-                this.ToggleTool();
-            }
-
-            //*** Update the Contents of the Tab Container based on the button clicked
-            , UpdateTabContainer: function(clickSource) {
-
-                var emptyStore = new Memory({
-                    idProperty: "OBJECTID",
-                    data: { identifier: 'OBJECTID',
-                        items: []}
-                });
-
-                //Add dojo OnDemandGrid
-                grid = new (declare([OnDemandGrid, Selection]))({
-                    // use Infinity so that all data is available in the grid
-                    bufferRows: 1000,
-                    columns: {
-                        "Results": "Results"
-                    },
-                    loadingMessage: "Loading data..." ,
-                    noDataMessage: "No results found.",
-                    store: emptyStore
-                });
-
-                //Check Button Source, create another grid if water
-                if (this.clickSource == 'water'){
-                    grid2 = new (declare([OnDemandGrid, Selection]))({
-                        // use Infinity so that all data is available in the grid
-                        bufferRows: 1000,
-                        columns: {
-                            "Results": "Results"
-                        },
-                        loadingMessage: "Loading data..." ,
-                        noDataMessage: "No results found.",
-                        store: emptyStore
-                    });
-
-                    //Add Export Button
-                    var exportButton =  new Button({
-                        name: "ExportTableButton",
-                        type: "button",
-                        label: "Export",
-                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
-                        onClick: lang.hitch(this, function(){
-                            this.ExportGrid("gpfMainsLayer");
-                        })                      //End On Click for Trace Button
-                    });
-                    //}, "ExportButton");
-
-
-                    //Add Export Button
-                    var exportButton2 =  new Button({
-                        name: "ExportTableButton",
-                        type: "button",
-                        label: "Export",
-                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
-                        onClick: lang.hitch(this, function(){
-                            this.ExportGrid("gpfValvesLayer");
-                        })                      //End On Click for Trace Button
-                    });
-
-                 //   fpI.startup();
-
-                    var cp1 = new ContentPane({
-                        title: "Pressurized Mains",
-                        content: ""
-                    });
-
-                    var cp2 = new ContentPane({
-                        title: "System Valves",
-                        content: ""
-                    });
-
-                    //Add Items to ContentPane
-                    cp1.set("content", [
-                        exportButton.domNode,
-                        grid.domNode
-                    ])
-
-                    cp2.set("content", [
-                        exportButton2.domNode,
-                        grid2.domNode
-                    ])
-
-                    //Add ContentPane to Tab Container
-                    tc.addChild(cp1);
-                    tc.addChild(cp2);
-                }
-                else {
-                    //Add Export Button
-                    var exportButton =  new Button({
-                        name: "ExportTableButton",
-                        type: "button",
-                        label: "Export",
-                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
-                        onClick: lang.hitch(this, function(){
-                            this.ExportGrid("gpfLayer");
-                        })                      //End On Click for Trace Button
-                    });
-
-                    //fpI.startup();
-
-                    var cp1 = new ContentPane({
-                        title: "Gravity Mains",
-                        content: ""
-                    });
-
-                    //Add Items to ContentPane
-                    cp1.set("content", [
-                        exportButton.domNode,
-                        grid.domNode
-                    ])
-
-                    //Add ContentPane to Tab Container
-                    tc.addChild(cp1);
-
-                }
-
-
-                //Add ContentPane to Tab Container
-                tc.startup();
 
                 // On tool button click- toggle the floating pane
                 on(registry.byId(this.buttonDivId), "click", lang.hitch(this, function () {
@@ -370,14 +282,13 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                 }));
                 //Open it
                 this.ToggleTool();
-
-
-
             }
 
             //*** This gets called by the Close (x) button in the floating pane created above. Re-use in your widget.
             , ToggleTool: function () {
+                //console.log ("toggle tool")
                 if (dom.byId(this.floaterDivId).style.visibility === 'hidden') {
+                   // console.log ("toggle tool - show the pane")
                     //TODO: find better fix for dancing floating pane
                     //must reset top and left style properties to keep floating pane from dancing across page on multiple re-open.
                     domstyle.set(this.floaterDivId, "top", "0px");
@@ -388,6 +299,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                     if (grid.store.data.length == 0) {
                         if (this.clickSource =='ww') {
                             this.LoadResults("gpfLayer");
+                            //grid.on(".dgrid-row:click", this.selectFeature(event,"gpfLayer"));
                         }
                         else if (this.clickSource =='water') {
                             this.LoadResults("gpfValvesLayer");
@@ -401,8 +313,10 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                    // this._measureDij.setTool("location",true);
                    // mapHandler.DisableMapPopups();
                 } else {
+                   // console.log ("toggle tool - hide the pane")
                     registry.byId(this.floaterDivId).hide();
                     registry.byId(this.buttonDivId).set('checked', false);
+                   // console.log ("toggle - set checked false")
                     registry.byId(this.buttonDivId).set('label', "View and Export Results"); //uncheck the toggle button
                   //  mapHandler.EnableMapPopups(); //enable map popup windows
                     //deactivate the tool and clear the results
@@ -545,11 +459,17 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                             }])
                         grid.set("store", myTestStore)    ;
                         grid.refresh();
+                        grid.set("message", "gpfLayer")
 
                         document.body.style.cursor = "default";
                         mapHandler.HideLoadingIcon();
                         // add a click listener on the ID column
-                        //sjh 0618 grid.on(".dgrid-row:click", lang.hitch(this, this.SelectSewerSystem));
+                        grid.on(".dgrid-row:click", lang.hitch(this, function(e) {
+                            this.currLayerName = "gpfLayer"
+                            this.selectFeature(e);
+                        }
+                        )); //This works
+
                     }));
                 }
                 else if (layername == 'gpfValvesLayer') {
@@ -655,6 +575,14 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
 
                         document.body.style.cursor = "default";
                         mapHandler.HideLoadingIcon();
+
+                        // add a click listener on the ID column
+                        grid2.on(".dgrid-row:click", lang.hitch(this, function(e) {
+                                this.currLayerName = "gpfValvesLayer"
+                                this.selectFeature(e);
+                            }
+                        )); //This works
+
                     }));
                 }
 
@@ -716,29 +644,83 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
 
                         document.body.style.cursor = "default";
                         mapHandler.HideLoadingIcon();
+
+                        // add a click listener on the ID column
+                        grid.on(".dgrid-row:click", lang.hitch(this, function(e) {
+                                this.currLayerName = "gpfMainsLayer"
+                                this.selectFeature(e);
+                            }
+                        )); //This works
+
                     }));
                 }
-
-
-
-
             }
-            , selectFeature: function(layername) {
+                , selectFeature: function(e) {
+                layername = this.currLayerName;
                 // select the feature
-                var fl = map.getLayer(layername);
+
+                //Get the layer name from the grid query
+
+                var fl = this.map.getLayer(layername);
                 var query = new Query();
-                query.objectIds = [parseInt(e.target.innerHTML)];
-                fl.selectFeatures(query, FeatureLayer.SELECTION_NEW, function(result) {
+                var GISOBJID  = [parseInt(e.target.innerHTML)];
+
+                query.where = "GISOBJID = " + (e.target.innerHTML);
+
+
+                fl.selectFeatures(query, FeatureLayer.SELECTION_NEW, lang.hitch(this, function(result) {
                     if ( result.length ) {
+
+                        //Handling for point features
+                        if (result[0].geometry.type == "point") {
+                            var pt = result[0].geometry;
+                            var factor = 1; //some factor for converting point to extent
+                            var extent = new Extent(pt.x - factor, pt.y - factor, pt.x + factor, pt.y + factor, pt.spatialReference);
+
+                            this.map.setExtent(extent.expand(2));
+                        }
+                        else{
+                            var zoomExtent = result[0].geometry.getExtent();
+                            this.map.setExtent(zoomExtent.expand(1.2));
+                        }
+
+
                         // re-center the map to the selected feature
-                        window.map.centerAt(result[0].geometry.getExtent().getCenter());
+                       //this.map.centerAt(result[0].geometry.getExtent().getCenter());
+
+
                     } else {
                         console.log("Feature Layer query returned no features... ", result);
                     }
-                });
-
-
+                }));
             }
+
+            , zoomToExtent: function(layername) {
+
+            /*    for(var b = this.map.graphicsLayerIds.length -1; b > 0; --b) {
+                    var featurelayer = this.map.getLayer(this.map.graphicsLayerIds[b]);
+                    //console.log(layer.id + ' ' + layer.opacity + ' ' + layer.visible);
+                    if (featurelayer.id == layername) {
+                        var qURL = featurelayer.url
+                    }
+                }*/
+                var featurelayer = this.map.getLayer(layername)
+
+                //Given an input layer name, zoom to the extent of it
+                    var query = new esri.tasks.Query();
+                    var random =(new Date()).getTime(); //Fix for 10.1 Bug NIM086349
+                    query.where = random + " = " + random
+                    query.outSpatialReference = this.map.spatialReference;
+                    featurelayer.queryFeatures(query, lang.hitch(this, function (featureSet) {
+                        var data = [];
+                        if (featureSet && featureSet.features && featureSet.features.length > 0) {
+                            data = featureSet.features;
+                        }
+                        var zoomExtent = esri.graphicsExtent(data);
+                        this.map.setExtent(zoomExtent.expand(1.2));
+                    }));
+            }
+
             , ClearGrid: function() {
                 //Empty Store
                 //Get Data Store from Feature Layers

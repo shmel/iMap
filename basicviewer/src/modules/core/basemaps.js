@@ -65,7 +65,8 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dojo/_base/lang", "dojo/topi
 
                 var mdImaplayer = new BasemapLayer({
                     //url:"https://prod1.spatialsys.com/arcgis/rest/services/CharlesStormWater/Basemap/MapServer"
-                    url:"http://www.mdimap.us/ArcGIS/rest/services/ImageryBaseMapsEarthCover/MD.State.6InchImagery/MapServer"
+                    //url:"http://www.mdimap.us/ArcGIS/rest/services/ImageryBaseMapsEarthCover/MD.State.6InchImagery/MapServer"
+                    url:"http://geodata.md.gov/imap/rest/services/Imagery/MD_SixInchImagery/MapServer"
                 });
 
                 var ssaCharlesOrtholayer = new BasemapLayer({
@@ -74,13 +75,15 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dojo/_base/lang", "dojo/topi
                 });
 
                 var mdImapbasemap = new esri.dijit.Basemap({
-                    layers:[ssaCharlesOrtholayer, mdImaplayer],
+                    layers:[mdImaplayer, ssaCharlesOrtholayer],
                     title:"iMap Orthophoto",
                     thumbnailUrl: "assets/imap_basemap.png"
                 });
 
                 basemapGallery.add(ssaCharlesbasemap);
                 basemapGallery.add(mdImapbasemap);
+
+
                 cp.set('content', basemapGallery.domNode);
                 //Set this dropdownbutton's drop down content
                 this.dropDown = cp;

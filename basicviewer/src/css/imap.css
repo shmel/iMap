@@ -74,7 +74,7 @@ body {
 }
 
 
-.esriPopup .titlePane{
+/*.esriPopup .titlePane{
   background-color:#808080;
   border-style:none;
 }
@@ -85,7 +85,7 @@ body {
 .esriPopup .esriViewPopup .gallery .mediaHandle,
 .esriPopup .esriViewPopup .gallery .mediaIcon{
   background: url(../../assets/imap/popup.png) no-repeat scroll 0 0 transparent;
-}
+}*/
 
 /*Attribute Inspector button styling (delete buttons)*/
 .esriAttributeInspector div.atiButtons span.dijit span.dijitReset{

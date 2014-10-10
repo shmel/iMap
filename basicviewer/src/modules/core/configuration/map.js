@@ -43,8 +43,7 @@ define(["dojo/_base/declare", "dojo/_base/lang", "dojo/on", "dojo/Evented", "../
                             callbackParamName: "callback"
                         });
                         // Use lang.hitch to have the callbacks run in the scope of this module
-                        webMapRequest.then(
-                            lang.hitch(this, function(webMap) { //The response object is the Web Map
+                        webMapRequest.then(lang.hitch(this, function(webMap) { //The response object is the Web Map
                                 this._WebMapId = webMap.item.id;
                                 this._WebMap = webMap;
                                 mapHandler.OriginalWebMap = webMap;
@@ -112,13 +111,13 @@ define(["dojo/_base/declare", "dojo/_base/lang", "dojo/on", "dojo/Evented", "../
                     } else {
                         this._AppConfig.constrainmapextent = false;
                     }
-                    if (environment.TouchEnabled) {
+                    /*if (environment.TouchEnabled) {
                         require(["esri/dijit/PopupMobile"], lang.hitch(this, function(popupMob) {
                             //create a mobile popup
                             popup = new esri.dijit.PopupMobile(null, dojo.create("div"));
                             this._createMap(popup);
                         }));
-                    } else
+                    } else*/ //Commented out to test non-mobile popup on touch devices
                         this._createMap(null);
                 }
 

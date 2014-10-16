@@ -43,17 +43,31 @@
     // The modules which need to be loaded immediately during app load - most of the widgets are lazy-loaded (e.g. on button click)
     , ["dojo/parser", /*"jquery",*/ "dojo/dom", "dojo/ready", "dojo/_base/lang", "require"
         , "modules/core/utilities/environment", "modules/core/configuration/app", "modules/core/configuration/map", "modules/core/configuration/layout"
-        , "dijit/layout/BorderContainer", "dijit/layout/TabContainer", "dijit/Toolbar", "dojo/parser", "dojox/layout/FloatingPane", "dijit/MenuItem"
-        , "esri/arcgis/utils", "esri/IdentityManager"
+        , "esri/IdentityManager", "dojo/on", "dojo/dom-construct", "dijit/layout/BorderContainer", "dijit/layout/TabContainer", "dijit/Toolbar", "dojo/parser", "dojox/layout/FloatingPane", "dijit/MenuItem"
+        , "esri/arcgis/utils"
         /*"dojo/i18n!localize/template"*, "esri/dijit/TimeSlider", "esri/dijit/editing/Editor-all", "esri/dijit/Bookmarks"*/ ]
     //The callback to run once Dojo and the required modules are ready.  References to the instantiated objects in the array can be exposed
     // as parameters in the callback function, but a parameter does not have to be inserted for each array item
-    , function(parser, /*$,*/ dom, ready, lang, require, environment, app, mapConfig, layout) {
+    , function(parser, /*$,*/ dom, ready, lang, require, environment, app, mapConfig, layout, Identity, on, domConstruct) {
        ready(function() {
             parser.parse();
             var appConfigurator = new app();
             var mapConfigurator = new mapConfig();
             var layoutHandler = new layout();
+			//Custom Charles County User Sign-In Dialog:
+			on(Identity,  "dialog-create", function(){
+                //get Dom node for Sign In dialog.  Filter through unnamed divs
+                var dialogspace = dom.byId("dijit_Dialog_0");
+                var children = dialogspace.getElementsByTagName('div');
+                var grandchildren = children[1].getElementsByTagName('div');
+                var greatGC = grandchildren[0].getElementsByTagName('div');
+                //clear the "Please sign in" text
+                greatGC[0].innerHTML = "Please Enter User Credentials:"
+                //create new img element
+                var newContent = domConstruct.create("img", {src: "./assets/CharlesCO_Logo.png", style: "display: block; margin-left: auto;margin-right: auto; padding-top: 15px; height: 100px"});
+                //append to the correct unnamed nested div to show up above the textboxes, but inside the dialog box.
+                grandchildren[1].appendChild(newContent);
+            });
             //$(document).ready(
                 //function(){ //jQuery is now loaded and ready
                     //The application configuration has been loaded

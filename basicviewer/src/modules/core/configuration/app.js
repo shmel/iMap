@@ -76,6 +76,7 @@ define(["dojo/_base/declare", "dojox/html/entities", "dojo/_base/lang", "dojo/Ev
                     displayeditor: false,
                     searchresults: true,
                     analysispanel: true,
+                    displayvFire: true,
                     /*startupwidget: 'searchresults',  //'analysispanel', ////tablecontents',*/
                     startupwidget: 'analysispanel', ////tablecontents',
                     ////When editing you need to specify a proxyurl (see below) if the service is on a different domain

@@ -118,7 +118,7 @@ define(["dojo/_base/declare", "../utilities/environment", "dojo/_base/lang", "do
                     //*** Give the tab's content pane a unique id.
                     //*** and title to display in the tab
                     var tabParams = {
-                        title: 'Valve', //i18n.tools.details.title,
+                        title: 'V-FIRE', //i18n.tools.details.title,
                         id: 'vFire',
                         style: "padding: 0px"
                     };

@@ -10,15 +10,16 @@
  *  Note: It seems when working with map layer events (e.g. "onClick"),
  *  in order to work with modules, dojo/aspect after() or before() functions should be used.
  */
-define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./templates/vFire.html", "dojo/_base/lang", "dojo/dom", "dojo/query", "dojo/_base/array"
-    , "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dijit/registry"
-    , "dojox/charting/Chart", "dojox/charting/themes/Claro", "dojox/charting/plot2d/Pie", "dojox/charting/action2d/Tooltip", "dojox/charting/action2d/MoveSlice"
+define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./templates/vFire.html", "dojo/_base/lang", "dojo/dom", "dojo/query", "dojo/_base/array", "dojo/date/locale"
+    , "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dijit/registry", "dijit/form/DateTextBox"
+    , "dojox/charting/Chart", "dojox/charting/plot2d/Pie", "dojox/charting/action2d/Tooltip", "dojox/charting/action2d/MoveSlice", "dojox/charting/widget/SelectableLegend", "dojox/charting/SimpleTheme"
     , "../../core/utilities/maphandler"
     , "esri/tasks/QueryTask", "esri/tasks/query" , "esri/tasks/StatisticDefinition"
+    , "dojo/domReady!"
     , "xstyle/css!./css/vFire.css"],
-    function(declare, domConstruct, on, template, lang, dom, query, arrayUtil
-            , WidgetBase, TemplatedMixin, registry
-            , Chart, theme, PiePlot, Tooltip, MoveSlice
+    function(declare, domConstruct, on, template, lang, dom, query, arrayUtil, locale
+            , WidgetBase, TemplatedMixin, registry, DateTextBox
+            , Chart, PiePlot, Tooltip, MoveSlice, SelectableLegend, SimpleTheme
             , mapHandler
             , QueryTask, Query, StatisticDefinition){
         return declare([WidgetBase, TemplatedMixin], {
@@ -76,28 +77,44 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         var vStatus = featureTest.attributes["VEP_STATUS"];
                         var vCount = featureTest.attributes["CountByValveStatus"];
                         if (vStatus == 4) {
-                            countDiv.innerHTML = vCount + " Valves completed to date";
+                            countDiv.innerHTML = "<big><big><big><center>" + vCount + " valves completed to date</center></big></big></big>";
                         };
                         return {
                             x: 1,
                             y: vCount,
                             tooltip: valveTrans[vStatus].tooltip,
                             color: valveTrans[vStatus].color,
+                            legend: valveTrans[vStatus].tooltip,
                             text: vCount
                         }
                     });
                     var pieChart = new Chart("vFireChartDiv", {
-                        title: "V-FIRE Valve Status",
+                        title: "",
                         titlePos: "top",
                         titleFont: "normal normal normal 12 pt Arial",
-                        titleFontColor: "black"
+                        titleFontColor: "black",
+                        legend: this.chartData.legend
                     });
-                    pieChart.setTheme(theme);
+                    var myTheme = new SimpleTheme({
+                        chart: {
+                            stroke: null,
+                            fill: "transparent",
+                            pageStyle: null
+                        },
+                        plotarea: {
+                            stroke: null,
+                            fill: "#eaf4ff"
+                        }
+                    });
+                    pieChart.setTheme(myTheme);
                     pieChart.addPlot("default", {
                         type: PiePlot,
-                        radius: 200,
+                        radius: 80,
                         fontColor: "black",
-                        labelOffset: -20
+                        labelOffset: -10,
+                        font: "normal normal 10pt Tahoma",
+                        labelStyle: "columns",
+                        htmlLabels: true
                     });
                     pieChart.addSeries("V-FIRE Valve Status", this.chartData);
                     var tip = new Tooltip(pieChart, "default", {
@@ -107,7 +124,34 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     });
                     var anim = new MoveSlice(pieChart, "default", {});
                     pieChart.render();
+                    var selectableLegend = new SelectableLegend({
+                        chart: pieChart
+                    }
+                    , "selectableLegend");
                 }));
+                // Text Date Box
+                declare("OracleDateTextBox", DateTextBox, {
+                    oracleFormat: {selector: 'date', datePattern: 'dd-MMM-yyyy', locale: 'en-us'},
+                    value: "", // prevent parser from trying to convert to Date object
+                    postMixInProperties: function(){ // change value string to Date object
+                        this.inherited(arguments);
+                        // convert value to Date object
+                        this.value = locale.parse(this.value, this.oracleFormat);
+                    },
+                    // To write back to the server in Oracle format, override the serialize method:
+                    serialize: function(dateObject, options){
+                        return locale.format(dateObject, this.oracleFormat).toUpperCase();
+                    }
+                });
+                function showServerValue(){
+                    dom.byId('toServerValue').value = document.getElementsByName('oracle')[0].value;
+                }
+                new OracleDateTextBox({
+                    value: "31-DEC-2009",
+                    name: "oracle",
+                    onChange: function(v){ setTimeout(showServerValue, 0)}
+                }, "oracle").startup();
+                showServerValue();
             }
 
     });

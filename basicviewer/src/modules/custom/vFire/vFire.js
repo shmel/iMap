@@ -10,16 +10,16 @@
  *  Note: It seems when working with map layer events (e.g. "onClick"),
  *  in order to work with modules, dojo/aspect after() or before() functions should be used.
  */
-define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./templates/vFire.html", "dojo/_base/lang", "dojo/dom", "dojo/query", "dojo/_base/array", "dojo/date/locale"
-    , "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dijit/registry", "dijit/form/DateTextBox"
-    , "dojox/charting/Chart", "dojox/charting/plot2d/Pie", "dojox/charting/action2d/Tooltip", "dojox/charting/action2d/MoveSlice", "dojox/charting/widget/SelectableLegend", "dojox/charting/SimpleTheme"
+define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./templates/vFire.html", "dojo/_base/lang", "dojo/dom", "dojo/query", "dojo/_base/array", "dojo/date/locale", "dojo/parser", "dojo/date"
+    , "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dijit/registry", "dijit/form/DateTextBox", "dijit/form/Button"
+    , "dojox/charting/Chart", "dojox/charting/plot2d/Pie", "dojox/charting/action2d/Tooltip", "dojox/charting/action2d/MoveSlice", "dojox/charting/widget/SelectableLegend", "dojox/charting/SimpleTheme", "dojox/charting/widget/Legend"
     , "../../core/utilities/maphandler"
     , "esri/tasks/QueryTask", "esri/tasks/query" , "esri/tasks/StatisticDefinition"
     , "dojo/domReady!"
     , "xstyle/css!./css/vFire.css"],
-    function(declare, domConstruct, on, template, lang, dom, query, arrayUtil, locale
-            , WidgetBase, TemplatedMixin, registry, DateTextBox
-            , Chart, PiePlot, Tooltip, MoveSlice, SelectableLegend, SimpleTheme
+    function(declare, domConstruct, on, template, lang, dom, query, arrayUtil, locale, parser, date
+            , WidgetBase, TemplatedMixin, registry, DateTextBox, Button
+            , Chart, PiePlot, Tooltip, MoveSlice, SelectableLegend, SimpleTheme, pLegend
             , mapHandler
             , QueryTask, Query, StatisticDefinition){
         return declare([WidgetBase, TemplatedMixin], {
@@ -27,6 +27,32 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
             , baseClass: "vFireDiv"
             , map: null
             , chartData: null
+            , valveTrans: [
+                {
+                    "color": "rgb(2, 92, 230)",
+                    "tooltip": "Not Exercised Yet"
+                },
+                {
+                    "color": "rgb(255, 255, 2)",
+                    "tooltip": "In Process"
+                },
+                {
+                    "color": "rgb(170, 2,230)",
+                    "tooltip": "In Process, Valve Not Found"
+                },
+                {
+                    "color": "rgb(230, 2, 2)",
+                    "tooltip": "In Process, Repair Required"
+                },
+                {
+                    "color": "rgb(57, 169, 2)",
+                    "tooltip": "Exercise Completed"
+                },
+                {
+                    "color": "rgb(137, 91, 70)",
+                    "tooltip": "Requires GPS Location"
+                }
+            ]
             , constructor: function(arcgs){
                 declare.safeMixin(this, arcgs);
                 this.map = mapHandler.map;
@@ -36,85 +62,90 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
             }
             , startup: function () {
                 this.inherited(arguments);
+                this._queryMap("1 = 1");
+                var widgetStart = new DateTextBox({
+                    value: new Date()
+                }, dojo.byId("startDate"));
+                var widgetEnd = new DateTextBox({
+                    value: new Date()
+                }, dojo.byId("endDate"));
+                var clearButton = new Button({
+                    label: "Clear Results",
+                    type: "button",
+                    name: "ClearResults"
+                }, "clear-results");
+                clearButton.startup();
+                on(clearButton, "click", lang.hitch(this, function(){
+                    this._clearResults();
+                    console.log(widgetStart.value);
+                }));
+                var reQUERY = new Button ({
+                    label: "QUERY",
+                    type: "button",
+                    name: "reQUERY"
+                }, "Query");
+                reQUERY.startup();
+                on(reQUERY, "click", lang.hitch(this, function(){
+                    this._queryMap("1 = 1")
+                }));
+            }
+            , _queryMap: function(whereClause) {
                 var countDiv = dom.byId("completedCountDiv");
-                var valveTrans = [
-                    {
-                        "color": "rgb(2, 92, 230)",
-                        "tooltip": "Not Exercised Yet"
-                    },
-                    {
-                        "color": "rgb(255, 255, 2)",
-                        "tooltip": "In Process"
-                    },
-                    {
-                        "color": "rgb(170, 2,230)",
-                        "tooltip": "In Process, Valve Not Found"
-                    },
-                    {
-                        "color": "rgb(230, 2, 2)",
-                        "tooltip": "In Process, Repair Required"
-                    },
-                    {
-                        "color": "rgb(57, 169, 2)",
-                        "tooltip": "Exercise Completed"
-                    },
-                    {
-                        "color": "rgb(137, 91, 70)",
-                        "tooltip": "Requires GPS Location"
-                    }
-                ];
                 var queryTest = new Query();
                 var testQueryTask = new QueryTask("http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/water_vep_valves_fs/MapServer/0/query");
                 var stats = new StatisticDefinition();
                 stats.statisticType = "count";
                 stats.onStatisticField = "OBJECTID";
                 stats.outStatisticFieldName = "CountByValveStatus";
-                queryTest.where = "1 = 1";
+                //queryTest.where = "1 = 1";
+                queryTest.where = whereClause;
                 queryTest.outStatistics = [stats];
                 queryTest.groupByFieldsForStatistics = ["VEP_STATUS"];
                 testQueryTask.execute(queryTest, lang.hitch(this, function(resultsTest){
+                    var valveTrans = this.valveTrans;
+                    this._clearResults();
                     this.chartData = arrayUtil.map(resultsTest.features, function(featureTest) {
                         var vStatus = featureTest.attributes["VEP_STATUS"];
                         var vCount = featureTest.attributes["CountByValveStatus"];
                         if (vStatus == 4) {
-                            countDiv.innerHTML = "<big><big><big><center>" + vCount + " valves completed to date</center></big></big></big>";
+                            countDiv.innerHTML = "<big><big><big><center><b>" + vCount + " valves completed to date</b></center></big></big></big>";
                         };
                         return {
-                            x: 1,
-                            y: vCount,
-                            tooltip: valveTrans[vStatus].tooltip,
-                            color: valveTrans[vStatus].color,
-                            legend: valveTrans[vStatus].tooltip,
-                            text: vCount
-                        }
+                        x: 1,
+                        y: vCount,
+                        tooltip: valveTrans[vStatus].tooltip,
+                        color: valveTrans[vStatus].color,
+                        legend: valveTrans[vStatus].tooltip,
+                        text: vCount
+                    }
                     });
                     var pieChart = new Chart("vFireChartDiv", {
-                        title: "",
-                        titlePos: "top",
-                        titleFont: "normal normal normal 12 pt Arial",
-                        titleFontColor: "black",
-                        legend: this.chartData.legend
-                    });
+                title: "",
+                titlePos: "top",
+                titleFont: "normal normal normal 12 pt Arial",
+                titleFontColor: "black",
+                legend: this.chartData.legend
+            });
                     var myTheme = new SimpleTheme({
                         chart: {
-                            stroke: null,
-                            fill: "transparent",
-                            pageStyle: null
-                        },
+                        stroke: null,
+                        fill: "transparent",
+                        pageStyle: null
+                    },
                         plotarea: {
-                            stroke: null,
-                            fill: "#eaf4ff"
-                        }
+                        stroke: null,
+                        fill: "#eaf4ff"
+                    }
                     });
                     pieChart.setTheme(myTheme);
                     pieChart.addPlot("default", {
-                        type: PiePlot,
-                        radius: 80,
-                        fontColor: "black",
-                        labelOffset: -10,
-                        font: "normal normal 10pt Tahoma",
-                        labelStyle: "columns",
-                        htmlLabels: true
+                    type: PiePlot,
+                    radius: 80,
+                    fontColor: "black",
+                    labelOffset: -10,
+                    font: "normal normal 10pt Tahoma",
+                    labelStyle: "columns",
+                    htmlLabels: true
                     });
                     pieChart.addSeries("V-FIRE Valve Status", this.chartData);
                     var tip = new Tooltip(pieChart, "default", {
@@ -124,34 +155,32 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     });
                     var anim = new MoveSlice(pieChart, "default", {});
                     pieChart.render();
-                    var selectableLegend = new SelectableLegend({
-                        chart: pieChart
-                    }
-                    , "selectableLegend");
+/*                    var selectableLegend = new SelectableLegend({
+                            chart: pieChart
+                        }
+                        , "selectableLegend");*/
+
+                    var Legend = new pLegend({
+                        chart: pieChart,
+                        horizontal: false
+                    }, "Legend");
                 }));
-                // Text Date Box
-                declare("OracleDateTextBox", DateTextBox, {
-                    oracleFormat: {selector: 'date', datePattern: 'dd-MMM-yyyy', locale: 'en-us'},
-                    value: "", // prevent parser from trying to convert to Date object
-                    postMixInProperties: function(){ // change value string to Date object
-                        this.inherited(arguments);
-                        // convert value to Date object
-                        this.value = locale.parse(this.value, this.oracleFormat);
-                    },
-                    // To write back to the server in Oracle format, override the serialize method:
-                    serialize: function(dateObject, options){
-                        return locale.format(dateObject, this.oracleFormat).toUpperCase();
-                    }
-                });
-                function showServerValue(){
-                    dom.byId('toServerValue').value = document.getElementsByName('oracle')[0].value;
+                console.log(whereClause);
+            }
+            , _clearResults : function(){
+                var clearPieChart = dom.byId("vFireChartDiv");
+                clearPieChart.innerHTML = null;
+                var clearCompletedCount = dom.byId("completedCountDiv");
+                clearCompletedCount.innerHTML = null;
+                /*var clearSelectableLegend = dom.byId("selectableLegend");
+                clearSelectableLegend.innerHTML = null;*/
+                var dLegend = registry.byId("Legend");
+                if(dLegend){
+                    //dLegend.destroy();
+                    console.log("Paul is cool");
                 }
-                new OracleDateTextBox({
-                    value: "31-DEC-2009",
-                    name: "oracle",
-                    onChange: function(v){ setTimeout(showServerValue, 0)}
-                }, "oracle").startup();
-                showServerValue();
+                var clearLegend = dom.byId("Legend");
+                clearLegend.innerHTML = null;
             }
 
     });

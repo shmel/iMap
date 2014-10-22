@@ -69,63 +69,125 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 var widgetEnd = new DateTextBox({
                     value: new Date()
                 }, dojo.byId("endDate"));
-                var clearButton = new Button({
-                    label: "Clear Results",
+                var yesterday = new Button ({
+                    label: "Yesterday",
                     type: "button",
-                    name: "ClearResults"
-                }, "clear-results");
-                clearButton.startup();
-                on(clearButton, "click", lang.hitch(this, function(){
-                    this._clearResults();
-                    console.log(widgetStart.value);
+                    name: "Yesterday"
+                }, "yesterday");
+                yesterday.startup();
+                on(yesterday, "click", lang.hitch(this, function(){
+                    var $today = new Date();
+                    var $yesterday = new Date($today);
+                    $yesterday.setDate($today.getDate() - 1);
+                    var convertYesterday = widgetStart.format($yesterday, {
+                        datePattern: "yyyy-MM-dd",
+                        selector: "date"
+                    });
+                    var convertEnd = widgetEnd.format($today, {
+                        datePattern: "yyyy-MM-dd",
+                        selector: "date"
+                    });
+                    randomMath = Math.random();
+                    this._queryMap("VEP_LAST_EDIT > date '" + convertYesterday + "' AND VEP_LAST_EDIT <= date'" + convertEnd + "'");
                 }));
-                var reQUERY = new Button ({
-                    label: "QUERY",
+                var lastWeek = new Button ({
+                    label: "Last Week",
+                    type: "button",
+                    name: "lastWeek"
+                }, "lastWeek");
+                lastWeek.startup();
+                on(lastWeek, "click", lang.hitch(this, function(){
+                    var $today = new Date();
+                    var $oneWeekBack = new Date($today);
+                    var $oneWeekBackEnd = new Date($today);
+                    var $Day = $oneWeekBack.getDay();
+                    var $Sunday = $oneWeekBack;
+                    $Sunday.setDate($today.getDate() - 7 - $Day);
+                    var $Saturday = $oneWeekBackEnd;
+                    $Saturday.setDate($today.getDate() - $Day - 1);
+                    var convertSunday = widgetStart.format($Sunday, {
+                        datePattern: "yyyy-MM-dd",
+                        selector: "date"
+                    });
+                    var convertSaturday = widgetEnd.format($Saturday, {
+                        datePattern: "yyyy-MM-dd",
+                        selector: "date"
+                    });
+                    this._queryMap("VEP_LAST_EDIT > date '" + convertSunday + "' AND VEP_LAST_EDIT <= date'" + convertSaturday + "'");
+                }));
+                var submit = new Button ({
+                    label: "Submit",
                     type: "button",
                     name: "reQUERY"
-                }, "Query");
-                reQUERY.startup();
-                on(reQUERY, "click", lang.hitch(this, function(){
+                }, "submit");
+                submit.startup();
+                on(submit, "click", lang.hitch(this, function(){
+                    var convertStart = widgetStart.format(widgetStart.value, {
+                        datePattern: "yyyy-MM-dd",
+                        selector: "date"
+                    });
+                    var convertEnd = widgetEnd.format(widgetEnd.value, {
+                        datePattern: "yyyy-MM-dd",
+                        selector: "date"
+                    });
+                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart +"' AND VEP_LAST_EDIT <= date'" + convertEnd + "'");
+                }));
+                var Original = new Button ({
+                    label: "Original",
+                    type: "button",
+                    name: "Original"
+                }, "Original");
+                Original.startup();
+                on(Original, "click", lang.hitch(this, function(){
                     this._queryMap("1 = 1")
                 }));
             }
             , _queryMap: function(whereClause) {
                 var countDiv = dom.byId("completedCountDiv");
+                var randomMath = Math.random();
                 var queryTest = new Query();
                 var testQueryTask = new QueryTask("http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/water_vep_valves_fs/MapServer/0/query");
                 var stats = new StatisticDefinition();
                 stats.statisticType = "count";
                 stats.onStatisticField = "OBJECTID";
                 stats.outStatisticFieldName = "CountByValveStatus";
-                //queryTest.where = "1 = 1";
-                queryTest.where = whereClause;
+                queryTest.where = whereClause + " AND " + randomMath + " = " + randomMath;
                 queryTest.outStatistics = [stats];
                 queryTest.groupByFieldsForStatistics = ["VEP_STATUS"];
                 testQueryTask.execute(queryTest, lang.hitch(this, function(resultsTest){
                     var valveTrans = this.valveTrans;
                     this._clearResults();
+                    var countValvesCompleted = 0;
                     this.chartData = arrayUtil.map(resultsTest.features, function(featureTest) {
                         var vStatus = featureTest.attributes["VEP_STATUS"];
                         var vCount = featureTest.attributes["CountByValveStatus"];
                         if (vStatus == 4) {
-                            countDiv.innerHTML = "<big><big><big><center><b>" + vCount + " valves completed to date</b></center></big></big></big>";
-                        };
-                        return {
-                        x: 1,
-                        y: vCount,
-                        tooltip: valveTrans[vStatus].tooltip,
-                        color: valveTrans[vStatus].color,
-                        legend: valveTrans[vStatus].tooltip,
-                        text: vCount
-                    }
+                            countValvesCompleted = vCount
+
+                        }
+                        if(vCount > 0) {
+                            return {
+                                x: 1,
+                                y: vCount,
+                                tooltip: valveTrans[vStatus].tooltip,
+                                color: valveTrans[vStatus].color,
+                                legend: valveTrans[vStatus].tooltip,
+                                text: vCount
+                            }
+                        }
                     });
+                    if(resultsTest.features.length == 0) {
+                        countDiv.innerHTML = "<big><big><big><center><b>No valves modified during the specified time-frame</b></center></big></big></big>";
+                    } else {
+                        countDiv.innerHTML = "<big><big><big><center><b>" + countValvesCompleted + " valves completed</b></center></big></big></big>";
+                    }
                     var pieChart = new Chart("vFireChartDiv", {
-                title: "",
-                titlePos: "top",
-                titleFont: "normal normal normal 12 pt Arial",
-                titleFontColor: "black",
-                legend: this.chartData.legend
-            });
+                        title: "",
+                        titlePos: "top",
+                        titleFont: "normal normal normal 12 pt Arial",
+                        titleFontColor: "black",
+                        legend: this.chartData.legend
+                    });
                     var myTheme = new SimpleTheme({
                         chart: {
                         stroke: null,
@@ -134,18 +196,19 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     },
                         plotarea: {
                         stroke: null,
-                        fill: "#eaf4ff"
+                        //fill: "#eaf4ff"
+                        fill: "transparent"
                     }
                     });
                     pieChart.setTheme(myTheme);
                     pieChart.addPlot("default", {
-                    type: PiePlot,
-                    radius: 80,
-                    fontColor: "black",
-                    labelOffset: -10,
-                    font: "normal normal 10pt Tahoma",
-                    labelStyle: "columns",
-                    htmlLabels: true
+                        type: PiePlot,
+                        radius: 80,
+                        fontColor: "black",
+                        labelOffset: -10,
+                        font: "normal normal 10pt Tahoma",
+                        labelStyle: "columns",
+                        htmlLabels: true
                     });
                     pieChart.addSeries("V-FIRE Valve Status", this.chartData);
                     var tip = new Tooltip(pieChart, "default", {
@@ -155,32 +218,23 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     });
                     var anim = new MoveSlice(pieChart, "default", {});
                     pieChart.render();
-/*                    var selectableLegend = new SelectableLegend({
-                            chart: pieChart
-                        }
-                        , "selectableLegend");*/
-
+                    var legend = dijit.byId("Legend");
+                    if(legend != undefined) {
+                        legend.destroyRecursive(true);
+                    }
                     var Legend = new pLegend({
                         chart: pieChart,
-                        horizontal: false
+                        horizontal: false,
+                        domNode: Legend
                     }, "Legend");
+                    Legend.refresh();
                 }));
-                console.log(whereClause);
             }
             , _clearResults : function(){
                 var clearPieChart = dom.byId("vFireChartDiv");
                 clearPieChart.innerHTML = null;
                 var clearCompletedCount = dom.byId("completedCountDiv");
                 clearCompletedCount.innerHTML = null;
-                /*var clearSelectableLegend = dom.byId("selectableLegend");
-                clearSelectableLegend.innerHTML = null;*/
-                var dLegend = registry.byId("Legend");
-                if(dLegend){
-                    //dLegend.destroy();
-                    console.log("Paul is cool");
-                }
-                var clearLegend = dom.byId("Legend");
-                clearLegend.innerHTML = null;
             }
 
     });

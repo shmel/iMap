@@ -1,33 +1,64 @@
 .vFire {
-    padding: 0px;
-    margin: 4px;
-/*
-    background-color: #eaf4ff;
-*/
-}
-.vFireDiv {
-    padding-top: 5px;
-    padding-left: 5px;
-    padding-bottom: 5px;
-    padding-right: 5px;
-    height: 6%;
-    border: solid;
-    border-color: #999999;
-    border-radius: 5px;
-    border-width: 2px;
-    background-color: #FFFFFF;
-    margin: 5px;
-}
-.vFireChartDiv {
     padding-top: 5px;
     padding-left: 5px;
     padding-bottom: 5px;
     padding-right: 5px;
     height: 100%;
+    /*width: 100%;*/
     border: solid;
     border-color: #999999;
     border-radius: 5px;
     border-width: 2px;
     background-color: #FFFFFF;
     margin: 5px;
+}
+#visual {
+    line-height: 25px;
+    text-align: left;
+    padding-bottom: 10px;
+    padding-top: 5px;
+}
+#Legend {
+    text-align: left;
+}
+.dates {
+    text-align: left;
+    display: inline-block;
+}
+#widget_startDate{
+    width: 105px;
+}
+#widget_endDate {
+    width: 105px;
+}
+#buttons .dijitButton .dijitButtonNode  {
+    display: block;
+    height: 25px;
+    width: 75px;
+    padding: 7px;
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
+#buttons .dijitButtonText {
+    padding: 0 0.3em;
+    text-align: center;
+    white-space: normal;
+}
+#buttons1 .dijitButton .dijitButtonNode  {
+    display: block;
+    height: 25px;
+    width: 55px;
+    padding: 7px;
+    margin-left: 12%;
+    margin-right: 15%;
+}
+
+#buttons1 .dijitButtonText {
+    padding: 0 0.3em;
+    text-align: center;
+    white-space: normal;
+}
+.dojoxLegendText {
+    margin-left: 5px;
 }

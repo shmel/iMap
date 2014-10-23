@@ -87,7 +87,6 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         datePattern: "yyyy-MM-dd",
                         selector: "date"
                     });
-                    randomMath = Math.random();
                     this._queryMap("VEP_LAST_EDIT > date '" + convertYesterday + "' AND VEP_LAST_EDIT <= date'" + convertEnd + "'");
                 }));
                 var lastWeek = new Button ({
@@ -119,7 +118,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     label: "Submit",
                     type: "button",
                     name: "reQUERY"
-                }, "submit");
+                }, "submitCustomDate");
                 submit.startup();
                 on(submit, "click", lang.hitch(this, function(){
                     var convertStart = widgetStart.format(widgetStart.value, {
@@ -133,7 +132,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     this._queryMap("VEP_LAST_EDIT > date '" + convertStart +"' AND VEP_LAST_EDIT <= date'" + convertEnd + "'");
                 }));
                 var Original = new Button ({
-                    label: "Original",
+                    label: "Lifetime",
                     type: "button",
                     name: "Original"
                 }, "Original");
@@ -177,9 +176,9 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         }
                     });
                     if(resultsTest.features.length == 0) {
-                        countDiv.innerHTML = "<big><big><big><center><b>No valves modified during the specified time-frame</b></center></big></big></big>";
+                        countDiv.innerHTML = "<h1>No Valves Were Modified During The Specified Time-Frame<h1>";
                     } else {
-                        countDiv.innerHTML = "<big><big><big><center><b>" + countValvesCompleted + " valves completed</b></center></big></big></big>";
+                        countDiv.innerHTML = "<h1><b>" + countValvesCompleted + "</b> Valves Completed</h1>";
                     }
                     var pieChart = new Chart("vFireChartDiv", {
                         title: "",
@@ -190,15 +189,14 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     });
                     var myTheme = new SimpleTheme({
                         chart: {
-                        stroke: null,
-                        fill: "transparent",
-                        pageStyle: null
-                    },
+                            stroke: null,
+                            fill: "transparent",
+                            pageStyle: null
+                        },
                         plotarea: {
-                        stroke: null,
-                        //fill: "#eaf4ff"
-                        fill: "transparent"
-                    }
+                            stroke: null,
+                            fill: "transparent"
+                        }
                     });
                     pieChart.setTheme(myTheme);
                     pieChart.addPlot("default", {

@@ -62,13 +62,16 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
             }
             , startup: function () {
                 this.inherited(arguments);
+                //call private function _queryMap with whereClause "1 = 1" initially
                 this._queryMap("1 = 1");
+                //create DateTextBoxes for startDate and endDate
                 var widgetStart = new DateTextBox({
                     value: new Date()
                 }, dojo.byId("startDate"));
                 var widgetEnd = new DateTextBox({
                     value: new Date()
                 }, dojo.byId("endDate"));
+                //create buttons yesterday, lastWeek, submit, and original along with onClick events
                 var yesterday = new Button ({
                     label: "Yesterday",
                     type: "button",
@@ -141,7 +144,8 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     this._queryMap("1 = 1")
                 }));
             }
-            , _queryMap: function(whereClause) {
+            , //private function to which passes query as whereClause then creates the pie chart and legend to view
+            _queryMap: function(whereClause) {
                 var countDiv = dom.byId("completedCountDiv");
                 var randomMath = Math.random();
                 var queryTest = new Query();
@@ -162,7 +166,6 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         var vCount = featureTest.attributes["CountByValveStatus"];
                         if (vStatus == 4) {
                             countValvesCompleted = vCount
-
                         }
                         if(vCount > 0) {
                             return {
@@ -228,7 +231,8 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     Legend.refresh();
                 }));
             }
-            , _clearResults : function(){
+            , //private function to delete the domNodes associated with the pie chart and legend
+            _clearResults : function(){
                 var clearPieChart = dom.byId("vFireChartDiv");
                 clearPieChart.innerHTML = null;
                 var clearCompletedCount = dom.byId("completedCountDiv");

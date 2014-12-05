@@ -261,7 +261,6 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                                 conjugator.End_Date = endDate;
                                 conjugator.Valve_Count = c;
                                 conjugator.Valve_Status = status;
-                                console.log(conjugator);
                                 this._pieQuery();
                             }
                         }
@@ -304,9 +303,9 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
             , //private function to execute pieQuery
             _pieQuery: function() {
                 this.map.graphics.clear();
-                gp.submitJob(conjugator, lang.hitch(this, this._displayFMainsLayer), function statusCallback(jobInfo) {
+                gp.submitJob(conjugator, lang.hitch(this, this._displayFMainsLayer)/*, function statusCallback(jobInfo) {
                     console.log(jobInfo.jobStatus);
-                });
+                }*/);
                 mapHandler.ShowLoadingIcon();
             }
             , //private function display features

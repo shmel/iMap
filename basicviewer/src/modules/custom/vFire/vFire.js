@@ -61,8 +61,8 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 this.inherited(arguments);
             }
             , startup: function () {
-                convertStart = "01-01-1800";
-                convertEnd = "12-31-4000";
+                convertStart = "1800-01-01";
+                convertEnd = "4000-12-31";
                 this.inherited(arguments);
                 //call private function _queryMap with whereClause "1 = 1" initially
                 this._queryMap("1 = 1");
@@ -146,10 +146,10 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 }, "Original");
                 Original.startup();
                 on(Original, "click", lang.hitch(this, function(){
-                    convertStart = "01-01-1800";
-                    convertEnd = "12-31-4000";
+                    convertStart = "1800-01-01";
+                    convertEnd = "4000-12-31";
                     this._clearLayer(featureLayer);
-                    this._queryMap("1 = 1")
+                    this._queryMap("1 = 1");
                 }));
                 //GP service
                 gp = new GP("http://prod1.spatialsys.com/arcgis/rest/services/DevVFIRE/OverUnderOneThousandValves/GPServer/Over%20Under%20One%20Thousand%20Valves");
@@ -164,16 +164,8 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     "Subdivision_Feature_Class" : "D:\\CharlesCountyUtilities\\Data\\WaterValveExerciseProgram\\CharlesCounty_Parcels_Meters_201402.gdb\\Cadastral\\Subdivision_Plats"
                 };
                 featureLayer = null;
-                //GP button test
-                /*var pieQuery = new Button ({
-                    label: "pieQuery",
-                    type: "button",
-                    name: "pieQuery"
-                }, "pieQuery");
-                pieQuery.startup();
-                on(pieQuery, "click", lang.hitch(this, function(){
-                    this._pieQuery();
-                }));*/
+                // Hard-coded in, needs to be updated as total valves in existence update
+                sumN = 11857;
             }
             , //private function to which passes query as whereClause then creates the pie chart and legend to view
             _queryMap: function(whereClause) {
@@ -198,13 +190,18 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         if (vStatus == 4) {
                             countValvesCompleted = vCount
                         }
+                        var percent = vCount/sumN;
+                        var percentage = percent * 100;
+                        var percentTwoDeci = percentage.toFixed(2);
+                        var percentString = percentTwoDeci.toString();
+                        var pieChartPercent = ", " + percentString + "%";
                         if(vCount > 0) {
                             return {
                                 x: 1,
                                 y: vCount,
                                 tooltip: valveTrans[vStatus].tooltip,
                                 color: valveTrans[vStatus].color,
-                                legend: valveTrans[vStatus].tooltip,
+                                legend: valveTrans[vStatus].tooltip + pieChartPercent,
                                 text: vCount
                             }
                         }
@@ -221,7 +218,6 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         titleFontColor: "black",
                         legend: this.chartData.legend
                     });
-
                     var myTheme = new SimpleTheme({
                         chart: {
                             stroke: null,
@@ -253,8 +249,6 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     pieChart.render();
                     pieChart.connectToPlot("default", lang.hitch(this, function(evt) {
                         if(evt.type == "onclick") {
-                            //reconfigure conjugator based on pie slice
-                            //clear previous layor
                             if (this.pieQueryinProcess == false) {
                                 this.pieQueryinProcess = true;
                                 this._clearLayer(featureLayer);
@@ -267,7 +261,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                                 conjugator.End_Date = endDate;
                                 conjugator.Valve_Count = c;
                                 conjugator.Valve_Status = status;
-                                //console.log(conjugator);
+                                console.log(conjugator);
                                 this._pieQuery();
                             }
                         }
@@ -310,9 +304,9 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
             , //private function to execute pieQuery
             _pieQuery: function() {
                 this.map.graphics.clear();
-                gp.submitJob(conjugator, lang.hitch(this, this._displayFMainsLayer)/*, function statusCallback(jobInfo) {
+                gp.submitJob(conjugator, lang.hitch(this, this._displayFMainsLayer), function statusCallback(jobInfo) {
                     console.log(jobInfo.jobStatus);
-                }*/);
+                });
                 mapHandler.ShowLoadingIcon();
             }
             , //private function display features

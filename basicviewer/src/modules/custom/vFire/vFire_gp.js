@@ -30,33 +30,27 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
             , valveTrans: [
                 {
                     "color": "rgb(2, 92, 230)",
-                    "tooltip": "Not Exercised Yet",
-                    "index": "0"
+                    "tooltip": "Not Exercised Yet"
                 },
                 {
                     "color": "rgb(255, 255, 2)",
-                    "tooltip": "In Process",
-                    "index": "1"
+                    "tooltip": "In Process"
                 },
                 {
                     "color": "rgb(170, 2,230)",
-                    "tooltip": "In Process, Valve Not Found",
-                    "index": "2"
+                    "tooltip": "In Process, Valve Not Found"
                 },
                 {
                     "color": "rgb(230, 2, 2)",
-                    "tooltip": "In Process, Repair Required",
-                    "index": "3"
+                    "tooltip": "In Process, Repair Required"
                 },
                 {
                     "color": "rgb(57, 169, 2)",
-                    "tooltip": "Exercise Completed",
-                    "index": "4"
+                    "tooltip": "Exercise Completed"
                 },
                 {
                     "color": "rgb(137, 91, 70)",
-                    "tooltip": "Requires GPS Location",
-                    "index": "5"
+                    "tooltip": "Requires GPS Location"
                 }
             ]
             , constructor: function(arcgs){
@@ -67,9 +61,8 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 this.inherited(arguments);
             }
             , startup: function () {
-                convertStart = "";
-                convertEnd = "";
-                featureLayer = null;
+                convertStart = "1800-01-01";
+                convertEnd = "4000-12-31";
                 this.inherited(arguments);
                 //call private function _queryMap with whereClause "1 = 1" initially
                 this._queryMap("1 = 1");
@@ -100,7 +93,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         selector: "date"
                     });
                     this._clearLayer(featureLayer);
-                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT <= date '" + convertEnd + "'");
+                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT <= date'" + convertEnd + "'");
                 }));
                 var lastWeek = new Button ({
                     label: "Last Week",
@@ -126,7 +119,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         selector: "date"
                     });
                     this._clearLayer(featureLayer);
-                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT <= date '" + convertEnd + "'");
+                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT <= date'" + convertEnd + "'");
                 }));
                 var submit = new Button ({
                     label: "Submit",
@@ -144,7 +137,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         selector: "date"
                     });
                     this._clearLayer(featureLayer);
-                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT <= date '" + convertEnd + "'");
+                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart +"' AND VEP_LAST_EDIT <= date'" + convertEnd + "'");
                 }));
                 var Original = new Button ({
                     label: "Lifetime",
@@ -158,19 +151,21 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     this._clearLayer(featureLayer);
                     this._queryMap("1 = 1");
                 }));
-                //whereClause builder
+                //GP service
+                gp = new GP("http://prod1.spatialsys.com/arcgis/rest/services/DevVFIRE/OverUnderOneThousandValves/GPServer/Over%20Under%20One%20Thousand%20Valves");
+                gp.setOutSpatialReference({wkid:26985});
                 conjugator = {
                     "State_Date" : convertStart,
                     "End_Date" : convertEnd,
-                    "Valve_Count" : "",
+                    "Valve_Count" : "0",
                     "Valve_Limit" : "1000",
-                    "Valve_Status" : "",
-                    "whereClause" : ""
+                    "Valve_Status" : "Exercise Completed",
+                    "Valve_Feature_Class" : "D:\\CharlesCountyUtilities\\Data\\WaterValveExerciseProgram\\water_valve_exercise_program_operational.gdb\\wExerciseSystemValves",
+                    "Subdivision_Feature_Class" : "D:\\CharlesCountyUtilities\\Data\\WaterValveExerciseProgram\\CharlesCounty_Parcels_Meters_201402.gdb\\Cadastral\\Subdivision_Plats"
                 };
-                conjugator.whereClause = "VEP_LAST_EDIT > date '" + conjugator.State_Date + "' AND VEP_LAST_EDIT <= date '" + conjugator.End_Date + "' AND VEP_STATUS = " + conjugator.Valve_Status;
+                featureLayer = null;
                 // Hard-coded in, needs to be updated as total valves in existence update
                 sumN = 11857;
-                this.map.setOutSpatialReference({wkid:26985});
             }
             , //private function to which passes query as whereClause then creates the pie chart and legend to view
             _queryMap: function(whereClause) {
@@ -207,8 +202,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                                 tooltip: valveTrans[vStatus].tooltip,
                                 color: valveTrans[vStatus].color,
                                 legend: valveTrans[vStatus].tooltip + pieChartPercent,
-                                text: vCount,
-                                index: valveTrans[vStatus].index
+                                text: vCount
                             }
                         }
                     });
@@ -262,19 +256,12 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                                 var endDate = convertEnd;
                                 var count = evt.run.data[evt.index].y;
                                 var c = count.toString();
-                                var status = evt.run.data[evt.index].index;
-                                var s = status.toString();
+                                var status = evt.run.data[evt.index].tooltip;
                                 conjugator.State_Date = startDate;
                                 conjugator.End_Date = endDate;
                                 conjugator.Valve_Count = c;
                                 conjugator.Valve_Status = status;
-                                if (convertStart == "") {
-                                    conjugator.whereClause = "VEP_STATUS = " + conjugator.Valve_Status;
-                                }
-                                else {
-                                    conjugator.whereClause = "VEP_LAST_EDIT > date '" + conjugator.State_Date + "' AND VEP_LAST_EDIT <= date '" + conjugator.End_Date + "' AND VEP_STATUS = " + conjugator.Valve_Status;
-                                }
-                                this._displayFMainsLayer();
+                                this._pieQuery();
                             }
                         }
                     }));
@@ -313,15 +300,27 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     this.map.setExtent(zoomExtent.expand(1.2));
                 }));
             }
+            , //private function to execute pieQuery
+            _pieQuery: function() {
+                this.map.graphics.clear();
+                gp.submitJob(conjugator, lang.hitch(this, this._displayFMainsLayer)/*, function statusCallback(jobInfo) {
+                 console.log(jobInfo.jobStatus);
+                 }*/);
+                mapHandler.ShowLoadingIcon();
+            }
             , //private function display features
-            _displayFMainsLayer: function() {
+            _displayFMainsLayer: function(jobInfo) {
                 document.body.style.cursor = "default";
-                var FLayerURL = "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/water_vep_valves_fs/MapServer/0";
+                if(jobInfo.jobStatus == "esriJobSucceeded") {
+                    var mapurl = "http://prod1.spatialsys.com/arcgis/rest/services/DevVFIRE/OverUnderOneThousandValves/MapServer/jobs/" + jobInfo.jobId;
+                }
+                var FLayerURL = mapurl + "/0";
                 featureLayer = FeatureLayer(FLayerURL, {
                     id: "FLayer",
-                    mode: FeatureLayer.MODE_SNAPSHOT
+                    mode: FeatureLayer.MODE_SNAPSHOT//,
+                    //outFields: ["*"]
                 });
-                var simpleJson = {
+                var simplePointJson = {
                     "type": "simple",
                     "label": "",
                     "description": "",
@@ -338,22 +337,35 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         }
                     }
                 };
+                var simplePolyJson = {
+                    "type": "simple",
+                    "label": "",
+                    "description": "",
+                    "symbol": {
+                        "type": "esriSFS",
+                        "style": "esriSFSSolid",
+                        "color": [0,255,0,235],
+                        "outline": {
+                            "color" : [255,255,255,255],
+                            "width" : 0,
+                            "type" : "esriSLS",
+                            "style" : "esriSLSSolid"
+                        }
+                    }
+                };
                 var count = parseInt(conjugator.Valve_Count);
                 var limit = parseInt(conjugator.Valve_Limit);
                 if(count <= limit) {
-                    mapHandler.ShowLoadingIcon();
-                    featureLayer.setDefinitionExpression(conjugator.whereClause);
-                    console.log(featureLayer.getDefinitionExpression());
-                    var rend = new SimpleRenderer(simpleJson);
-                    featureLayer.setRenderer(rend);
-                    this.map.addLayer(featureLayer);
-                    this._zoomToLayer(featureLayer);
-                    mapHandler.HideLoadingIcon();
+                    var simpleJson = simplePointJson
                 }
                 else {
-                    var messageAlert = "There are too many valves to display at this time.";
-                    alert(messageAlert);
+                    var simpleJson = simplePolyJson
                 }
+                var rend = new SimpleRenderer(simpleJson);
+                featureLayer.setRenderer(rend);
+                this.map.addLayer(featureLayer);
+                this._zoomToLayer(featureLayer);
+                mapHandler.HideLoadingIcon();
                 this.pieQueryinProcess = false;
             }
             , //private function to clear layer

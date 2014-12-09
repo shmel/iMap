@@ -168,9 +168,6 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     "whereClause" : ""
                 };
                 conjugator.whereClause = "VEP_LAST_EDIT > date '" + conjugator.State_Date + "' AND VEP_LAST_EDIT <= date '" + conjugator.End_Date + "' AND VEP_STATUS = " + conjugator.Valve_Status;
-                // Hard-coded in, needs to be updated as total valves in existence update
-                sumN = 11857;
-                this.map.setOutSpatialReference({wkid:26985});
             }
             , //private function to which passes query as whereClause then creates the pie chart and legend to view
             _queryMap: function(whereClause) {
@@ -185,21 +182,30 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 queryTest.where = whereClause + " AND " + randomMath + " = " + randomMath;
                 queryTest.outStatistics = [stats];
                 queryTest.groupByFieldsForStatistics = ["VEP_STATUS"];
-                testQueryTask.execute(queryTest, lang.hitch(this, function(resultsTest){
+                testQueryTask.execute(queryTest, lang.hitch(this, function(resultsTest) {
                     var valveTrans = this.valveTrans;
                     this._clearResults();
                     var countValvesCompleted = 0;
+                    var sumN = 0;
+                    if (whereClause == "1 = 1") {
+                        arrayUtil.map(resultsTest.features, function(sumCount) {
+                            sumN += sumCount.attributes["CountByValveStatus"];
+                        })
+                    }
                     this.chartData = arrayUtil.map(resultsTest.features, function(featureTest) {
                         var vStatus = featureTest.attributes["VEP_STATUS"];
                         var vCount = featureTest.attributes["CountByValveStatus"];
                         if (vStatus == 4) {
                             countValvesCompleted = vCount
                         }
-                        var percent = vCount/sumN;
-                        var percentage = percent * 100;
-                        var percentTwoDeci = percentage.toFixed(2);
-                        var percentString = percentTwoDeci.toString();
-                        var pieChartPercent = ", " + percentString + "%";
+                        var pieChartPercent = "";
+                        if (whereClause == "1 = 1") {
+                            var percent = vCount/sumN;
+                            var percentage = percent * 100;
+                            var percentTwoDeci = percentage.toFixed(2);
+                            var percentString = percentTwoDeci.toString();
+                            pieChartPercent = ", " + percentString + "%";
+                        }
                         if(vCount > 0) {
                             return {
                                 x: 1,
@@ -238,7 +244,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     pieChart.setTheme(myTheme);
                     pieChart.addPlot("default", {
                         type: PiePlot,
-                        radius: 80,
+                        radius: 70,
                         fontColor: "black",
                         labelOffset: -10,
                         font: "normal normal 10pt Tahoma",
@@ -317,10 +323,12 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
             _displayFMainsLayer: function() {
                 document.body.style.cursor = "default";
                 var FLayerURL = "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/water_vep_valves_fs/MapServer/0";
-                featureLayer = FeatureLayer(FLayerURL, {
+                featureLayer = new FeatureLayer(FLayerURL, {
                     id: "FLayer",
                     mode: FeatureLayer.MODE_SNAPSHOT
                 });
+                var random = (new Date()).getTime();
+                featureLayer.setDefinitionExpression(conjugator.whereClause + " AND " + random + " = " + random);
                 var simpleJson = {
                     "type": "simple",
                     "label": "",
@@ -342,10 +350,9 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 var limit = parseInt(conjugator.Valve_Limit);
                 if(count <= limit) {
                     mapHandler.ShowLoadingIcon();
-                    featureLayer.setDefinitionExpression(conjugator.whereClause);
-                    console.log(featureLayer.getDefinitionExpression());
                     var rend = new SimpleRenderer(simpleJson);
                     featureLayer.setRenderer(rend);
+                    featureLayer.setMinScale(0);
                     this.map.addLayer(featureLayer);
                     this._zoomToLayer(featureLayer);
                     mapHandler.HideLoadingIcon();
@@ -359,14 +366,8 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
             , //private function to clear layer
             _clearLayer: function(featureLayer) {
                 var layersList = ["FLayer"];
-                this.map.graphics.clear();
-                for(var b = this.map.graphicsLayerIds.length -1; b > 0; --b) {
-                    var layer = this.map.getLayer(this.map.graphicsLayerIds[b]);
-                    //console.log(layer.id + ' ' + layer.opacity + ' ' + layer.visible);
-                    if (layersList.indexOf(layer.id) > -1 ) {
-                        //Remove Layer
-                        this.map.removeLayer(layer)
-                    }
+                if (featureLayer != null) {
+                    this.map.removeLayer(featureLayer);
                 }
             }
             , //private process

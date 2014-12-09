@@ -62,3 +62,6 @@
 .dojoxLegendText {
     margin-left: 5px;
 }
+#completedCountDiv {
+    font-size: 95%;
+}

@@ -186,6 +186,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     var valveTrans = this.valveTrans;
                     this._clearResults();
                     var countValvesCompleted = 0;
+                    var countValvesPercent = "";
                     var sumN = 0;
                     if (whereClause == "1 = 1") {
                         arrayUtil.map(resultsTest.features, function(sumCount) {
@@ -196,7 +197,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         var vStatus = featureTest.attributes["VEP_STATUS"];
                         var vCount = featureTest.attributes["CountByValveStatus"];
                         if (vStatus == 4) {
-                            countValvesCompleted = vCount
+                            countValvesCompleted = vCount;
                         }
                         var pieChartPercent = "";
                         if (whereClause == "1 = 1") {
@@ -205,6 +206,9 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                             var percentTwoDeci = percentage.toFixed(2);
                             var percentString = percentTwoDeci.toString();
                             pieChartPercent = ", " + percentString + "%";
+                            if (vStatus == 4) {
+                                countValvesPercent = ", (" + percentString + "%)";
+                            }
                         }
                         if(vCount > 0) {
                             return {
@@ -221,7 +225,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     if(resultsTest.features.length == 0) {
                         countDiv.innerHTML = "<h1>No Valves Were Modified During The Specified Time-Frame<h1>";
                     } else {
-                        countDiv.innerHTML = "<h1><b>" + countValvesCompleted + "</b> Valves Completed</h1>";
+                        countDiv.innerHTML = "<h1><b>" + countValvesCompleted + countValvesPercent + "</b> Valves Completed</h1>";
                     }
                     var pieChart = new Chart("vFireChartDiv", {
                         title: "",
@@ -254,9 +258,10 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     pieChart.addSeries("V-FIRE Valve Status", this.chartData);
                     var tip = new Tooltip(pieChart, "default", {
                         text: lang.hitch(this, function(o) {
-                            return this.chartData[o.index].tooltip + "<br/>" + this.chartData[o.index].y
+                            return this.chartData[o.index].tooltip + "<br/>" + this.chartData[o.index].y;
                         })
                     });
+                    //colorslice
                     var anim = new MoveSlice(pieChart, "default", {});
                     pieChart.render();
                     pieChart.connectToPlot("default", lang.hitch(this, function(evt) {
@@ -280,7 +285,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                                 else {
                                     conjugator.whereClause = "VEP_LAST_EDIT > date '" + conjugator.State_Date + "' AND VEP_LAST_EDIT <= date '" + conjugator.End_Date + "' AND VEP_STATUS = " + conjugator.Valve_Status;
                                 }
-                                this._displayFMainsLayer();
+                                this._displayFMainsLayer();//colorslice
                             }
                         }
                     }));
@@ -320,7 +325,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 }));
             }
             , //private function display features
-            _displayFMainsLayer: function() {
+            _displayFMainsLayer: function() {//colorSlice) {
                 document.body.style.cursor = "default";
                 var FLayerURL = "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/water_vep_valves_fs/MapServer/0";
                 featureLayer = new FeatureLayer(FLayerURL, {
@@ -336,6 +341,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     "symbol": {
                         "type": "esriSMS",
                         "style": "esriSMSCircle",
+                        //"color": colorSlice,
                         "color": [0,255,0,255],
                         "width": 32,
                         "outline": {

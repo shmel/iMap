@@ -158,6 +158,15 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     this._clearLayer(featureLayer);
                     this._queryMap("1 = 1");
                 }));
+                var Clear = new Button ({
+                    label: "Clear",
+                    type: "button",
+                    name: "clearQuery"
+                }, "clearQuery");
+                Clear.startup();
+                on(Clear, "click", lang.hitch(this, function () {
+                    this._clearLayer(featureLayer);
+                }));
                 //whereClause builder
                 conjugator = {
                     "State_Date" : convertStart,
@@ -165,7 +174,8 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     "Valve_Count" : "",
                     "Valve_Limit" : "1000",
                     "Valve_Status" : "",
-                    "whereClause" : ""
+                    "whereClause" : "",
+                    "color" : null
                 };
                 conjugator.whereClause = "VEP_LAST_EDIT > date '" + conjugator.State_Date + "' AND VEP_LAST_EDIT <= date '" + conjugator.End_Date + "' AND VEP_STATUS = " + conjugator.Valve_Status;
             }
@@ -261,7 +271,6 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                             return this.chartData[o.index].tooltip + "<br/>" + this.chartData[o.index].y;
                         })
                     });
-                    //colorslice
                     var anim = new MoveSlice(pieChart, "default", {});
                     pieChart.render();
                     pieChart.connectToPlot("default", lang.hitch(this, function(evt) {
@@ -269,6 +278,12 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                             if (this.pieQueryinProcess == false) {
                                 this.pieQueryinProcess = true;
                                 this._clearLayer(featureLayer);
+                                var colorSlice = evt.run.data[evt.index].color;
+                                var colorSliceRGB = colorSlice.replace("rgb(", "");
+                                var colorSlicetwofivefive = colorSliceRGB.replace(")", ",255");
+                                colorSlice = colorSlicetwofivefive.replace(", ", ",");
+                                var colorSlicePreArray = colorSlice.replace(" ", "");
+                                colorSlice = colorSlicePreArray.split(",");
                                 var startDate = convertStart;
                                 var endDate = convertEnd;
                                 var count = evt.run.data[evt.index].y;
@@ -285,7 +300,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                                 else {
                                     conjugator.whereClause = "VEP_LAST_EDIT > date '" + conjugator.State_Date + "' AND VEP_LAST_EDIT <= date '" + conjugator.End_Date + "' AND VEP_STATUS = " + conjugator.Valve_Status;
                                 }
-                                this._displayFMainsLayer();//colorslice
+                                this._displayFMainsLayer(colorSlice);
                             }
                         }
                     }));
@@ -325,7 +340,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 }));
             }
             , //private function display features
-            _displayFMainsLayer: function() {//colorSlice) {
+            _displayFMainsLayer: function(colorSlice) {
                 document.body.style.cursor = "default";
                 var FLayerURL = "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/water_vep_valves_fs/MapServer/0";
                 featureLayer = new FeatureLayer(FLayerURL, {
@@ -341,11 +356,12 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     "symbol": {
                         "type": "esriSMS",
                         "style": "esriSMSCircle",
-                        //"color": colorSlice,
-                        "color": [0,255,0,255],
+                        //"color": [0,255,0,255],
+                        "color": colorSlice,
                         "width": 32,
                         "outline": {
-                            "color" : [255,255,255,255],
+                            //"color" : [255,255,255,255],
+                            "color": [0, 255, 255, 255],
                             "width" : 2,
                             "type" : "esriSLS",
                             "style" : "esriSLSSolid"

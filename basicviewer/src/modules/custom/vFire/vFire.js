@@ -100,7 +100,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         selector: "date"
                     });
                     this._clearLayer(featureLayer);
-                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT <= date '" + convertEnd + "'");
+                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT < date '" + convertEnd + "'");
                 }));
                 var lastWeek = new Button ({
                     label: "Last Week",
@@ -116,7 +116,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     var $Sunday = $oneWeekBack;
                     $Sunday.setDate($today.getDate() - 7 - $Day);
                     var $Saturday = $oneWeekBackEnd;
-                    $Saturday.setDate($today.getDate() - $Day - 1);
+                    $Saturday.setDate($today.getDate() - $Day);
                     convertStart = widgetStart.format($Sunday, {
                         datePattern: "yyyy-MM-dd",
                         selector: "date"
@@ -126,7 +126,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         selector: "date"
                     });
                     this._clearLayer(featureLayer);
-                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT <= date '" + convertEnd + "'");
+                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT < date '" + convertEnd + "'");
                 }));
                 var submit = new Button ({
                     label: "Submit",
@@ -135,16 +135,19 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 }, "submitCustomDate");
                 submit.startup();
                 on(submit, "click", lang.hitch(this, function(){
+                    var updateWidgetEnd = new Date(widgetEnd.value);
+                    var updateWidgetEndAgain = updateWidgetEnd;
+                    updateWidgetEndAgain.setDate(updateWidgetEnd.getDate() + 1);
                     convertStart = widgetStart.format(widgetStart.value, {
                         datePattern: "yyyy-MM-dd",
                         selector: "date"
                     });
-                    convertEnd = widgetEnd.format(widgetEnd.value, {
+                    convertEnd = widgetEnd.format(updateWidgetEndAgain, {
                         datePattern: "yyyy-MM-dd",
                         selector: "date"
                     });
                     this._clearLayer(featureLayer);
-                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT <= date '" + convertEnd + "'");
+                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT < date '" + convertEnd + "'");
                 }));
                 var Original = new Button ({
                     label: "Lifetime",
@@ -153,6 +156,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 }, "Original");
                 Original.startup();
                 on(Original, "click", lang.hitch(this, function(){
+                    //hard coded dates for very expansive amount of time
                     convertStart = "1800-01-01";
                     convertEnd = "4000-12-31";
                     this._clearLayer(featureLayer);
@@ -177,7 +181,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     "whereClause" : "",
                     "color" : null
                 };
-                conjugator.whereClause = "VEP_LAST_EDIT > date '" + conjugator.State_Date + "' AND VEP_LAST_EDIT <= date '" + conjugator.End_Date + "' AND VEP_STATUS = " + conjugator.Valve_Status;
+                conjugator.whereClause = "VEP_LAST_EDIT > date '" + conjugator.State_Date + "' AND VEP_LAST_EDIT < date '" + conjugator.End_Date + "' AND VEP_STATUS = " + conjugator.Valve_Status;
             }
             , //private function to which passes query as whereClause then creates the pie chart and legend to view
             _queryMap: function(whereClause) {

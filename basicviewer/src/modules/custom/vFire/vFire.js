@@ -159,9 +159,9 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     this._queryMap("1 = 1");
                 }));
                 var Clear = new Button ({
-                    label: "Clear",
+                    label: "Clear Selection",
                     type: "button",
-                    name: "clearQuery"
+                    name: "clearQuerys"
                 }, "clearQuery");
                 Clear.startup();
                 on(Clear, "click", lang.hitch(this, function () {
@@ -362,7 +362,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         "outline": {
                             //"color" : [255,255,255,255],
                             "color": [0, 255, 255, 255],
-                            "width" : 2,
+                            "width" : 3,
                             "type" : "esriSLS",
                             "style" : "esriSLSSolid"
                         }

@@ -123,6 +123,7 @@ define(["dojo/_base/declare", "../utilities/environment", "dojo/_base/lang", "do
                         style: "padding: 0px"
                     };
                     //*** The relative path to your module file
+                    //var modulePath = "../../custom/vFire/vFire_gp";
                     var modulePath = "../../custom/vFire/vFire";
                     //*** If your widget requires specific constructor parameters to be passed in, you can set the object here.
                     var constructorParams = { esriMap: this._Map, webMap: mapHandler.getWebMap() };

@@ -30,33 +30,27 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
             , valveTrans: [
                 {
                     "color": "rgb(2, 92, 230)",
-                    "tooltip": "Not Exercised Yet",
-                    "index": "0"
+                    "tooltip": "Not Exercised Yet"
                 },
                 {
                     "color": "rgb(255, 255, 2)",
-                    "tooltip": "In Process",
-                    "index": "1"
+                    "tooltip": "In Process"
                 },
                 {
                     "color": "rgb(170, 2,230)",
-                    "tooltip": "In Process, Valve Not Found",
-                    "index": "2"
+                    "tooltip": "In Process, Valve Not Found"
                 },
                 {
                     "color": "rgb(230, 2, 2)",
-                    "tooltip": "In Process, Repair Required",
-                    "index": "3"
+                    "tooltip": "In Process, Repair Required"
                 },
                 {
                     "color": "rgb(57, 169, 2)",
-                    "tooltip": "Exercise Completed",
-                    "index": "4"
+                    "tooltip": "Exercise Completed"
                 },
                 {
                     "color": "rgb(137, 91, 70)",
-                    "tooltip": "Requires GPS Location",
-                    "index": "5"
+                    "tooltip": "Requires GPS Location"
                 }
             ]
             , constructor: function(arcgs){
@@ -67,9 +61,8 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 this.inherited(arguments);
             }
             , startup: function () {
-                convertStart = "";
-                convertEnd = "";
-                featureLayer = null;
+                convertStart = "1800-01-01";
+                convertEnd = "4000-12-31";
                 this.inherited(arguments);
                 //call private function _queryMap with whereClause "1 = 1" initially
                 this._queryMap("1 = 1");
@@ -100,7 +93,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         selector: "date"
                     });
                     this._clearLayer(featureLayer);
-                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT < date '" + convertEnd + "'");
+                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT <= date'" + convertEnd + "'");
                 }));
                 var lastWeek = new Button ({
                     label: "Last Week",
@@ -116,7 +109,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     var $Sunday = $oneWeekBack;
                     $Sunday.setDate($today.getDate() - 7 - $Day);
                     var $Saturday = $oneWeekBackEnd;
-                    $Saturday.setDate($today.getDate() - $Day);
+                    $Saturday.setDate($today.getDate() - $Day - 1);
                     convertStart = widgetStart.format($Sunday, {
                         datePattern: "yyyy-MM-dd",
                         selector: "date"
@@ -126,7 +119,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         selector: "date"
                     });
                     this._clearLayer(featureLayer);
-                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT < date '" + convertEnd + "'");
+                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT <= date'" + convertEnd + "'");
                 }));
                 var submit = new Button ({
                     label: "Submit",
@@ -135,19 +128,16 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 }, "submitCustomDate");
                 submit.startup();
                 on(submit, "click", lang.hitch(this, function(){
-                    var updateWidgetEnd = new Date(widgetEnd.value);
-                    var updateWidgetEndAgain = updateWidgetEnd;
-                    updateWidgetEndAgain.setDate(updateWidgetEnd.getDate() + 1);
                     convertStart = widgetStart.format(widgetStart.value, {
                         datePattern: "yyyy-MM-dd",
                         selector: "date"
                     });
-                    convertEnd = widgetEnd.format(updateWidgetEndAgain, {
+                    convertEnd = widgetEnd.format(widgetEnd.value, {
                         datePattern: "yyyy-MM-dd",
                         selector: "date"
                     });
                     this._clearLayer(featureLayer);
-                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT < date '" + convertEnd + "'");
+                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart +"' AND VEP_LAST_EDIT <= date'" + convertEnd + "'");
                 }));
                 var Original = new Button ({
                     label: "Lifetime",
@@ -156,32 +146,26 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 }, "Original");
                 Original.startup();
                 on(Original, "click", lang.hitch(this, function(){
-                    //hard coded dates for very expansive amount of time
                     convertStart = "1800-01-01";
                     convertEnd = "4000-12-31";
                     this._clearLayer(featureLayer);
                     this._queryMap("1 = 1");
                 }));
-                var Clear = new Button ({
-                    label: "Clear Selection",
-                    type: "button",
-                    name: "clearQuerys"
-                }, "clearQuery");
-                Clear.startup();
-                on(Clear, "click", lang.hitch(this, function () {
-                    this._clearLayer(featureLayer);
-                }));
-                //whereClause builder
+                //GP service
+                gp = new GP("http://prod1.spatialsys.com/arcgis/rest/services/DevVFIRE/OverUnderOneThousandValves/GPServer/Over%20Under%20One%20Thousand%20Valves");
+                gp.setOutSpatialReference({wkid:26985});
                 conjugator = {
                     "State_Date" : convertStart,
                     "End_Date" : convertEnd,
-                    "Valve_Count" : "",
+                    "Valve_Count" : "0",
                     "Valve_Limit" : "1000",
-                    "Valve_Status" : "",
-                    "whereClause" : "",
-                    "color" : null
+                    "Valve_Status" : "Exercise Completed",
+                    "Valve_Feature_Class" : "D:\\CharlesCountyUtilities\\Data\\WaterValveExerciseProgram\\water_valve_exercise_program_operational.gdb\\wExerciseSystemValves",
+                    "Subdivision_Feature_Class" : "D:\\CharlesCountyUtilities\\Data\\WaterValveExerciseProgram\\CharlesCounty_Parcels_Meters_201402.gdb\\Cadastral\\Subdivision_Plats"
                 };
-                conjugator.whereClause = "VEP_LAST_EDIT > date '" + conjugator.State_Date + "' AND VEP_LAST_EDIT < date '" + conjugator.End_Date + "' AND VEP_STATUS = " + conjugator.Valve_Status;
+                featureLayer = null;
+                // Hard-coded in, needs to be updated as total valves in existence update
+                sumN = 11857;
             }
             , //private function to which passes query as whereClause then creates the pie chart and legend to view
             _queryMap: function(whereClause) {
@@ -196,34 +180,21 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 queryTest.where = whereClause + " AND " + randomMath + " = " + randomMath;
                 queryTest.outStatistics = [stats];
                 queryTest.groupByFieldsForStatistics = ["VEP_STATUS"];
-                testQueryTask.execute(queryTest, lang.hitch(this, function(resultsTest) {
+                testQueryTask.execute(queryTest, lang.hitch(this, function(resultsTest){
                     var valveTrans = this.valveTrans;
                     this._clearResults();
                     var countValvesCompleted = 0;
-                    var countValvesPercent = "";
-                    var sumN = 0;
-                    if (whereClause == "1 = 1") {
-                        arrayUtil.map(resultsTest.features, function(sumCount) {
-                            sumN += sumCount.attributes["CountByValveStatus"];
-                        })
-                    }
                     this.chartData = arrayUtil.map(resultsTest.features, function(featureTest) {
                         var vStatus = featureTest.attributes["VEP_STATUS"];
                         var vCount = featureTest.attributes["CountByValveStatus"];
                         if (vStatus == 4) {
-                            countValvesCompleted = vCount;
+                            countValvesCompleted = vCount
                         }
-                        var pieChartPercent = "";
-                        if (whereClause == "1 = 1") {
-                            var percent = vCount/sumN;
-                            var percentage = percent * 100;
-                            var percentTwoDeci = percentage.toFixed(2);
-                            var percentString = percentTwoDeci.toString();
-                            pieChartPercent = ", " + percentString + "%";
-                            if (vStatus == 4) {
-                                countValvesPercent = ", (" + percentString + "%)";
-                            }
-                        }
+                        var percent = vCount/sumN;
+                        var percentage = percent * 100;
+                        var percentTwoDeci = percentage.toFixed(2);
+                        var percentString = percentTwoDeci.toString();
+                        var pieChartPercent = ", " + percentString + "%";
                         if(vCount > 0) {
                             return {
                                 x: 1,
@@ -231,15 +202,14 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                                 tooltip: valveTrans[vStatus].tooltip,
                                 color: valveTrans[vStatus].color,
                                 legend: valveTrans[vStatus].tooltip + pieChartPercent,
-                                text: vCount,
-                                index: valveTrans[vStatus].index
+                                text: vCount
                             }
                         }
                     });
                     if(resultsTest.features.length == 0) {
                         countDiv.innerHTML = "<h1>No Valves Were Modified During The Specified Time-Frame<h1>";
                     } else {
-                        countDiv.innerHTML = "<h1><b>" + countValvesCompleted + countValvesPercent + "</b> Valves Completed</h1>";
+                        countDiv.innerHTML = "<h1><b>" + countValvesCompleted + "</b> Valves Completed</h1>";
                     }
                     var pieChart = new Chart("vFireChartDiv", {
                         title: "",
@@ -262,7 +232,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     pieChart.setTheme(myTheme);
                     pieChart.addPlot("default", {
                         type: PiePlot,
-                        radius: 70,
+                        radius: 80,
                         fontColor: "black",
                         labelOffset: -10,
                         font: "normal normal 10pt Tahoma",
@@ -272,7 +242,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     pieChart.addSeries("V-FIRE Valve Status", this.chartData);
                     var tip = new Tooltip(pieChart, "default", {
                         text: lang.hitch(this, function(o) {
-                            return this.chartData[o.index].tooltip + "<br/>" + this.chartData[o.index].y;
+                            return this.chartData[o.index].tooltip + "<br/>" + this.chartData[o.index].y
                         })
                     });
                     var anim = new MoveSlice(pieChart, "default", {});
@@ -282,29 +252,16 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                             if (this.pieQueryinProcess == false) {
                                 this.pieQueryinProcess = true;
                                 this._clearLayer(featureLayer);
-                                var colorSlice = evt.run.data[evt.index].color;
-                                var colorSliceRGB = colorSlice.replace("rgb(", "");
-                                var colorSlicetwofivefive = colorSliceRGB.replace(")", ",255");
-                                colorSlice = colorSlicetwofivefive.replace(", ", ",");
-                                var colorSlicePreArray = colorSlice.replace(" ", "");
-                                colorSlice = colorSlicePreArray.split(",");
                                 var startDate = convertStart;
                                 var endDate = convertEnd;
                                 var count = evt.run.data[evt.index].y;
                                 var c = count.toString();
-                                var status = evt.run.data[evt.index].index;
-                                var s = status.toString();
+                                var status = evt.run.data[evt.index].tooltip;
                                 conjugator.State_Date = startDate;
                                 conjugator.End_Date = endDate;
                                 conjugator.Valve_Count = c;
                                 conjugator.Valve_Status = status;
-                                if (convertStart == "") {
-                                    conjugator.whereClause = "VEP_STATUS = " + conjugator.Valve_Status;
-                                }
-                                else {
-                                    conjugator.whereClause = "VEP_LAST_EDIT > date '" + conjugator.State_Date + "' AND VEP_LAST_EDIT <= date '" + conjugator.End_Date + "' AND VEP_STATUS = " + conjugator.Valve_Status;
-                                }
-                                this._displayFMainsLayer(colorSlice);
+                                this._pieQuery();
                             }
                         }
                     }));
@@ -343,30 +300,54 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     this.map.setExtent(zoomExtent.expand(1.2));
                 }));
             }
+            , //private function to execute pieQuery
+            _pieQuery: function() {
+                this.map.graphics.clear();
+                gp.submitJob(conjugator, lang.hitch(this, this._displayFMainsLayer)/*, function statusCallback(jobInfo) {
+                 console.log(jobInfo.jobStatus);
+                 }*/);
+                mapHandler.ShowLoadingIcon();
+            }
             , //private function display features
-            _displayFMainsLayer: function(colorSlice) {
+            _displayFMainsLayer: function(jobInfo) {
                 document.body.style.cursor = "default";
-                var FLayerURL = "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/water_vep_valves_fs/MapServer/0";
-                featureLayer = new FeatureLayer(FLayerURL, {
+                if(jobInfo.jobStatus == "esriJobSucceeded") {
+                    var mapurl = "http://prod1.spatialsys.com/arcgis/rest/services/DevVFIRE/OverUnderOneThousandValves/MapServer/jobs/" + jobInfo.jobId;
+                }
+                var FLayerURL = mapurl + "/0";
+                featureLayer = FeatureLayer(FLayerURL, {
                     id: "FLayer",
-                    mode: FeatureLayer.MODE_SNAPSHOT
+                    mode: FeatureLayer.MODE_SNAPSHOT//,
+                    //outFields: ["*"]
                 });
-                var random = (new Date()).getTime();
-                featureLayer.setDefinitionExpression(conjugator.whereClause + " AND " + random + " = " + random);
-                var simpleJson = {
+                var simplePointJson = {
                     "type": "simple",
                     "label": "",
                     "description": "",
                     "symbol": {
                         "type": "esriSMS",
                         "style": "esriSMSCircle",
-                        //"color": [0,255,0,255],
-                        "color": colorSlice,
+                        "color": [0,255,0,255],
                         "width": 32,
                         "outline": {
-                            //"color" : [255,255,255,255],
-                            "color": [0, 255, 255, 255],
-                            "width" : 3,
+                            "color" : [255,255,255,255],
+                            "width" : 2,
+                            "type" : "esriSLS",
+                            "style" : "esriSLSSolid"
+                        }
+                    }
+                };
+                var simplePolyJson = {
+                    "type": "simple",
+                    "label": "",
+                    "description": "",
+                    "symbol": {
+                        "type": "esriSFS",
+                        "style": "esriSFSSolid",
+                        "color": [0,255,0,235],
+                        "outline": {
+                            "color" : [255,255,255,255],
+                            "width" : 0,
                             "type" : "esriSLS",
                             "style" : "esriSLSSolid"
                         }
@@ -375,25 +356,29 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 var count = parseInt(conjugator.Valve_Count);
                 var limit = parseInt(conjugator.Valve_Limit);
                 if(count <= limit) {
-                    mapHandler.ShowLoadingIcon();
-                    var rend = new SimpleRenderer(simpleJson);
-                    featureLayer.setRenderer(rend);
-                    featureLayer.setMinScale(0);
-                    this.map.addLayer(featureLayer);
-                    this._zoomToLayer(featureLayer);
-                    mapHandler.HideLoadingIcon();
+                    var simpleJson = simplePointJson
                 }
                 else {
-                    var messageAlert = "There are too many valves to display at this time.";
-                    alert(messageAlert);
+                    var simpleJson = simplePolyJson
                 }
+                var rend = new SimpleRenderer(simpleJson);
+                featureLayer.setRenderer(rend);
+                this.map.addLayer(featureLayer);
+                this._zoomToLayer(featureLayer);
+                mapHandler.HideLoadingIcon();
                 this.pieQueryinProcess = false;
             }
             , //private function to clear layer
             _clearLayer: function(featureLayer) {
                 var layersList = ["FLayer"];
-                if (featureLayer != null) {
-                    this.map.removeLayer(featureLayer);
+                this.map.graphics.clear();
+                for(var b = this.map.graphicsLayerIds.length -1; b > 0; --b) {
+                    var layer = this.map.getLayer(this.map.graphicsLayerIds[b]);
+                    //console.log(layer.id + ' ' + layer.opacity + ' ' + layer.visible);
+                    if (layersList.indexOf(layer.id) > -1 ) {
+                        //Remove Layer
+                        this.map.removeLayer(layer)
+                    }
                 }
             }
             , //private process

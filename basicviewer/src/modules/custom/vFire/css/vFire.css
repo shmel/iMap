@@ -36,8 +36,8 @@
     height: 25px;
     width: 75px;
     padding: 7px;
-    margin-left: 15%;
-    margin-right: 15%;
+    /*margin-left: 15%;
+    margin-right: 15%;*/
 }
 
 #buttons .dijitButtonText {
@@ -62,3 +62,29 @@
 .dojoxLegendText {
     margin-left: 5px;
 }
+
+#completedCountDiv {
+    font-size: 95%;
+}
+
+#buttons2 .dijitButtonText{
+    padding: 0 0.3em;
+    text-align: center;
+    white-space: normal;
+
+}
+
+#buttons2 .dijitButton .dijitButtonNode {
+    display: block;
+    height: 25px;
+    width: 250px;
+    padding: 7px;
+    margin-left: 7%;
+    margin-right: 7%;
+}
+/*#Flayer_layer {
+    display : block;
+    -webkit-animation: myfirst 5s; *//* Chrome, Safari, Opera *//*
+    animation: myfirst 5s;
+    animation-iteration-count: 3;
+}*/

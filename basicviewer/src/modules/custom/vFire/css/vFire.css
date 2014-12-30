@@ -62,3 +62,10 @@
 .dojoxLegendText {
     margin-left: 5px;
 }
+
+#startDate_popup_mddb > span.dijitReset.dijitInline.dijitArrowButtonInner,
+#endDate_popup_mddb > span.dijitReset.dijitInline.dijitArrowButtonInner {
+    background-image: url("http://js.arcgis.com/3.10/js/dojo/dijit/themes/claro/form/images/buttonArrows.png");
+    background-repeat: no-repeat;
+    background-position: -51px 53%;
+}

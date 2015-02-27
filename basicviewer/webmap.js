@@ -106,7 +106,7 @@
             "title": "Sewersheds"
         },
         {
-            "url": "https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Utilities_WastewaterSystems/MapServer",
+            "url": "https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Dev_Utilities_WastewaterSystems/MapServer",
             "id": "Charles_Utilities_WastewaterSystems_8545",
             "visibility": false,
             "visibleLayers": [
@@ -6624,7 +6624,7 @@
             ]
         },
         {
-            "url": "https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Utilities_Wastewater/MapServer",
+            "url": "https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Dev_Utilities_Wastewater/MapServer",
             "id": "Charles_Utilities_Wastewater_1742",
             "visibility": true,
             "visibleLayers": [
@@ -12185,8 +12185,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -12549,8 +12549,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -12913,8 +12913,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -13277,8 +13277,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -13542,8 +13542,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -13807,8 +13807,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -14072,8 +14072,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -14571,8 +14571,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -15070,8 +15070,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -15569,8 +15569,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -16068,8 +16068,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -16567,8 +16567,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -16886,8 +16886,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -16898,8 +16898,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Area",
-                                "label": "SHAPE_Area",
+                                "fieldName": "SHAPE.area",
+                                "label": "SHAPE.area",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -17133,8 +17133,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -17145,8 +17145,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Area",
-                                "label": "SHAPE_Area",
+                                "fieldName": "SHAPE.area",
+                                "label": "SHAPE.area",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -17400,8 +17400,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -17412,8 +17412,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Area",
-                                "label": "SHAPE_Area",
+                                "fieldName": "SHAPE.area",
+                                "label": "SHAPE.area",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -17680,8 +17680,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -17692,8 +17692,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Area",
-                                "label": "SHAPE_Area",
+                                "fieldName": "SHAPE.area",
+                                "label": "SHAPE.area",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -17722,7 +17722,7 @@
             ]
         },
         {
-            "url": "https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Utilities_Water/MapServer",
+            "url": "https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Dev_Utilities_Water/MapServer",
             "id": "Charles_Utilities_Water_8635",
             "visibility": true,
             "visibleLayers": [
@@ -23838,8 +23838,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -24202,8 +24202,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -24566,8 +24566,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -24840,8 +24840,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -25105,8 +25105,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -25351,8 +25351,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -25363,8 +25363,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Area",
-                                "label": "SHAPE_Area",
+                                "fieldName": "SHAPE.area",
+                                "label": "SHAPE.area",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -25598,8 +25598,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -25610,8 +25610,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Area",
-                                "label": "SHAPE_Area",
+                                "fieldName": "SHAPE.area",
+                                "label": "SHAPE.area",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -25929,8 +25929,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -25941,8 +25941,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Area",
-                                "label": "SHAPE_Area",
+                                "fieldName": "SHAPE.area",
+                                "label": "SHAPE.area",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -26209,8 +26209,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -26221,8 +26221,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Area",
-                                "label": "SHAPE_Area",
+                                "fieldName": "SHAPE.area",
+                                "label": "SHAPE.area",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -26251,7 +26251,7 @@
             ]
         },
         {
-            "url": "https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Utilities_Reclaimed/MapServer",
+            "url": "https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Dev_Utilities_Reclaimed/MapServer",
             "id": "Charles_Utilities_Reclaimed_5898",
             "visibility": true,
             "visibleLayers": [
@@ -27528,8 +27528,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -27892,8 +27892,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -28160,8 +28160,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -28172,8 +28172,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Area",
-                                "label": "SHAPE_Area",
+                                "fieldName": "SHAPE.area",
+                                "label": "SHAPE.area",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -28427,8 +28427,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Length",
-                                "label": "SHAPE_Length",
+                                "fieldName": "SHAPE.len",
+                                "label": "SHAPE.len",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -28439,8 +28439,8 @@
                                 "stringFieldOption": "textbox"
                             },
                             {
-                                "fieldName": "SHAPE_Area",
-                                "label": "SHAPE_Area",
+                                "fieldName": "SHAPE.area",
+                                "label": "SHAPE.area",
                                 "isEditable": true,
                                 "tooltip": "",
                                 "visible": false,
@@ -29096,7 +29096,7 @@
             ]
         },
         {
-            "url": "https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Utilities_LateralPts/MapServer",
+            "url": "https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Dev_Utilities_LateralPts/MapServer",
             "id": "Charles_Utilities_LateralPts_6216",
             "visibility": true,
             "visibleLayers": [

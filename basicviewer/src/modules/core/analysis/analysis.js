@@ -156,7 +156,8 @@ define(["dojo/_base/declare",
                         this.ClearResults();
 
                         //setup the geoprocessor task
-                        gp = new esri.tasks.Geoprocessor("http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/WaterValveIsolation/GPServer/ValveIsolationService");
+                        //gp = new esri.tasks.Geoprocessor("http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/WaterValveIsolation/GPServer/ValveIsolationService");
+                        gp = new esri.tasks.Geoprocessor("http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/WaterIsolation/GPServer/ValveandCustomerIsolationTraceService");
                         gp.setOutSpatialReference({wkid:26985});
 
                         esri.bundle.toolbars.draw.addPoint = "Click to place the origin point of the trace";
@@ -317,7 +318,9 @@ define(["dojo/_base/declare",
 
                 //set the input parameters.  View the task in the services explorer to see the input variables required to run the model.
                 //see http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Specialty/ESRI_Currents_World/GPServer/MessageInABottle
-                var params = { "Input_Point":featureSet };
+                //var params = { "Input_Point":featureSet };
+
+                var params = { "Flags":featureSet };
                 gp.submitJob(params, lang.hitch(this, this.DisplayWaterValveTrace));
                 document.body.style.cursor = "wait";
 
@@ -329,14 +332,18 @@ define(["dojo/_base/declare",
                 document.body.style.cursor = "default";
 
                 if (jobInfo.jobStatus == "esriJobSucceeded") {
-                var mapurl = "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/WaterValveIsolation/MapServer/jobs/" + jobInfo.jobId;
+                //var mapurl = "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/WaterValveIsolation/MapServer/jobs/" + jobInfo.jobId;
+                var mapurl = "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/WaterIsolation/MapServer/jobs/" + jobInfo.jobId;
 
                 //the code snippet assumes the featureLayer is the first layer in the result map service
-                var fMainsLayerUrl = mapurl + "/1";
-                var fValvesLayerUrl = mapurl + "/0";
+                var fMainsLayerUrl = mapurl + "/2";
+                var fValvesLayerUrl = mapurl + "/3";
+                var fCustomersLayerUrl = mapurl + "/0"
 
                 console.log ("Mains Layer URL: " + fMainsLayerUrl);
                 console.log ("Valves Layer URL: " + fValvesLayerUrl);
+                console.log ("Customers Layer URL: " + fCustomersLayerUrl);
+
 
                 //create  feature layer for Valves and Main Lines
                 //the MODE_ONDEMAND property allows the client to restrictively download features for current web app extent
@@ -350,6 +357,12 @@ define(["dojo/_base/declare",
                     id: "gpfValvesLayer",
                     mode: esri.layers.FeatureLayer.MODE_SNAPSHOT,
                     outFields: ["*"]
+                });
+
+                var gpfCustomersLayer= FeatureLayer(fCustomersLayerUrl, {
+                        id: "gpfCustomersLayer",
+                        mode: esri.layers.FeatureLayer.MODE_SNAPSHOT,
+                        outFields: ["*"]
                 });
 
                 //make valves renderer
@@ -382,11 +395,32 @@ define(["dojo/_base/declare",
                         "width": 7
                     }
                 }
+                
+                //make customers renderer - TODO: Update Symbols
+                    var simplepointsCustJson = {
+                        "type": "simple",
+                        "label": "",
+                        "description": "",
+                        "symbol": {
+                            "type": "esriSMS",
+                            "style": "esriSMSCircle",
+                            "color": [204,0,0,10],
+                            "size": 22,
+                            "outline":
+                            {
+                                "color": [0,112,55,186],
+                                "width": 4
+                            }
+                        }
+                    }
+
                 var mainsrend = new SimpleRenderer(simpleLineJson);
                 var valvesrend = new SimpleRenderer(simplepointsJson);
+                var custrend = new SimpleRenderer(simplepointsCustJson);
 
                 gpfMainsLayer.setRenderer(mainsrend);
                 gpfValvesLayer.setRenderer(valvesrend);
+                gpfCustomersLayer.setRenderer(custrend);
 
                 //Hide Loading Icon
                 mapHandler.HideLoadingIcon();
@@ -399,17 +433,23 @@ define(["dojo/_base/declare",
 
                         dojo.disconnect(connectFirstLayerAdd);
 
-                        this.zoomToLayer(gpfValvesLayer);
+                        this.zoomToLayer(gpfCustomersLayer);
 
                         gpfMainsLayer.setSelectionSymbol(new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,new Color([0,255,255,.5]), 3));
                         gpfValvesLayer.setSelectionSymbol(new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 16,
                             new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
                                 new Color([0,255,255,.5]), 1),
                             new Color([0,255,255,.5])));
+                        gpfCustomersLayer.setSelectionSymbol(new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 16,
+                            new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+                                new Color([0,255,255,.5]), 1),
+                            new Color([0,255,255,.5])));
+
                     }));
 
                 this.map.addLayer(gpfMainsLayer);
                 this.map.addLayer(gpfValvesLayer);
+                    this.map.addLayer(gpfCustomersLayer);
 
 
                     //show button for showing attribute table
@@ -502,7 +542,7 @@ define(["dojo/_base/declare",
             }
 
             , ClearResults: function(){
-                var layersList = ["gpfLayer", "gpfMainsLayer", "gpfValvesLayer"]
+                var layersList = ["gpfLayer", "gpfMainsLayer", "gpfValvesLayer", "gpfCustomersLayer"]
                 //Clear the Feature Layer Result & Graphic
                 this.map.graphics.clear();
 

@@ -28,22 +28,23 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
             map: null,
             grid: null,
             grid2: null,
+            grid3: null,
             tc: null,
             cp1: null,
             cp2: null,
-            resultLayers: ["gpfLayer", "gpfMainsLayer", "gpfValvesLayer"],
+            cp3: null,
+            resultLayers: ["gpfLayer", "gpfMainsLayer", "gpfValvesLayer", "gpfCustomersLayer"],
             resultFields: [["GISOBJID", "ENABLED", "SubtypeLabel", "INSTALLDATE", "LIFECYCLESTATUS", "WATERTYPE", "MATERIAL", "CROSSSECTIONSHAPE", "UPSTREAMINVERT",
                 "DOWNSTREAMINVERT", "MEASUREMENT1", "SLOPE", "PIPELENGTH", "UPSTREAMMH", "DOWNSTREAMMH", "SYSTEMCODE", "ORG", "DEPT"],
                 ["GISOBJID", "ENABLED", "INSTALLDATE", "LIFECYCLESTATUS", "SubtypeLabel", "WATERTYPE", "MATERIAL", "DIAMETER", "PIPELENGTH", "SYSTEMCODE"],
-                ["GISOBJID", "ENABLED", "SubtypeLabel", "INSTALLDATE", "LOCATIONDESCRIPTION", "OPERATIONALAREA", "ROTATION", "LIFECYCLESTATUS", "WATERTYPE", "DIAMETER", "BYPASSVALVE", "CLOCKWISETOCLOSE", "CURRENTLYOPEN", "MOTORIZED", "NORMALLYOPEN", "PERCENTOPEN", "PRESSURESETTING", "REGULATIONTYPE", "TURNSTOCLOSE", "OPERABLE", "SYSTEMCODE"]],
+                ["GISOBJID", "ENABLED", "SubtypeLabel", "INSTALLDATE", "LOCATIONDESCRIPTION", "OPERATIONALAREA", "ROTATION", "LIFECYCLESTATUS", "WATERTYPE", "DIAMETER", "BYPASSVALVE", "CLOCKWISETOCLOSE", "CURRENTLYOPEN", "MOTORIZED", "NORMALLYOPEN", "PERCENTOPEN", "PRESSURESETTING", "REGULATIONTYPE", "TURNSTOCLOSE", "OPERABLE", "SYSTEMCODE"], 
+                ["OBJECTID","wLateralPoint_ADDRESS", "wLateralPoint_ACCTID", "wLateralPoint_TAXLINK"]],
             gpURLS: ["http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportMainstoCSV/GPServer/ExportMainstoCSV",
                 "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportPressMainstoCSV/GPServer/ExportPressMainstoCSV",
-                "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportValvestoCSV/GPServer/ExportValvestoCSV" ],
+                "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportValvestoCSV/GPServer/ExportValvestoCSV", 
+                 "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportCustomerstoCSV/GPServer/ExportCustomerstoCSV"],
             gp: null,
             currLayerName: null
-
-
-
 
 
             //*** Creates the floating pane. Should be included in your module and be re-usable without modification (if using floating pane)
@@ -145,6 +146,17 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
 
                 //Check Button Source, create another grid if water
                 if (this.clickSource == 'water'){
+                    grid3 = new (declare([OnDemandGrid, Selection]))({
+                        // use Infinity so that all data is available in the grid
+                        bufferRows: 1000,
+                        columns: {
+                            "Results": "Results"
+                        },
+                        loadingMessage: "Loading data..." ,
+                        noDataMessage: "No results found.",
+                        store: emptyStore
+                    });
+
                     grid2 = new (declare([OnDemandGrid, Selection]))({
                         // use Infinity so that all data is available in the grid
                         bufferRows: 1000,
@@ -199,6 +211,27 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                         })                      //End On Click
                     });
 
+                    //Add Export Button2
+                    var exportButton3 =  new Button({
+                        name: "ExportTableButton",
+                        type: "button",
+                        label: "Export All Records to CSV",
+                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
+                        onClick: lang.hitch(this, function(){
+                            this.ExportGrid("gpfCustomersLayer");
+                        })                      //End On Click for Trace Button
+                    });
+
+                    var zoomAllButton3 = new Button({
+                        name: "ZoomAllButton",
+                        type: "button",
+                        label: "Zoom Extent of All Features",
+                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
+                        onClick: lang.hitch(this, function(){
+                            this.zoomToExtent("gpfCustomersLayer");
+                        })                      //End On Click
+                    });
+
                     fpI.startup();
 
                     var cp1 = new ContentPane({
@@ -208,6 +241,11 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
 
                     var cp2 = new ContentPane({
                         title: "System Valves",
+                        content: ""
+                    });
+
+                    var cp3 = new ContentPane({
+                        title: "Customers",
                         content: ""
                     });
 
@@ -224,9 +262,16 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                         grid2.domNode
                     ])
 
+                    cp3.set("content", [
+                        exportButton3.domNode,
+                        zoomAllButton3.domNode,
+                        grid3.domNode
+                    ])
+
                     //Add ContentPane to Tab Container
                     tc.addChild(cp1);
                     tc.addChild(cp2);
+                    tc.addChild(cp3);
                 }
                 else {
                     //Add Export Button
@@ -304,6 +349,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                         else if (this.clickSource =='water') {
                             this.LoadResults("gpfValvesLayer");
                             this.LoadResults("gpfMainsLayer");
+                            this.LoadResults("gpfCustomersLayer");
                         }
 
 
@@ -654,6 +700,61 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
 
                     }));
                 }
+
+                else if (layername == 'gpfCustomersLayer') {
+                    query.orderByFields = ["wLateralPoint_ADDRESS ASC"];
+                    qt.execute(query, lang.hitch(this, function(results){
+                        var mydata = array.map(results.features, function(feature) {
+                            return {
+                                "id": feature.attributes[query.outFields[0]],
+                                "ACCTID" : feature.attributes[query.outFields[2]],
+                                "ADDRESS": feature.attributes[query.outFields[1]],
+                                "TAXLINK": feature.attributes[query.outFields[3]]
+                            }
+                        });
+
+                        var myTestStore = new Memory({ data: mydata });
+
+                        grid3.set ("columns", [
+                            {   id: "id",
+                                field: "id",
+                                label: "OBJECTID", 
+
+                            },
+                            {   id: "ACCTID",
+                                field: "ACCTID",
+                                label: "ACCTID"
+                            },
+                            {   id: "ADDRESS",
+                                field: "ADDRESS",
+                                label: "ADDRESS"
+                            },
+                            {   id: "TAXLINK",
+                                field: "TAXLINK",
+                                label: "TAX LINK",
+                                formatter: this.hyperlink_formatter
+
+                                //link: { label: "Tax Link", formatter : this.hyperlink_formatter}
+                            }
+                            ]
+                        )
+                        
+                        grid3.styleColumn("id", "display: none;");
+                        grid3.set("store", myTestStore);
+                        grid3.refresh();
+
+                        document.body.style.cursor = "default";
+                        mapHandler.HideLoadingIcon();
+
+                        // add a click listener on the ID column
+                        grid3.on(".dgrid-row:click", lang.hitch(this, function(e) {
+                                this.currLayerName = "gpfCustomersLayer"
+                                this.selectFeature(e);
+                            }
+                        )); //This works
+
+                    }));
+                }
             }
                 , selectFeature: function(e) {
                 layername = this.currLayerName;
@@ -665,7 +766,17 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                 var query = new Query();
                 var GISOBJID  = [parseInt(e.target.innerHTML)];
 
-                query.where = "GISOBJID = " + (e.target.innerHTML);
+                switch (layername) {
+                    case "gpfCustomersLayer":
+                        query.where = "wLateralPoint_ACCTID = '" + (e.target.innerHTML) + "'";
+                        break;
+
+                    default:
+                        query.where = "GISOBJID = " + (e.target.innerHTML);
+                        break;
+                }
+
+        //        query.where = "GISOBJID = " + (e.target.innerHTML);
 
 
                 fl.selectFeatures(query, FeatureLayer.SELECTION_NEW, lang.hitch(this, function(result) {
@@ -812,6 +923,12 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                     selector: 'date',
                     datePattern: 'MM/dd/yyyy'
                 });
+            }
+
+            , hyperlink_formatter: function(columnData){
+                console.log("make link", columnData);
+                return columnData;
+                //return "[HTML]" + columnData + "[HTML]";
             }
             , NewFunction: function() {}
 

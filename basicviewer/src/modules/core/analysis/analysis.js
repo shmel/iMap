@@ -298,6 +298,39 @@ define(["dojo/_base/declare",
                 }));
             }
 
+            , zoomToManyLayers: function(featurelayerset){
+                //var featurelayer = this.map.getLayer(layername)
+
+                //Use an input array of Layers to build an extent
+                //Loop Through
+               var newExtent;
+
+                for (i = 0; i < featurelayerset.length; i++) {
+                    //get extent
+                    featurelayer = featurelayerset[i]
+
+                    newExtent = featurelayer.fullExtent;
+
+                    /*var query = new esri.tasks.Query();
+                    var random =(new Date()).getTime(); //Fix for 10.1 Bug NIM086349
+                    query.where = random + " = " + random
+                    query.outSpatialReference = this.map.spatialReference;
+                    featurelayer.queryFeatures(query, lang.hitch(this, function (featureSet) {
+                        var data = [];
+                        if (featureSet && featureSet.features && featureSet.features.length > 0) {
+                            data = featureSet.features;
+                        }
+                        var zoomExtent = esri.graphicsExtent(data);
+                        //this.map.setExtent(zoomExtent.expand(1.2));
+                        if (i==0) {
+                           var newExtent = zoomExtent
+                        }
+                        else {newExtent.union(zoomExtent)}
+                    }));*/
+                }
+                    this.map.setExtent(newExtent.expand(1.2));
+            }
+
             , executeWaterTrace: function(geometry) {
                 this.map.graphics.clear();
 
@@ -365,6 +398,13 @@ define(["dojo/_base/declare",
                         outFields: ["*"]
                 });
 
+                //on(this.map,"layers-add-result", this.zoomToManyLayers([gpfCustomersLayer, gpfMainsLayer, gpfValvesLayer]) );
+                on(this.map, "layers-add-result", lang.hitch (this, function(){
+                    console.log ("LAYERS ADDED")
+                    this.zoomToManyLayers([gpfCustomersLayer, gpfMainsLayer, gpfValvesLayer])
+                }));
+
+
                 //make valves renderer
                 var simplepointsJson = {
                     "type": "simple",
@@ -429,11 +469,15 @@ define(["dojo/_base/declare",
                 dojo.byId("msgWWTraceWarning").style.visibility = 'hidden';
                 dojo.byId("msgValveTraceWarning").style.visibility = 'hidden';
 
+
                     var connectFirstLayerAdd = dojo.connect(this.map, "onLayerAddResult", this, lang.hitch (this, function(){
 
                         dojo.disconnect(connectFirstLayerAdd);
 
-                        this.zoomToLayer(gpfCustomersLayer);
+                        //this.zoomToLayer(gpfCustomersLayer);
+                       // layersSet = [gpfCustomersLayer, gpfMainsLayer, gpfValvesLayer];
+                       
+                       // this.zoomToManyLayers(layersSet);
 
                         gpfMainsLayer.setSelectionSymbol(new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,new Color([0,255,255,.5]), 3));
                         gpfValvesLayer.setSelectionSymbol(new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 16,
@@ -447,9 +491,17 @@ define(["dojo/_base/declare",
 
                     }));
 
+
+                    this.map.addLayers([gpfCustomersLayer, gpfMainsLayer, gpfValvesLayer]);
+
+
+
+
+
+                    /*
                 this.map.addLayer(gpfMainsLayer);
                 this.map.addLayer(gpfValvesLayer);
-                    this.map.addLayer(gpfCustomersLayer);
+                this.map.addLayer(gpfCustomersLayer);*/
 
 
                     //show button for showing attribute table

@@ -29375,7 +29375,7 @@
 		{
             "url": "https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/water_vep_valves_fs/MapServer",
             "id": "ValveExercise_1958",
-            "visibility": true,
+            "visibility": false,
             "visibleLayers": [
                 0
             ],

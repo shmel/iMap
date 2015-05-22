@@ -156,7 +156,7 @@ define(["dojo/_base/declare",
                             GOIDText.reset();
                             //StreetMZSearchSelect.reset();
 
-                            this.ClearLayers;
+                            this.ClearLayers();
                             //   document.getElementById("value").innerHTML = val;
                             //    document.getElementById("displayedValue").innerHTML = this.get("displayedValue");
 
@@ -337,7 +337,7 @@ define(["dojo/_base/declare",
                         if (typeof systemLayer != 'undefined'){
                             this.map.removeLayer(systemLayer) ;
                         }   else {}*/
-                        this.ClearLayers;
+                        this.ClearLayers();
 
                         //TODO: Go Through Array of Services
                         var items;
@@ -677,7 +677,7 @@ define(["dojo/_base/declare",
             , FindTaskResults2: function(results){
                 //Work with the results of the complete Find Task
                 console.log ("Result Count: " + results.length);
-                svcURL = svcList[1];
+                svcURL = svcList[2];
                 items = array.map(results, function(result) {
                     var feature = result.feature
                     return {

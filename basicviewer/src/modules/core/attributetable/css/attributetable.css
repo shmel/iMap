@@ -33,7 +33,7 @@
     margin-top: 20px !important;
 }
 
-.dijitTabListContainer-top .tabStripButton {
+.attributeTableDiv .dijitTabListContainer-top .tabStripButton {
     background-image: none !important;
     display: none !important;
 }

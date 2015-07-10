@@ -64,7 +64,7 @@ define(["dojo/_base/declare", "../utilities/environment", "dojo/_base/lang", "do
                     //*** Does your widget's parent need to be resized after it's startup in order to layout properly? Default to false.
                     var resizeAfterStartup = true;
 
-                    this._CreateTabPane(leftTabCont, configParamName, tabParams, modulePath, constructorParams, resizeAfterStartup);
+                    this._CreateTabPane(leftTabCont, configParamName, tabParams, modulePath, constructorParams, resizeAfterStartup, false);
                 }
 
                 if ((this._AppConfig.searchresults === 'true' || this._AppConfig.searchresults == true)) {
@@ -85,12 +85,10 @@ define(["dojo/_base/declare", "../utilities/environment", "dojo/_base/lang", "do
                     //*** Does your widget's parent need to be resized after it's startup in order to layout properly? Default to false.
                     var resizeAfterStartup = true;
 
-                    this._CreateTabPane(leftTabCont, configParamName, tabParams, modulePath, constructorParams, resizeAfterStartup);
+                    this._CreateTabPane(leftTabCont, configParamName, tabParams, modulePath, constructorParams, resizeAfterStartup, true);
                 }
 
-
-
-                if ((this._AppConfig.analysispanel === 'true' || this._AppConfig.analysispanel == true)) {
+                    if ((this._AppConfig.analysispanel === 'true' || this._AppConfig.analysispanel == true)) {
                     //*** Check if this pane was set to be the startup pane in app.js or AGO. Replace the param name in next line.
                     var configParamName = 'analysispanel';
                     //*** Constructor params for the tab (which is a contentpane- http://dojotoolkit.org/reference-guide/1.8/dijit/layout/ContentPane.html).
@@ -108,7 +106,7 @@ define(["dojo/_base/declare", "../utilities/environment", "dojo/_base/lang", "do
                     //*** Does your widget's parent need to be resized after it's startup in order to layout properly? Default to false.
                     var resizeAfterStartup = true;
 
-                    this._CreateTabPane(leftTabCont, configParamName, tabParams, modulePath, constructorParams, resizeAfterStartup);
+                    this._CreateTabPane(leftTabCont, configParamName, tabParams, modulePath, constructorParams, resizeAfterStartup, false);
                 }
 
                 if ((this._AppConfig.displayvFire === 'true' || this._AppConfig.displayvFire == true)) {
@@ -130,7 +128,29 @@ define(["dojo/_base/declare", "../utilities/environment", "dojo/_base/lang", "do
                     //*** Does your widget's parent need to be resized after it's startup in order to layout properly? Default to false.
                     var resizeAfterStartup = true;
 
-                    this._CreateTabPane(leftTabCont, configParamName, tabParams, modulePath, constructorParams, resizeAfterStartup);
+                    this._CreateTabPane(leftTabCont, configParamName, tabParams, modulePath, constructorParams, resizeAfterStartup, false);
+                }
+
+
+                if ((this._AppConfig.displayImgViewer === 'true' || this._AppConfig.displayImgViewer == true)) {
+                    //*** Check if this pane was set to be the startup pane in app.js or AGO. Replace the param name in next line.
+                    var configParamName = 'displayImgViewer';
+                    //*** Constructor params for the tab (which is a contentpane- http://dojotoolkit.org/reference-guide/1.8/dijit/layout/ContentPane.html).
+                    //*** Give the tab's content pane a unique id.
+                    //*** and title to display in the tab
+                    var tabParams = {
+                        title: 'ImageViewer', //i18n.tools.details.title,
+                        id: 'imgViewerGrid',
+                        style: "padding: 0px"
+                    };
+                    //*** The relative path to your module file
+                    var modulePath = "../../custom/imageviewergrid/imageviewergrid";
+                    //*** If your widget requires specific constructor parameters to be passed in, you can set the object here.
+                    var constructorParams = { esriMap: this._Map, webMap: mapHandler.getWebMap() };
+                    //*** Does your widget's parent need to be resized after it's startup in order to layout properly? Default to false.
+                    var resizeAfterStartup = true;
+
+                    this._CreateTabPane(leftTabCont, configParamName, tabParams, modulePath, constructorParams, resizeAfterStartup, true);
                 }
 
                 // Editor Panel - not implemented yet
@@ -178,7 +198,7 @@ define(["dojo/_base/declare", "../utilities/environment", "dojo/_base/lang", "do
             }
 
             //*** This function should be pretty re-useable for creating a tab content pane, which your widget will be added to. See Table of Contents for use.
-            , _CreateTabPane: function (leftTabCont, configParamName, tabParams, modulePath, constructorParams, resizeAfterStartup) {
+            , _CreateTabPane: function (leftTabCont, configParamName, tabParams, modulePath, constructorParams, resizeAfterStartup, loadPane) {
                 var selectedPane = (this._AppConfig.startupwidget === configParamName) ? true : false;
                 tabParams.selected = selectedPane;
                 //Create the tab pane initially, so title is present in tab bar
@@ -187,7 +207,7 @@ define(["dojo/_base/declare", "../utilities/environment", "dojo/_base/lang", "do
                 leftTabCont.addChild(parentPane);
                 domClass.add(dom.byId(tabParams.id), 'panel_content');
 
-                if (selectedPane) { // Get the widget and load immediately
+                if (selectedPane || loadPane ) { // Get the widget and load immediately
                     this._CreateWidget(modulePath, parentPane, constructorParams, resizeAfterStartup);
                 } else { // Don't load the widget, unless needed- i.e. when a user clicks on the tab button (lazy loading)
                     var tocWatch = leftTabCont.watch("selectedChildWidget", lang.hitch(this, function(name, oval, nval){

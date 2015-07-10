@@ -37,6 +37,12 @@
             }, {
                 name: "modules",
                 location: location.pathname.replace(/\/[^/]+$/, '') + '/src/modules'
+            }, {
+                name: "dstore",
+                location: location.pathname.replace(/\/[^/]+$/, '') + '/src/libs/dstore'
+            }, {
+                name: "dgrid",
+                location: location.pathname.replace(/\/[^/]+$/, '') + '/src/libs/dgrid'
             }
         ]
     }
@@ -80,6 +86,10 @@
                             mapConfigurator.on('maploaded', function (map) {
                                 // Finish creating application elements, including the tab manager and tool manager
                                 layoutHandler.FinalizeLayout(webmap, map);
+
+
+
+
                             });
                             mapConfigurator.CreateMap();
                         });

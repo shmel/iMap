@@ -1,0 +1,110 @@
+.ImageViewerGridPartDiv {
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-bottom: 5px;
+    padding-right: 5px;
+    height: 25%;
+    border: solid;
+    border-color: #999999;
+    border-radius: 5px;
+    border-width: 2px;
+    background-color: #FFFFFF;
+    margin: 5px;
+}
+
+.dgrid-row-highlight {
+    color: #ff0000; !important;
+    font-weight: bold;
+}
+
+.dijitDialogUnderlayWrapper {
+    display:none !important;
+}
+
+.dijitDialogTitle {
+    color: #ffffff !important;
+}
+
+.dijitDialogCloseIcon{
+    background-image: url("../../../../../../assets/close.png")!important;
+}
+
+#HomeButton .home{
+    position: absolute;
+    top: 142px;
+    left: 28px;
+    z-index: 50;
+    background-image: url("../../../../../../assets/fullextent.png") !important;
+    background-color: rgba(82, 124, 157, 1) !important;
+}
+.dgrid-load-data {
+    background-image: url("../../../../../../assets/loading.gif");
+    background-position: center center;
+    background-repeat: no-repeat;
+    height: 100%;
+    text-align: center;
+    width: 100%;
+}
+
+.ErrorMsg {
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+    font-weight: bold;
+    color: red;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+.divWidgetButtonContainer {
+    width: 45%;
+    display: inline-block;
+    text-align: center;
+}
+.divResultsButtonContainer{
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+    padding-top: 10px;
+}
+
+#UpstreamTrace .dijitButton .dijitButtonNode  {
+    display: block;
+    height: 30px;
+    width: 85px;
+    padding: 7px;
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
+#msgWarning{
+    color: red;
+    text-align: center;
+    font-weight: bolder;
+}
+
+#UpstreamTrace .dijitButtonText {
+    padding: 0 0.3em;
+    text-align: center;
+    white-space: normal;
+}
+
+#WaterValveTrace .dijitButton .dijitButtonNode  {
+    display: block;
+    height: 30px;
+    width: 85px;
+    padding: 7px;
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
+#WaterValveTrace .dijitButtonText {
+    padding: 0 0.3em;
+    text-align: center;
+    white-space: normal;
+}
+
+
+.analysisButtonLabel {
+    height: 50px
+
+}

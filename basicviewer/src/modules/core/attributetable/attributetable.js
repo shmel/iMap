@@ -10,10 +10,10 @@
 define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dijit/_WidgetsInTemplateMixin", "dojo/aspect", "dojo/dom-construct", "dojo/on", "dijit/registry", "dojo/ready", "dojo/parser"
     , "dojo/_base/fx", "dojo/_base/lang", "dojo/_base/array", "dojo/dom", "dojox/layout/FloatingPane", "dojo/query", "./../utilities/maphandler", "dojo/text!./templates/attributetable.html", "dojo/has", "dojo/json",
     "dojo/_base/Color", "dojo/dnd/move", "dojo/dom-style",
-    "dijit/form/Button",  "dgrid/Selection", "dojo/store/Memory", "esri/tasks/query", "esri/tasks/QueryTask", "esri/tasks/Geoprocessor","esri/tasks/FeatureSet", "esri/layers/FeatureLayer", "esri/geometry/Extent", "dijit/layout/TabContainer",
+    "dijit/form/Button",  "dgrid/Selection", "dstore/Memory", "dstore/RequestMemory", "dstore/legacy/DstoreAdapter","esri/tasks/query", "esri/tasks/QueryTask", "esri/tasks/Geoprocessor","esri/tasks/FeatureSet", "esri/layers/FeatureLayer", "esri/geometry/Extent", "dijit/layout/TabContainer",
     "dijit/layout/ContentPane", "dgrid/OnDemandGrid",  "xstyle/css!./css/attributetable.css"],
     function(declare, WidgetBase, TemplatedMixin, WidgetsInTemplateMixin, aspect, domConstruct, on, registry, ready, parser, fxer, lang, array,
-             dom, floatingPane, query, mapHandler, template, has, JSON, Color, move, domstyle, Button,  Selection, Memory, Query, QueryTask, Geoprocessor, FeatureSet, FeatureLayer, Extent, TabContainer, ContentPane, OnDemandGrid){
+             dom, floatingPane, query, mapHandler, template, has, JSON, Color, move, domstyle, Button,  Selection, Memory, RequestMemory, DstoreAdapter, Query, QueryTask, Geoprocessor, FeatureSet, FeatureLayer, Extent, TabContainer, ContentPane, OnDemandGrid){
         return declare([WidgetBase],{
             //*** Properties needed for this style of module
             //Give a unique ID for the floating panel. Populated from constructor in toolmanager.js
@@ -139,7 +139,8 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                     idProperty: "OBJECTID",
                     data: { identifier: 'OBJECTID',
                         items: []}
-                });
+                })
+                ;
 
                 //Add dojo OnDemandGrid
                 grid = new (declare([OnDemandGrid, Selection]))({
@@ -556,7 +557,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                                 field: "DEPT",
                                 label: "DEPT"
                             }])
-                        grid.set("store", myTestStore)    ;
+                        grid.set("collection", myTestStore)    ;
                         grid.refresh();
                         grid.set("message", "gpfLayer")
 
@@ -669,7 +670,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                                 label: "SYSTEMCODE"
                             }]
                         )
-                        grid2.set("store", myTestStore);
+                        grid2.set("collection", myTestStore);
                         grid2.refresh();
 
                         document.body.style.cursor = "default";
@@ -738,7 +739,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                                 label: "SYSTEMCODE"
                             }
                         ])
-                        grid.set("store", myTestStore)    ;
+                        grid.set("collection", myTestStore)    ;
                         grid.refresh();
 
                         document.body.style.cursor = "default";
@@ -775,7 +776,6 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                                 "Installation_Date": feature.attributes[query.outFields[13]]
                             }
                         });
-
                         var myTestStore = new Memory({ data: mydata });
 
                         grid3.set ("columns", [
@@ -844,7 +844,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                         )
                         
                         grid3.styleColumn("id", "display: none;");
-                        grid3.set("store", myTestStore);
+                        grid3.set("collection", myTestStore);
                         grid3.refresh();
 
                         document.body.style.cursor = "default";
@@ -957,7 +957,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                         items: []}
                 });
 
-                grid.set("store", emptyStore)    ;
+                grid.set("collection", emptyStore)    ;
                 grid.refresh();
             }
 

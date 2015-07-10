@@ -16,7 +16,8 @@ define(["dojo/_base/declare",
     "dojo/topic",
     "dijit/_TemplatedMixin",
     "dojo/text!./search.html",
-    "dojo/store/Memory",
+    "dstore/Memory",
+    "dstore/legacy/DstoreAdapter",
     "dojo/json",
     "dijit/form/FilteringSelect",
     "dijit/form/TextBox",
@@ -55,7 +56,7 @@ define(["dojo/_base/declare",
              language,
              array,
              domStyle, mapHandler, topic, TemplatedMixin, template,
-             Memory, json , FilteringSelect, TextBox, sewersystems, streetsALL, ArcGISDynamicMapServiceLayer, FeatureLayer , Button, on, Map, Query, QueryTask,
+             Memory, DstoreAdapter, json , FilteringSelect, TextBox, sewersystems, streetsALL, ArcGISDynamicMapServiceLayer, FeatureLayer , Button, on, Map, Query, QueryTask,
              FindTask, FindParameters, FindResult, Extent,
              OnDemandGrid, Selection, dom , filestore, dojoNum
         ){
@@ -100,17 +101,20 @@ define(["dojo/_base/declare",
                 //Get Data Store
                 // create store instance referencing data from states.json
                 //------SEWER SYSTEM / PUMP STATION
-                var SewerSystemStore = new Memory({
+                var SewerSystemStore = new DstoreAdapter(new Memory({
                     idProperty: "OBJECTID",
                     data: json.parse(sewersystems)
-                });
+                })
+                );
                 var SelectedSewerVal;
 
                 //------Streets ALL
-                var StreetsALLStore = new Memory({
+                var StreetsALLStore = new DstoreAdapter( new Memory({
                     idProperty: "ID",
                     data: json.parse(streetsALL)
-                });
+                })
+                );
+
 /*                //------Streets MZ - Removed 4/11/2014 to consolidate street search
                 var StreetsMZStore = new Memory({
                     idProperty: "ID",
@@ -119,11 +123,12 @@ define(["dojo/_base/declare",
                 var SelectedStreetALLID, SelectedStreetALLVal;
 
 
-                var emptyStore = new Memory({
+                var emptyStore = new DstoreAdapter(new Memory({
                     idProperty: "OBJECTID",
                     data: { identifier: 'OBJECTID',
                         items: []}
-                });
+                })
+                );
 
                 //Create Grid
                 grid = new (declare([OnDemandGrid, Selection]))({
@@ -165,7 +170,7 @@ define(["dojo/_base/declare",
                             this.outFields =  ["OBJECTID", "NAME"];
 
                             // create a feature layer
-                            var featureLayer = new FeatureLayer("https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/CharlesUtilities/MapServer/105", {
+                            var featureLayer = new FeatureLayer("http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Dev_Utilities_WastewaterSystems/MapServer/0", {
                                 id: "systems",
                                 mode: 1,
                                 outFields: this.outFields
@@ -174,7 +179,7 @@ define(["dojo/_base/declare",
                             this.map.addLayer(featureLayer)
 
                             var query = new Query();
-                            var qt = new QueryTask("https://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/CharlesUtilities/MapServer/105");
+                            var qt = new QueryTask("http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Dev_Utilities_WastewaterSystems/MapServer/0");
                             var random = (new Date()).getTime(); //Fix for 10.1 Bug NIM086349
                             query.where = "OBJECTID = " + SelectedSewerVal + " AND " + random + "=" + random;
                             //query.objectIds = SelectedSewerVal;
@@ -196,7 +201,7 @@ define(["dojo/_base/declare",
                                     "id": "ID",
                                     "name": "Name"
                                 });
-                                grid.set("store", myTestStore)    ;
+                                grid.set("collection", myTestStore)    ;
                                 grid.refresh();
 
                                 // add a click listener on the ID column
@@ -280,7 +285,7 @@ define(["dojo/_base/declare",
                                     "zipcode": "ZIPCODE"
                                 });
                                 grid.styleColumn("ID", "display: none;");
-                                grid.set("store", streetALLStore)    ;
+                                grid.set("collection", streetALLStore)    ;
                                 grid.refresh();
 
                                 // add a click listener on the ID column
@@ -310,12 +315,12 @@ define(["dojo/_base/declare",
 
                 }, "GISOBJIDSearchText" );
                 //Define List of Services to use for Find Task
-                svcList = ["http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Utilities_Water/MapServer/",
-                    "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Utilities_LateralPts/MapServer/",
-                    "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Utilities_Reclaimed/MapServer/",
-                    "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Utilities_Wastewater/MapServer/"
+                svcList = ["http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Dev_Utilities_Water/MapServer/",
+                    "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Dev_Utilities_LateralPts/MapServer/",
+                    "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Dev_Utilities_Reclaimed/MapServer/",
+                    "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Dev_Utilities_Wastewater/MapServer/"
                     ];
-                //Each Service has a list of Layer to search
+                //Each Service has a list of Layers to search
                 var svcLayerList = ["0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27",
                     "0", "0,1,2,3,4,5,6,7,8",
                     "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35"];
@@ -625,7 +630,7 @@ define(["dojo/_base/declare",
                         GOIDText.reset();
 
                         //StreetMZSearchSelect.reset();
-                        grid.set("store", emptyStore)    ;
+                        grid.set("collection", emptyStore)    ;
                         grid.refresh();
                     })                      //End On Click
                 }, "ClearResults")
@@ -736,7 +741,7 @@ define(["dojo/_base/declare",
                     "Layer": "Layer"
                 });
                 grid.styleColumn("ID", "display: none;");
-                grid.set("store", this.GOIDStore)    ;
+                grid.set("collection", this.GOIDStore)    ;
                 grid.refresh();
 
                 // add a click listener on the ID column

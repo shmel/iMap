@@ -16,6 +16,16 @@
     color: #ff0000; !important;
     font-weight: bold;
 }
+#plansetsGrid {
+    height: 20em;
+}
+
+#titlePageGrid {
+    height: 20em;
+}
+#leftPane h1 {
+    margin-top: .2em;
+}
 
 .dijitDialogUnderlayWrapper {
     display:none !important;
@@ -29,9 +39,9 @@
     background-image: url("../../../../../../assets/close.png")!important;
 }
 
-#HomeButton .home{
+#tabImages .home{
     position: absolute;
-    top: 142px;
+    top: 138px;
     left: 28px;
     z-index: 50;
     background-image: url("../../../../../../assets/fullextent.png") !important;

@@ -15,7 +15,6 @@
 .dgrid-row-highlight {
     color: #ff0000; !important;
     font-weight: bold;
-
 }
 
 .ErrorMsg {
@@ -38,7 +37,9 @@
     text-align: center;
     padding-top: 10px;
 }
+#plansetsGrid .dgrid {
 
+}
 #UpstreamTrace .dijitButton .dijitButtonNode  {
     display: block;
     height: 30px;

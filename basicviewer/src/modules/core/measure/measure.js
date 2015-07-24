@@ -112,6 +112,8 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                 } else {
                     registry.byId(this.floaterDivId).hide();
                     registry.byId(this.buttonDivId).set('checked', false); //uncheck the toggle button
+                    this._measureDij.clearResult();
+                    this._measureDij.setTool("location", false);
                     mapHandler.EnableMapPopups(); //enable map popup windows
                     //deactivate the tool and clear the results
                     /*var measure = registry.byId('measureToolDij');

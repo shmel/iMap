@@ -44,6 +44,10 @@
 .navlist li{margin:0;padding:0;list-style:none;position:absolute;top:0;}
 .navlist li, .navlist a{height:30px;display:block;}
 
+#leftPane h1 {
+    margin-top: .2em;
+}
+
 #liLyrUp{left:5px;width:30px;}
 .liLyrUp{background:url('btnbar_img.gif') 0 0;cursor:pointer;}
 #liLyrUp a:hover{background: url('btnbar_img.gif') 0 -31px;}

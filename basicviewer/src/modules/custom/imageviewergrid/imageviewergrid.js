@@ -45,6 +45,7 @@ define(["dojo/_base/declare",
     "dojo/dom",
     "dojo/number",
     "dijit/Dialog",
+    "dijit/layout/TabContainer",
     "../../core/attributetable/attributetable",
     "dojo/parser",
     "xstyle/css!./css/imageviewergrid.css",
@@ -68,7 +69,7 @@ define(["dojo/_base/declare",
              mapHandler, topic, TemplatedMixin, template,
              json , ArcGISDynamicMapServiceLayer, FeatureLayer ,
              Geoprocessor, Draw, Graphic, SimpleMarkerSymbol, SimpleLineSymbol,
-             SimpleRenderer, Color, Button, ToggleButton, Memory, Trackable, TreeStoreMixin, OnDemandGrid, Tree, Selection, on, query, Map, HomeButton, dom, dojoNum, Dialog, AttributeTable
+             SimpleRenderer, Color, Button, ToggleButton, Memory, Trackable, TreeStoreMixin, OnDemandGrid, Tree, Selection, on, query, Map, HomeButton, dom, dojoNum, Dialog, TabContainer, AttributeTable
         ){
         return declare([WidgetBase, TemplatedMixin],{
             //*** Properties needed for this style of module
@@ -84,14 +85,12 @@ define(["dojo/_base/declare",
             , gpQueryImageDataURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/QueryImageData/GPServer/QueryImageData"
             , gpGetImageLayerURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/GetImageLayer/GPServer/GetImageLayer"
             , gpGetImageLayerMapSvcURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/GetImageLayer/MapServer"
+            , gpExportImageLayerURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportImageLayertoPDF/GPServer/ExportImageLayer"
+            , dialogBox: null
             , titlegrid: null
             , gridPlansets: null
             , imageData: null
             , _self: null
-
-
-
-
 
 
             //*** Creates
@@ -123,15 +122,17 @@ define(["dojo/_base/declare",
                     var aboutDialog;
                     if (!aboutDialog) {
                         var htmlFragment = '<div width="400"><div><h2>About the Image Viewer</h2></div>';
-                        htmlFragment += '<div>Version 1.0 (Beta)</div>';
+                        htmlFragment += '<div>Version 1.1 (Beta)</div>';
                         htmlFragment += '<div">The Image Viewer component launches from the <strong>List Plan Set Documents</strong> link in the Identify/Pop Up window when a feature is clicked on. ' +
                             'The <strong>ImageViewer</strong> tab will show the list of associated images and the folders, as well as the Title Page information associated with the document. ' +
                             'Click on the Image ID in the row to open a viewer window to pan and zoom the images.</div><br><br>';
                         htmlFragment += '<div>Future functionality includes :</div>' +
                             '<div><ul>' +
-                            '<li>View multiple images in a preview window at once</li>' +
+                            '<li>Export Individual Images - Added 07/17/2015</li>' +
+                            '<li>View multiple images in a preview window at once - Added 07/24/2015</li>' +
+                            '<li>Export Multiple Images - COMING SOON</li>' +
                             '<li>Improved Image Viewing in separate, movable window</li>' +
-                            '<li>Select Features and export associated images</li>' +
+                            '<li>Select Features view associated images</li>' +
                             '</ul></div></div><br><br>';
 
                         // CREATE DIALOG
@@ -160,16 +161,6 @@ define(["dojo/_base/declare",
 
                 //when the link is clicked register a function that will run
                 on(link, "click", this.GetPlansets);
-                /*on(link, "click", lang.hitch(this, function(){
-
-
-
-
-
-                        this.GetPlansets
-
-
-                }));*/
 
                 var dEmptyPlanSetStore =  new (declare([Memory, Trackable, TreeStoreMixin]))({
                     idProperty: "FOLDER",
@@ -297,11 +288,10 @@ define(["dojo/_base/declare",
                     return;
                 }
 
-                //ACtivate the ImageViewer Tab
-         /*       var tc = dijit.byId("leftPane");
-                var cp = dijit.byId("leftPane_tablist_imgViewerGrid");
-
-                tc.selectChild(cp);*/
+                //Activate the ImageViewer Tab
+                var tc = registry.byId("leftPane");
+                var cp = registry.byId("imgViewerGrid");
+                tc.selectChild(cp);
 
                 gridPlansets.domNode
                 domClass.add(gridPlansets.domNode, "dgrid-load-data");
@@ -373,14 +363,6 @@ define(["dojo/_base/declare",
                                     //Populate the Data fo Title Page
                                     _self.GetTitlePagefromGPService(imageData[0].Img_Id)
 
-                                    /*//TODO Activate Tab
-                                    var tc = dijit.byId("leftPane");
-                                    var cp = dijit.byId("leftPane_tablist_imgViewerGrid");
-
-                                    if (tc.selectedChildWidget == cp) {//Do Nothing
-                                    } else {
-                                        tc.selectChild(cp)
-                                    };*/
 
                                 }));
                             }));
@@ -503,7 +485,7 @@ define(["dojo/_base/declare",
                 //setup the geoprocessor task to get Folders
                 //gp = new esri.tasks.Geoprocessor("http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/QueryImageData/GPServer/QueryImageData");
                 gpFolders = new esri.tasks.Geoprocessor(_self.gpGetImageLayerURL);
-                gpFolders.setOutSpatialReference({wkid:26985});
+                gpFolders.setOutSpatialReference({wkid:4326});
 
                 var params = { "Image_Path":img_path };
                 //gp.submitJob(params, lang.hitch(this, this.DisplayWaterValveTrace));
@@ -514,8 +496,8 @@ define(["dojo/_base/declare",
                     //Format the URL for the Map Service
                     var imgSvcURL = _self.gpGetImageLayerMapSvcURL + "/jobs/" + jobid
 
-                    var dialogBox;
-                    if (!dialogBox) {
+
+                    if (!this.dialogBox) {
                         //var imgText = "Img ID / Path:" + img_id + "/" + img_path
                         var imgText = "Path: " + img_path
                         var imgTitle = "Image ID: " + img_id
@@ -524,33 +506,177 @@ define(["dojo/_base/declare",
                         var testImgURL = imgSvcURL + "?f=jsapi"
                        // window.open(testImgURL,'_blank');
 
-                        var htmlFragment = '<div>'+imgText+'</div>';
+                        var mapDivName = "imgViewerMap_" + img_id;
+                        var btnExportDivName = "btnExport" + img_id;
+                        var homeButtonDivName = "HomeButton" + img_id;
+
+
+                        var htmlFragment = '<div id="tabImages"></div><div id="ExportAll"></div>'
+
+                        /*var paneHTML = '<div>'+imgText+'</div>';
+                        paneHTML += '<div id="imgViewerMap" style="width:700px; height:550px; border: 1px solid #A8A8A8;">' +
+                         '<div id="HomeButton"></div></div>';
+                        paneHTML += '<table><tr><td style="padding-right: 20px;"><div><a href="' + testImgURL+ '" target="_blank">Open in New Window</a></div></td>'+'<td style="padding-right: 20px;"><div id="btnExport"></div></td></tr></table>';
+*/
+                        var paneHTML = '<div>'+imgText+'</div>';
+                        paneHTML += '<div id="' + mapDivName+ '" style="width:700px; height:550px; border: 1px solid #A8A8A8;">' +
+                            '<div id="'+ homeButtonDivName +'"></div></div>';
+                        paneHTML += '<table><tr><td style="padding-right: 20px;"><div><a href="' + testImgURL+ '" target="_blank">Open in New Window</a></div></td>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td></tr></table>';
+
+
+                        /*var htmlFragment = '<div id="tabImages"><div>'+imgText+'</div>';
                         htmlFragment += '<div id="imgViewerMap" style="width:700px; height:600px; border: 1px solid #A8A8A8;">' +
                             '<div id="HomeButton"></div></div>';
-                        htmlFragment += '<div><a href="' + testImgURL+ '" target="_blank">Open in New Window</a></div>';
+                        htmlFragment += '<table><tr><td style="padding-right: 20px;"><div><a href="' + testImgURL+ '" target="_blank">Open in New Window</a></div></td>'+'<td style="padding-right: 20px;"><div id="btnExport"></div></td></tr></table></div>';*/
 
                         // CREATE DIALOG
-                        dialogBox = new dijit.Dialog({
-                            title: imgTitle,
+                        this.dialogBox = new dijit.Dialog({
+                            title: "View Plan Documents",
                             content: htmlFragment
                         });
 
-                        on (dialogBox, "hide", function(){
+                        on (this.dialogBox, "hide", function(){
                             console.log ("Dialog Closed")
-                            dialogBox.destroyRecursive();
-                        })
+                            tabs = tabContImages.getChildren();
+
+                            for(var i = 0; i < tabs.length; i++)
+                            {
+                                tabContImages.removeChild(tabs[i]);
+                            };
+
+/*                            //Destroy the Tab Container
+                            tabContImages.destroyRecursive();
+
+                            console.debug(registry._hash);
+
+                            //CREATE TAB CONTAINER
+                            tabContImages = new TabContainer({
+                                style: "height: 650px; width: 750px;",
+                                id: "tabImages"
+                            }, "tabImages");
+
+
+                            console.debug(registry._hash);*/
+
+                        });
 
                         document.body.style.cursor = "default";
 
+                        //TODO Add Export All Button for Exporting All Images In Tabs
+                        //TODO Currently Commented Out
+
+                        /*var exportAllButton = new Button(
+                            {label: "Export All Images to PDF"})
+                            .placeAt("ExportAll");
+
+                        on(exportAllButton, "click", lang.hitch(this, function(){
+                            //TODO Run GP Process to Output Image to PDF
+
+                            //For Each Tab open, get the imgID to pass to the function
+                            tabs = tabContImages.getChildren();
+
+                            for(var i = 0; i < tabs.length; i++)
+                            {
+                                console.log (tabs[i].id)
+                            };
+
+
+                            this.exportMultipleImages(img_path)
+                        }));*/
+
+
+                        //CREATE TAB CONTAINER
+                        var tabContImages = new TabContainer({
+                            style: "height: 650px; width: 750px;"
+                        }, "tabImages");
+
+                        //ADD TAB
+                        var pane = new ContentPane({
+                            title: img_id,
+                            id: img_id,
+                            closable: true,
+                            content: paneHTML,
+                            style: "background-color: #FFFFFF"
+                        });
+                        tabContImages.addChild(pane);
+
+
+                        //CREATE EXPORT BUTTON
+                        var exportButton = new Button(
+                            {label: "Export Image to PDF"})
+                            .placeAt(btnExportDivName);
+
+                        on(exportButton, "click", lang.hitch(this, function(){
+                            //Run GP Process to Output Image to PDF
+                            this.exportSingleImage(img_path)
+                        }));
+
+
                         // DISPLAY DIALOG
-                        dialogBox.show();
+                        this.dialogBox.show();
 
                         // CREATE MAP
-                        this.createImageViewerMap("imgViewerMap",imgSvcURL );
+                        this.createImageViewerMap(mapDivName,imgSvcURL,homeButtonDivName );
                     }
                     else {
                         document.body.style.cursor = "default";
-                        dialogBox.show();
+
+                        //Add Tab to Tab container
+                        //var imgText = "Img ID / Path:" + img_id + "/" + img_path
+                        var imgText = "Path: " + img_path
+                        var imgTitle = "Image ID: " + img_id
+                        var mapDivName = "imgViewerMap_" + img_id;
+                        var btnExportDivName = "btnExport" + img_id;
+                        var homeButtonDivName = "HomeButton" + img_id;
+
+                        //Create the button to link to a new window
+                        var testImgURL = imgSvcURL + "?f=jsapi"
+
+
+                        var paneHTML = '<div>'+imgText+'</div>';
+                        paneHTML += '<div id="' + mapDivName+ '" style="width:700px; height:550px; border: 1px solid #A8A8A8;">' +
+                            '<div id="'+ homeButtonDivName +'"></div></div>';
+                        paneHTML += '<table><tr><td style="padding-right: 20px;"><div><a href="' + testImgURL+ '" target="_blank">Open in New Window</a></div></td>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td></tr></table>';
+
+                        // DISPLAY DIALOG
+                        this.dialogBox.show();
+
+                        //Find TAB CONTAINER
+                        var tabContImages = dijit.byId("tabImages")
+
+
+                        //ADD TAB
+                        var pane = new ContentPane({
+                            title: img_id,
+                            id: img_id,
+                            closable: true,
+                            content: paneHTML,
+                            style: "background-color: #FFFFFF"
+                        });
+                        tabContImages.addChild(pane);
+                        tabContImages.layout()
+                        tabContImages.selectChild(pane);
+
+                        //CREATE EXPORT BUTTON
+                        var exportButton = new Button(
+                            {label: "Export Image to PDF"})
+                            .placeAt(btnExportDivName);
+
+                        on(exportButton, "click", lang.hitch(this, function(){
+                            //Run GP Process to Output Image to PDF
+                            this.exportSingleImage(img_path)
+                        }));
+
+                        this.dialogBox.show();
+
+
+                        // CREATE MAP
+                        var newMap = this.createImageViewerMap(mapDivName,imgSvcURL,homeButtonDivName );
+
+                        newMap.resize();
+
+
+
                     }
 
 
@@ -565,7 +691,51 @@ define(["dojo/_base/declare",
 
             }
 
-            , createImageViewerMap: function (srcNodeRef, imgLayerURL){
+            , exportMultipleImages: function (img_paths) {
+                //Input an IMGPath, and pass to the GP Service that will generate and export an PDF file to download
+                gpExportImage = new esri.tasks.Geoprocessor(_self.gpExportImageLayerURL);
+                gpExportImage.setOutSpatialReference({wkid:4326});
+
+                var params = { "Image_Path":img_path };
+                //gp.submitJob(params, lang.hitch(this, this.DisplayWaterValveTrace));
+                gpExportImage.submitJob(params, lang.hitch (this, function(jobInfo) {
+                    //Wait for the Results
+                    if(jobInfo.jobStatus !== "esriJobFailed"){
+                        gpExportImage.getResultData(jobInfo.jobId,"OutputPDF", lang.hitch(this, function(outputFile) {
+
+                                    var theurl = outputFile.value.url;
+                                    console.log(theurl);
+                                    window.open(theurl, '_blank');
+                                }
+                            )
+                        );
+                    }
+
+                }))
+            }
+            , exportSingleImage: function (img_path) {
+                //Input an IMGPath, and pass to the GP Service that will generate and export an PDF file to download
+                gpExportImage = new esri.tasks.Geoprocessor(_self.gpExportImageLayerURL);
+                gpExportImage.setOutSpatialReference({wkid:4326});
+
+                var params = { "Image_Path":img_path };
+                //gp.submitJob(params, lang.hitch(this, this.DisplayWaterValveTrace));
+                gpExportImage.submitJob(params, lang.hitch (this, function(jobInfo) {
+                    //Wait for the Results
+                    if(jobInfo.jobStatus !== "esriJobFailed"){
+                        gpExportImage.getResultData(jobInfo.jobId,"OutputPDF", lang.hitch(this, function(outputFile) {
+
+                                    var theurl = outputFile.value.url;
+                                    console.log(theurl);
+                                    window.open(theurl, '_blank');
+                                }
+                            )
+                        );
+                    }
+
+                }))
+            }
+            , createImageViewerMap: function (srcNodeRef, imgLayerURL, homeDIVName){
                 var map = new esri.Map(srcNodeRef,{
                     slider: true,
                     autoResize:false
@@ -575,18 +745,32 @@ define(["dojo/_base/declare",
                 var imgLayer = new ArcGISDynamicMapServiceLayer(imgLayerURL)
                 map.addLayer(imgLayer)
 
-                on(imgLayer, "load", lang.hitch (this, function(){
+
+                var home = new HomeButton({
+                    map: map,
+                    extent: imgLayer.fullExtent/*,
+                    style: 'position: absolute; top: 138px; left: 27px; z-index: 50; background-image: url("../../../../../../assets/fullextent.png"); background-color: rgba(82, 124, 157, 1);'*/
+                }, homeDIVName);
+                home.startup();
+
+              //  domClass.add(home, "fullExtent");
+
+
+               /* on(imgLayer, "load", lang.hitch (this, function(){
                     var home = new HomeButton({
                         map: map,
                         extent: imgLayer.fullExtent
                     }, "HomeButton");
                     home.startup();
+                }));*/
+
+                on(map, "load",  lang.hitch (this, function(){
+                   /* var home = new HomeButton({
+                        map: map,
+                        extent: imgLayer.fullExtent
+                    }, "HomeButton");
+                    home.startup();*/
                 }));
-
-
-                on(map, "load",  function() {
-
-                });
 
                 /*var markerSymbol = new esri.symbol.SimpleMarkerSymbol(esri.symbol.SimpleMarkerSymbol.STYLE_X, 12, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255,0,0,0.75]), 4));
                 var graphic;

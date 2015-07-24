@@ -39,6 +39,9 @@
     line-height:25px;
 }
 
+#leftPane h1 {
+    margin-top: .2em;
+}
 #GOIDSearch {
     width: 80px; !important;
 }

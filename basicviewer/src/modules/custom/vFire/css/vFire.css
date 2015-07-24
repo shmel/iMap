@@ -82,6 +82,11 @@
     margin-left: 7%;
     margin-right: 7%;
 }
+
+#leftPane h1 {
+    margin-top: .2em;
+}
+
 /*#Flayer_layer {
     display : block;
     -webkit-animation: myfirst 5s; *//* Chrome, Safari, Opera *//*

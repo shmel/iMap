@@ -86,6 +86,7 @@ define(["dojo/_base/declare",
             , gpGetImageLayerURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/GetImageLayer/GPServer/GetImageLayer"
             , gpGetImageLayerMapSvcURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/GetImageLayer/MapServer"
             , gpExportImageLayerURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportImageLayertoPDF/GPServer/ExportImageLayer"
+            , gpExportMultiImageLayerURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportMultiImageLayertoPDF/GPServer/ExportMultiImageLayer"
             , dialogBox: null
             , titlegrid: null
             , gridPlansets: null
@@ -130,7 +131,7 @@ define(["dojo/_base/declare",
                             '<div><ul>' +
                             '<li>Export Individual Images - Added 07/17/2015</li>' +
                             '<li>View multiple images in a preview window at once - Added 07/24/2015</li>' +
-                            '<li>Export Multiple Images - COMING SOON</li>' +
+                            '<li>Export Multiple Images - Added 8/7/2015</li>' +
                             '<li>Improved Image Viewing in separate, movable window</li>' +
                             '<li>Select Features view associated images</li>' +
                             '</ul></div></div><br><br>';
@@ -509,7 +510,7 @@ define(["dojo/_base/declare",
                         var mapDivName = "imgViewerMap_" + img_id;
                         var btnExportDivName = "btnExport" + img_id;
                         var homeButtonDivName = "HomeButton" + img_id;
-
+                        var pathTextDivName = "ImgPath" + img_id;
 
                         var htmlFragment = '<div id="tabImages"></div><div id="ExportAll"></div>'
 
@@ -518,10 +519,10 @@ define(["dojo/_base/declare",
                          '<div id="HomeButton"></div></div>';
                         paneHTML += '<table><tr><td style="padding-right: 20px;"><div><a href="' + testImgURL+ '" target="_blank">Open in New Window</a></div></td>'+'<td style="padding-right: 20px;"><div id="btnExport"></div></td></tr></table>';
 */
-                        var paneHTML = '<div>'+imgText+'</div>';
+                        var paneHTML = '<div id="'+ pathTextDivName +'">'+imgText+'</div>';
                         paneHTML += '<div id="' + mapDivName+ '" style="width:700px; height:550px; border: 1px solid #A8A8A8;">' +
                             '<div id="'+ homeButtonDivName +'"></div></div>';
-                        paneHTML += '<table><tr><td style="padding-right: 20px;"><div><a href="' + testImgURL+ '" target="_blank">Open in New Window</a></div></td>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td></tr></table>';
+                        paneHTML += '<table><tr>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td></tr></table>';
 
 
                         /*var htmlFragment = '<div id="tabImages"><div>'+imgText+'</div>';
@@ -565,7 +566,7 @@ define(["dojo/_base/declare",
                         //TODO Add Export All Button for Exporting All Images In Tabs
                         //TODO Currently Commented Out
 
-                        /*var exportAllButton = new Button(
+                        var exportAllButton = new Button(
                             {label: "Export All Images to PDF"})
                             .placeAt("ExportAll");
 
@@ -575,14 +576,27 @@ define(["dojo/_base/declare",
                             //For Each Tab open, get the imgID to pass to the function
                             tabs = tabContImages.getChildren();
 
+                            var imgPaths = [];
+
                             for(var i = 0; i < tabs.length; i++)
                             {
                                 console.log (tabs[i].id)
+
+                                //Get the Path from the Object with
+                                imgPathDIVId = "ImgPath" + tabs[i].id;
+                                imgPathDIV = document.getElementById(imgPathDIVId)
+
+                                imgPaths [i] = imgPathDIV.innerHTML.replace("Path: ", "")
+
+
+                                console.log (imgPathDIV.innerHTML);
+
                             };
 
+                            imgPathStr = imgPaths.join(',');
 
-                            this.exportMultipleImages(img_path)
-                        }));*/
+                            this.exportMultipleImages(imgPathStr)
+                        }));
 
 
                         //CREATE TAB CONTAINER
@@ -603,7 +617,7 @@ define(["dojo/_base/declare",
 
                         //CREATE EXPORT BUTTON
                         var exportButton = new Button(
-                            {label: "Export Image to PDF"})
+                            {label: "Export This Image to PDF"})
                             .placeAt(btnExportDivName);
 
                         on(exportButton, "click", lang.hitch(this, function(){
@@ -628,15 +642,16 @@ define(["dojo/_base/declare",
                         var mapDivName = "imgViewerMap_" + img_id;
                         var btnExportDivName = "btnExport" + img_id;
                         var homeButtonDivName = "HomeButton" + img_id;
+                        var pathTextDivName = "ImgPath" + img_id;
 
                         //Create the button to link to a new window
                         var testImgURL = imgSvcURL + "?f=jsapi"
 
 
-                        var paneHTML = '<div>'+imgText+'</div>';
+                        var paneHTML = '<div id="'+ pathTextDivName +'">'+imgText+'</div>';
                         paneHTML += '<div id="' + mapDivName+ '" style="width:700px; height:550px; border: 1px solid #A8A8A8;">' +
                             '<div id="'+ homeButtonDivName +'"></div></div>';
-                        paneHTML += '<table><tr><td style="padding-right: 20px;"><div><a href="' + testImgURL+ '" target="_blank">Open in New Window</a></div></td>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td></tr></table>';
+                        paneHTML += '<table><tr>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td></tr></table>';
 
                         // DISPLAY DIALOG
                         this.dialogBox.show();
@@ -659,7 +674,7 @@ define(["dojo/_base/declare",
 
                         //CREATE EXPORT BUTTON
                         var exportButton = new Button(
-                            {label: "Export Image to PDF"})
+                            {label: "Export This Image to PDF"})
                             .placeAt(btnExportDivName);
 
                         on(exportButton, "click", lang.hitch(this, function(){
@@ -672,7 +687,6 @@ define(["dojo/_base/declare",
 
                         // CREATE MAP
                         var newMap = this.createImageViewerMap(mapDivName,imgSvcURL,homeButtonDivName );
-
                         newMap.resize();
 
 
@@ -686,17 +700,13 @@ define(["dojo/_base/declare",
                     //window.open(testImgURL,'_blank');
 
                 }));
-
-
-
             }
 
             , exportMultipleImages: function (img_paths) {
                 //Input an IMGPath, and pass to the GP Service that will generate and export an PDF file to download
-                gpExportImage = new esri.tasks.Geoprocessor(_self.gpExportImageLayerURL);
+                gpExportImage = new esri.tasks.Geoprocessor(_self.gpExportMultiImageLayerURL);
                 gpExportImage.setOutSpatialReference({wkid:4326});
-
-                var params = { "Image_Path":img_path };
+                var params = { "Image_Path":img_paths, "OutputFileName": "output.pdf" };
                 //gp.submitJob(params, lang.hitch(this, this.DisplayWaterValveTrace));
                 gpExportImage.submitJob(params, lang.hitch (this, function(jobInfo) {
                     //Wait for the Results
@@ -746,49 +756,27 @@ define(["dojo/_base/declare",
                 map.addLayer(imgLayer)
 
 
-                var home = new HomeButton({
+                /*var home = new HomeButton({
                     map: map,
-                    extent: imgLayer.fullExtent/*,
-                    style: 'position: absolute; top: 138px; left: 27px; z-index: 50; background-image: url("../../../../../../assets/fullextent.png"); background-color: rgba(82, 124, 157, 1);'*/
+                    extent: imgLayer.fullExtent
                 }, homeDIVName);
-                home.startup();
-
-              //  domClass.add(home, "fullExtent");
-
-
-               /* on(imgLayer, "load", lang.hitch (this, function(){
-                    var home = new HomeButton({
-                        map: map,
-                        extent: imgLayer.fullExtent
-                    }, "HomeButton");
-                    home.startup();
-                }));*/
+                home.startup();*/
 
                 on(map, "load",  lang.hitch (this, function(){
-                   /* var home = new HomeButton({
-                        map: map,
-                        extent: imgLayer.fullExtent
-                    }, "HomeButton");
-                    home.startup();*/
+
                 }));
 
-                /*var markerSymbol = new esri.symbol.SimpleMarkerSymbol(esri.symbol.SimpleMarkerSymbol.STYLE_X, 12, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255,0,0,0.75]), 4));
-                var graphic;
-                on(map, "click", function(evt) {
-                    // Add a graphic at the clicked location
-                    if (graphic) {
-                        graphic.setGeometry(evt.mapPoint);
-                    } else {
-                        graphic = new esri.Graphic(evt.mapPoint, markerSymbol);
-                        map.graphics.add(graphic);
-                    }
+                on(imgLayer, "load",  lang.hitch (this, function(){
+                    var home = new HomeButton({
+                        map: map,
+                        extent: imgLayer.fullExtent,
+                        visible: true
+                    }, homeDIVName);
+                    home.startup();
+                    home.show();
 
-                    // show info window
-                    var content = "Latitude = ${y} <br/> Longitude = ${x}";
-                    map.infoWindow.setContent(esri.substitute(esri.geometry.webMercatorToGeographic(evt.mapPoint), content));
-                    map.infoWindow.show(evt.screenPoint, map.getInfoWindowAnchor(evt.screenPoint));
-                });
-*/
+                }));
+
                 return map;
             }
             , NewFunctionHere: function(){

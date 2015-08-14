@@ -30,6 +30,7 @@ define(["dojo/_base/declare",
     "esri/symbols/SimpleLineSymbol",
     "esri/renderers/SimpleRenderer",
     "dojo/_base/Color",
+    "dojox/form/BusyButton",
     "dijit/form/Button",
     "dijit/form/ToggleButton",
     "dstore/Memory",
@@ -69,7 +70,7 @@ define(["dojo/_base/declare",
              mapHandler, topic, TemplatedMixin, template,
              json , ArcGISDynamicMapServiceLayer, FeatureLayer ,
              Geoprocessor, Draw, Graphic, SimpleMarkerSymbol, SimpleLineSymbol,
-             SimpleRenderer, Color, Button, ToggleButton, Memory, Trackable, TreeStoreMixin, OnDemandGrid, Tree, Selection, on, query, Map, HomeButton, dom, dojoNum, Dialog, TabContainer, AttributeTable
+             SimpleRenderer, Color, BusyButton, Button, ToggleButton, Memory, Trackable, TreeStoreMixin, OnDemandGrid, Tree, Selection, on, query, Map, HomeButton, dom, dojoNum, Dialog, TabContainer, AttributeTable
         ){
         return declare([WidgetBase, TemplatedMixin],{
             //*** Properties needed for this style of module
@@ -151,6 +152,8 @@ define(["dojo/_base/declare",
                     }
                 })
 
+
+                //TODO  - Replace with the Event Driven Creation of the Link
                 //Add the Documents Link to the Infowindow Popups
                 var link = domConstruct.create("a",{
                     "class": "action",
@@ -162,6 +165,39 @@ define(["dojo/_base/declare",
 
                 //when the link is clicked register a function that will run
                 on(link, "click", this.GetPlansets);
+
+
+                //TODO - Leverage PopUp Events to Add Planset Link
+                //https://developers.arcgis.com/javascript/jsapi/popup-amd.html#features
+                //https://developers.arcgis.com/javascript/jsapi/infowindow-amd.html
+
+               /* on(this.map.infoWindow, "set-features", lang.hitch(this, function(){
+
+
+                    var feature = mapHandler.map.infoWindow.getSelectedFeature();
+
+
+                        if (feature.attributes.UTIL_ID) {
+                            console.log ("UTIL ID:" + feature.attributes.UTIL_ID)
+
+                            //Add the Documents Link to the Infowindow Popups
+                            var link = domConstruct.create("a",{
+                                "class": "action",
+                                "id": "statsLink",
+                                "innerHTML": "List Plan Set Documents", //text that appears in the popup for the link
+                                "href": "javascript: void(0);",
+                                "feat_id" : "{UTIL_ID}"
+                            }, query(".actionList", this.map.infoWindow.domNode)[0]);
+
+                            //when the link is clicked register a function that will run
+                            on(link, "click", this.GetPlansets);
+                        }
+                        else {
+
+                        }
+                }))*/
+                //TODO
+
 
                 var dEmptyPlanSetStore =  new (declare([Memory, Trackable, TreeStoreMixin]))({
                     idProperty: "FOLDER",
@@ -191,7 +227,7 @@ define(["dojo/_base/declare",
                                 loadingID = "loadImg" + value;
                                 var div = document.createElement("div");
                                 div.className = "renderedCell";
-                                div.innerHTML = value + "<img id=" + loadingID + " src='assets/loading_black.gif' style='padding-left: 20px;visibility: hidden;'></img>";
+                                div.innerHTML = value + "<img id=" + loadingID + " src='assets/loading_blue.gif' style='padding-left: 20px;visibility: hidden;'></img>";
                                 return div;
 
                             }
@@ -585,8 +621,10 @@ define(["dojo/_base/declare",
                         //TODO Add Export All Button for Exporting All Images In Tabs
                         //TODO Currently Commented Out
 
-                        var exportAllButton = new Button(
-                            {label: "Export All Images to PDF"})
+                        var exportAllButton = new BusyButton(
+                            {label: "Export All Images to PDF",
+                            busyLabel: "Exporting...",
+                            id: "ExportAllBusy"})
                             .placeAt("ExportAll");
 
                         on(exportAllButton, "click", lang.hitch(this, function(){
@@ -635,13 +673,17 @@ define(["dojo/_base/declare",
 
 
                         //CREATE EXPORT BUTTON
-                        var exportButton = new Button(
-                            {label: "Export This Image to PDF"})
+                        var exportButton = new BusyButton(
+                            {label: "Export This Image to PDF",
+                                busyLabel: "Exporting...",
+                                id: btnExportDivName + "Busy"})
                             .placeAt(btnExportDivName);
+
+
 
                         on(exportButton, "click", lang.hitch(this, function(){
                             //Run GP Process to Output Image to PDF
-                            this.exportSingleImage(img_path)
+                            this.exportSingleImage(img_path, img_id)
                         }));
 
 
@@ -696,13 +738,15 @@ define(["dojo/_base/declare",
                         tabContImages.selectChild(pane);
 
                         //CREATE EXPORT BUTTON
-                        var exportButton = new Button(
-                            {label: "Export This Image to PDF"})
+                        var exportButton = new BusyButton(
+                            {label: "Export This Image to PDF",
+                                busyLabel: "Exporting...",
+                                id: btnExportDivName + "Busy"})
                             .placeAt(btnExportDivName);
 
                         on(exportButton, "click", lang.hitch(this, function(){
                             //Run GP Process to Output Image to PDF
-                            this.exportSingleImage(img_path)
+                            this.exportSingleImage(img_path, img_id)
                         }));
 
                         this.dialogBox.show();
@@ -737,6 +781,8 @@ define(["dojo/_base/declare",
                     if(jobInfo.jobStatus !== "esriJobFailed"){
                         gpExportImage.getResultData(jobInfo.jobId,"OutputPDF", lang.hitch(this, function(outputFile) {
 
+                                    dijit.byId('ExportAllBusy').cancel();
+
                                     var theurl = outputFile.value.url;
                                     console.log(theurl);
                                     window.open(theurl, '_blank');
@@ -747,7 +793,7 @@ define(["dojo/_base/declare",
 
                 }))
             }
-            , exportSingleImage: function (img_path) {
+            , exportSingleImage: function (img_path, img_id) {
                 //Input an IMGPath, and pass to the GP Service that will generate and export an PDF file to download
                 gpExportImage = new esri.tasks.Geoprocessor(_self.gpExportImageLayerURL);
                 gpExportImage.setOutSpatialReference({wkid:4326});
@@ -758,6 +804,8 @@ define(["dojo/_base/declare",
                     //Wait for the Results
                     if(jobInfo.jobStatus !== "esriJobFailed"){
                         gpExportImage.getResultData(jobInfo.jobId,"OutputPDF", lang.hitch(this, function(outputFile) {
+
+                                    dijit.byId('btnExport' + img_id + 'Busy').cancel();
 
                                     var theurl = outputFile.value.url;
                                     console.log(theurl);

@@ -186,7 +186,15 @@ define(["dojo/_base/declare",
                     columns: {
                         folder: {
                             label: 'folder',
-                            renderExpando: true
+                            renderExpando: true,
+                            renderCell: function(object, value, node, options) {
+                                loadingID = "loadImg" + value;
+                                var div = document.createElement("div");
+                                div.className = "renderedCell";
+                                div.innerHTML = value + "<img id=" + loadingID + " src='assets/loading_black.gif' style='padding-left: 20px;visibility: hidden;'></img>";
+                                return div;
+
+                            }
                         }
                     },
                     showHeader: false
@@ -205,6 +213,10 @@ define(["dojo/_base/declare",
 
                         //Get the Image
                         this.GetMapServiceImage(img_path, img_id);
+
+                        //Show the Loading Icon
+                        loadID = "loadImg" + img_id;
+                        var loadIcon = document.getElementById(loadID).style.visibility = "visible"
 
                         //Load the Title Page info, if not already loaded
                         //Check if this row is a Title Page
@@ -354,6 +366,13 @@ define(["dojo/_base/declare",
                                     gridPlansets.set("collection", dPlanSetStore.filter({'hasChildren': true}))
 
                                     for (i = 0; i < dPlanSetStore.data.length; i++) {
+                                        if (dPlanSetStore.data[i].hasChildren == "true") {
+                                            //Add Loading DIV
+                                            var row = gridPlansets.row(i);
+                                            domClass.add(row.element, "dgrid-row-highlight");
+                                        }
+
+
                                         if (dPlanSetStore.data[i].associated == "True") {
                                             var row = gridPlansets.row(i);
                                             domClass.add(row.element, "dgrid-row-highlight");
@@ -631,6 +650,10 @@ define(["dojo/_base/declare",
 
                         // CREATE MAP
                         this.createImageViewerMap(mapDivName,imgSvcURL,homeButtonDivName );
+
+                        // Hide Loading Icon
+                        loadID = "loadImg" + img_id;
+                        var loadIcon = document.getElementById(loadID).style.visibility = "hidden";
                     }
                     else {
                         document.body.style.cursor = "default";
@@ -689,8 +712,9 @@ define(["dojo/_base/declare",
                         var newMap = this.createImageViewerMap(mapDivName,imgSvcURL,homeButtonDivName );
                         newMap.resize();
 
-
-
+                        // Hide Loading Icon
+                        loadID = "loadImg" + img_id;
+                        var loadIcon = document.getElementById(loadID).style.visibility = "hidden";
                     }
 
 

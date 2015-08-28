@@ -33,12 +33,22 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
             cp1: null,
             cp2: null,
             cp3: null,
-            resultLayers: ["gpfLayer", "gpfMainsLayer", "gpfValvesLayer", "gpfCustomersLayer"],
+            resultLayers: ["gpfLayer", "gpfMainsLayer", "gpfValvesLayer", "gpfCustomersLayer", "gpfWWCustomersLayer"],
             resultFields: [["GISOBJID", "ENABLED", "SubtypeLabel", "INSTALLDATE", "LIFECYCLESTATUS", "WATERTYPE", "MATERIAL", "CROSSSECTIONSHAPE", "UPSTREAMINVERT",
-                "DOWNSTREAMINVERT", "MEASUREMENT1", "SLOPE", "PIPELENGTH", "UPSTREAMMH", "DOWNSTREAMMH", "SYSTEMCODE", "ORG", "DEPT"],
+                "DOWNSTREAMINVERT", "MEASUREMENT1", "SLOPE", "PIPELENGTH", "UPSTREAMMH", "DOWNSTREAMMH", "SYSTEMCODE", "ORG", "DEPT", "CleanOutCount"],
                 ["GISOBJID", "ENABLED", "INSTALLDATE", "LIFECYCLESTATUS", "SubtypeLabel", "WATERTYPE", "MATERIAL", "DIAMETER", "PIPELENGTH", "SYSTEMCODE"],
                 ["GISOBJID", "ENABLED", "SubtypeLabel", "INSTALLDATE", "LOCATIONDESCRIPTION", "OPERATIONALAREA", "ROTATION", "LIFECYCLESTATUS", "WATERTYPE", "DIAMETER", "BYPASSVALVE", "CLOCKWISETOCLOSE", "CURRENTLYOPEN", "MOTORIZED", "NORMALLYOPEN", "PERCENTOPEN", "PRESSURESETTING", "REGULATIONTYPE", "TURNSTOCLOSE", "OPERABLE", "SYSTEMCODE"], 
                 ["OBJECTID","wLateralPoint_ADDRESS", "wLateralPoint_ACCTID", "wLateralPoint_TAXLINK", "BilllingData_2013111_Annual_FY_2013_Consumption__7_1_2012_6_30_2",
+                    "BilllingData_2013111_Q1__2014__7_1_2013_9_30_2013_",
+                    "BilllingData_2013111_Q2__2013__10_1_2012_12_31_2012_",
+                    "BilllingData_2013111_Q3__2013__1_1_2013_3_31_2013_",
+                    "BilllingData_2013111_Q4__2013__4_1_2013_6_30_2013_",
+                    "BilllingData_2013111_Total_Consumption",
+                    "BilllingData_2013111_AVG_Flow",
+                    "BilllingData_2013111_First_Read",
+                    "BilllingData_2013111_Last_Read",
+                    "BilllingData_2013111_Installation_Date"],
+                ["OBJECTID","ssLateralPoint_ADDRESS", "ssLateralPoint_ACCTID", "ssLateralPoint_TAXLINK", "BilllingData_2013111_Annual_FY_2013_Consumption__7_1_2012_6_30_2",
                     "BilllingData_2013111_Q1__2014__7_1_2013_9_30_2013_",
                     "BilllingData_2013111_Q2__2013__10_1_2012_12_31_2012_",
                     "BilllingData_2013111_Q3__2013__1_1_2013_3_31_2013_",
@@ -51,7 +61,8 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
             gpURLS: ["http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportMainstoCSV/GPServer/ExportMainstoCSV",
                 "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportPressMainstoCSV/GPServer/ExportPressMainstoCSV",
                 "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportValvestoCSV/GPServer/ExportValvestoCSV", 
-                 "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportCustomerstoCSV/GPServer/ExportCustomerstoCSV"],
+                 "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportCustomerstoCSV/GPServer/ExportCustomerstoCSV",
+                "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportWWCustomerstoCSV/GPServer/ExportWWCustomerstoCSV"],
             gp: null,
             currLayerName: null
 
@@ -118,21 +129,11 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                 //Set the content of the Floating Pane
                 dom.byId(this.innerDivId).innerHTML = template;
 
-                //TODO: Change
- /*               if (registry.byId("GridTabContainer")) {
-                    var tc = registry.byId("GridTabContainer");
-                }
-                else {
-                    var tc = new TabContainer({
-                        style: "height: 100%; width: 100%;"
-                    }, "GridTabContainer");
-                }*/
+
                 var tc = new TabContainer({
                     style: "height: 100%; width: 100%;"
                 }, "GridTabContainer");
 
-
-               // var tc = registry.byID("")
 
                 //Get Data Store from Feature Layers
                 var emptyStore = new Memory({
@@ -145,7 +146,8 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                 //Add dojo OnDemandGrid
                 grid = new (declare([OnDemandGrid, Selection]))({
                     // use Infinity so that all data is available in the grid
-                    bufferRows: 1000,
+                    bufferRows: Infinity,
+                    minRowsPerPage: 10000,
                     columns: {
                         "Results": "Results"
                     },
@@ -158,7 +160,8 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                 if (this.clickSource == 'water'){
                     grid3 = new (declare([OnDemandGrid, Selection]))({
                         // use Infinity so that all data is available in the grid
-                        bufferRows: 1000,
+                        bufferRows: Infinity,
+                        minRowsPerPage: 10000,
                         columns: {
                             "Results": "Results"
                         },
@@ -169,7 +172,8 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
 
                     grid2 = new (declare([OnDemandGrid, Selection]))({
                         // use Infinity so that all data is available in the grid
-                        bufferRows: 1000,
+                        bufferRows: Infinity,
+                        minRowsPerPage: 10000,
                         columns: {
                             "Results": "Results"
                         },
@@ -317,6 +321,19 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                     tc.addChild(cp3);
                 }
                 else {
+                    //Add Second Grid for Customers
+                    grid2 = new (declare([OnDemandGrid, Selection]))({
+                        // use Infinity so that all data is available in the grid
+                        bufferRows: Infinity,
+                        columns: {
+                            "Results": "Results"
+                        },
+                        minRowsPerPage: 10000,
+                        loadingMessage: "Loading data..." ,
+                        noDataMessage: "No results found.",
+                        store: emptyStore
+                    });
+
                     //Add Export Button
                     var exportButton =  new Button({
                         name: "ExportTableButton",
@@ -348,12 +365,50 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                         })                      //End On Click
                     });
 
+                    //Add Export Button2
+                    var exportButton2 =  new Button({
+                        name: "ExportTableButton",
+                        type: "button",
+                        label: "Export All Records to CSV",
+                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
+                        onClick: lang.hitch(this, function(){
+                            this.ExportGrid("gpfWWCustomersLayer");
+                        })                      //End On Click for Trace Button
+                    });
+
+                    var zoomAllButton2 = new Button({
+                        name: "ZoomAllButton",
+                        type: "button",
+                        label: "Zoom Extent of All Features",
+                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
+                        onClick: lang.hitch(this, function(){
+                            this.zoomToExtent("gpfWWCustomersLayer");
+                        })                      //End On Click
+                    });
+
+                    var clearAllButton2 = new Button({
+                        name: "ClearAllButton",
+                        type: "button",
+                        label: "Clear Selected Features",
+                        /* style: "width: 100px; height:100%; line-height:100%; text-align: left",*/
+                        onClick: lang.hitch(this, function(){
+                            this.clearSelected("gpfWWCustomersLayer");
+                        })                      //End On Click
+                    });
+
+
+
                     fpI.startup();
 
 
 
                     var cp1 = new ContentPane({
                         title: "Gravity Mains",
+                        content: ""
+                    });
+
+                    var cp2 = new ContentPane({
+                        title: "Customers",
                         content: ""
                     });
 
@@ -365,9 +420,16 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                         grid.domNode
                     ])
 
+                    cp2.set("content", [
+                        exportButton2.domNode,
+                        zoomAllButton2.domNode,
+                        clearAllButton2.domNode,
+                        grid2.domNode
+                    ])
+
                     //Add ContentPane to Tab Container
                     tc.addChild(cp1);
-
+                    tc.addChild(cp2);
                 }
 
 
@@ -398,6 +460,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                     if (grid.store.data.length == 0) {
                         if (this.clickSource =='ww') {
                             this.LoadResults("gpfLayer");
+                            this.LoadResults("gpfWWCustomersLayer");
                             //grid.on(".dgrid-row:click", this.selectFeature(event,"gpfLayer"));
                         }
                         else if (this.clickSource =='water') {
@@ -462,6 +525,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                         var mydata = array.map(results.features, function(feature) {
                             return {
                                 "id": feature.attributes[query.outFields[0]],
+                                "CleanoutCount": feature.attributes[query.outFields[18]],
                                 "ENABLED": feature.attributes[query.outFields[1]],
                                 "SubtypeLabel": feature.attributes[query.outFields[2]],
                                 "INSTALLDATE": feature.attributes[query.outFields[3]],
@@ -487,6 +551,10 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                         grid.set ("columns", [
                             {	field: "id",
                                 label: "GISOBJID"
+                            },
+                            {
+                                field: "CleanoutCount",
+                                label: "CleanoutCount"
                             },
                             {
                                 field: "ENABLED",
@@ -859,6 +927,111 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
 
                     }));
                 }
+
+                else if (layername == 'gpfWWCustomersLayer') {
+                    query.orderByFields = ["ssLateralPoint_ADDRESS ASC"];
+                    qt.execute(query, lang.hitch(this, function(results){
+                        var mydata = array.map(results.features, function(feature) {
+                            return {
+                                "id": feature.attributes[query.outFields[0]],
+                                "ACCTID" : feature.attributes[query.outFields[2]],
+                                "ADDRESS": feature.attributes[query.outFields[1]],
+                                "TAXLINK": feature.attributes[query.outFields[3]],
+                                "FY2013_Consumption": feature.attributes[query.outFields[4]],
+                                "2013_Q1": feature.attributes[query.outFields[5]],
+                                "2013_Q2": feature.attributes[query.outFields[6]],
+                                "2013_Q3": feature.attributes[query.outFields[7]],
+                                "2013_Q4": feature.attributes[query.outFields[8]],
+                                "2013_Total_Consumption": feature.attributes[query.outFields[9]],
+                                "2013_Avg_Flow": feature.attributes[query.outFields[10]],
+                                "2013_First_Read": feature.attributes[query.outFields[11]],
+                                "2013_Last_Read": feature.attributes[query.outFields[12]],
+                                "Installation_Date": feature.attributes[query.outFields[13]]
+                            }
+                        });
+                        var myTestStore = new Memory({ data: mydata });
+
+                        grid2.set ("columns", [
+                                {   id: "id",
+                                    field: "id",
+                                    label: "OBJECTID"
+
+                                },
+                                {   id: "ACCTID",
+                                    field: "ACCTID",
+                                    label: "ACCTID"
+                                },
+                                {   id: "ADDRESS",
+                                    field: "ADDRESS",
+                                    label: "ADDRESS"
+                                },
+                                {   id: "TAXLINK",
+                                    field: "TAXLINK",
+                                    label: "TAX LINK",
+                                    formatter: this.hyperlink_formatter
+                                },
+                                { id: "FY2013_Consumption",
+                                    field: "FY2013_Consumption",
+                                    label: "FY2013_Consumption"
+                                },
+                                { id: "2013_Q1",
+                                    field: "2013_Q1",
+                                    label: "2013_Q1"
+                                },
+                                { id: "2013_Q2",
+                                    field: "2013_Q2",
+                                    label: "2013_Q2"
+                                },
+                                { id: "2013_Q3",
+                                    field: "2013_Q3",
+                                    label: "2013_Q3"
+                                },
+                                { id: "2013_Q4",
+                                    field: "2013_Q4",
+                                    label: "2013_Q4"
+                                },
+                                { id: "2013_Total_Consumption",
+                                    field: "2013_Total_Consumption",
+                                    label: "2013_Total_Consumption"
+                                },
+                                { id: "2013_Avg_Flow",
+                                    field: "2013_Avg_Flow",
+                                    label: "2013 Avg Flow"
+                                },
+                                { id: "2013_First_Read",
+                                    field: "2013_First_Read",
+                                    label: "2013 First Read",
+                                    formatter: this.stringDate_formatter
+                                },
+                                { id: "2013_Last_Read",
+                                    field: "2013_Last_Read",
+                                    label: "2013 Last Read",
+                                    formatter: this.stringDate_formatter
+                                },
+                                { id: "Installation_Date",
+                                    field: "Installation_Date",
+                                    label: "Installation Date",
+                                    formatter: this.stringDate_formatter
+                                }
+                            ]
+                        )
+
+                        grid2.styleColumn("id", "display: none;");
+                        grid2.set("collection", myTestStore);
+                        grid2.refresh();
+
+                        document.body.style.cursor = "default";
+                        mapHandler.HideLoadingIcon();
+
+                        // add a click listener on the ID column
+                        grid2.on(".dgrid-row:click", lang.hitch(this, function(e) {
+                                this.currLayerName = "gpfWWCustomersLayer"
+                                this.selectFeature(e);
+                            }
+                        )); //This works
+
+                    }));
+                }
             }
             , clearSelected: function(e) {
                 //Clear the Selection for the input Layer
@@ -885,6 +1058,9 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
                 switch (layername) {
                     case "gpfCustomersLayer":
                         query.where = "wLateralPoint_ACCTID = '" + (e.target.innerHTML) + "'";
+                        break;
+                    case "gpfWWCustomersLayer":
+                        query.where = "ssLateralPoint_ACCTID = '" + (e.target.innerHTML) + "'";
                         break;
 
                     default:
@@ -1042,17 +1218,26 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin", "dij
             }
 
             , stringDate_formatter: function (columnData) {
+                if (columnData != null) {
               var inputDateString = columnData.toString();
                 var year        = inputDateString.substring(0,4);
                 var month       = inputDateString.substring(4,6);
                 var day         = inputDateString.substring(6,8);
 
                 return (month + "/" + day + "/" + year);
+                }
+                else {
+                    return ('');
+                }
             }
 
             , hyperlink_formatter: function(columnData){
                 //console.log("make link", columnData);
-                return columnData;
+                if (columnData != null) {
+                    return columnData;
+                } else {
+                    return ('');
+                }
                 //return "[HTML]" + columnData + "[HTML]";
             }
 

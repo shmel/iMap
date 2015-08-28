@@ -210,7 +210,7 @@ define(["dojo/_base/declare", "dojo/_base/lang", "dojo/on", "dojo/Evented", "../
                             lang.hitch(this, function(Scalebar) {
                                 var scalebar = new Scalebar({
                                     map: this._Map,
-                                    scalebarUnit: "metric"//i18n.viewer.main.scaleBarUnits //metric or english
+                                    scalebarUnit: "english"//i18n.viewer.main.scaleBarUnits //metric or english
                                 });
                             })
                         );

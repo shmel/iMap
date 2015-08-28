@@ -31,6 +31,7 @@ define(["dojo/_base/declare",
     "dojo/_base/Color",
     "dijit/form/Button",
     "dijit/form/ToggleButton",
+    "dijit/form/CheckBox",
     "dojo/on",
     "esri/map",
     "dojo/dom",
@@ -56,7 +57,7 @@ define(["dojo/_base/declare",
              mapHandler, topic, TemplatedMixin, template,
              json , ArcGISDynamicMapServiceLayer, FeatureLayer ,
              Geoprocessor, Draw, Graphic, SimpleMarkerSymbol, SimpleLineSymbol,
-             SimpleRenderer, Color, Button, ToggleButton, on, Map, dom, dojoNum, AttributeTable
+             SimpleRenderer, Color, Button, ToggleButton, CheckBox, on, Map, dom, dojoNum, AttributeTable
         ){
         return declare([WidgetBase, TemplatedMixin],{
             //*** Properties needed for this style of module
@@ -116,7 +117,8 @@ define(["dojo/_base/declare",
                         this.ClearResults();
 
                         //setup the geoprocessor task
-                        gp = new esri.tasks.Geoprocessor("http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/UpstreamWWTrace/GPServer/Upstream_WW_Trace");
+                        // Old Task - Does not Include Customer Results gp = new esri.tasks.Geoprocessor("http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/UpstreamWWTrace/GPServer/Upstream_WW_Trace");
+                        gp = new esri.tasks.Geoprocessor("http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/UpstreamWWBillingTrace/GPServer/Upstream_WW_Billing_Trace");
                         gp.setOutSpatialReference({wkid:26985});
 
                         esri.bundle.toolbars.draw.addPoint = "Click to place the origin point of the trace";
@@ -138,6 +140,12 @@ define(["dojo/_base/declare",
                         this.toolbar.deactivate();
                              })                      //End On Click for Trace Button
                 }, "WWTraceClearButton");
+
+
+                var wwIncludeCustomersCheck = new CheckBox({
+                    name: "wwIncludeCustomersCheck",
+                    checked: true
+                }, "WWCustomersCheck").startup();
 
                 // WATER ISOLATION TRACE
 
@@ -217,21 +225,46 @@ define(["dojo/_base/declare",
                 document.body.style.cursor = "default";
 
                 if (jobInfo.jobStatus == "esriJobSucceeded") {
-                var mapurl = "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/UpstreamWWTrace/MapServer/jobs/" + jobInfo.jobId;
+                // Old Task - Does not Include Customers var mapurl = "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/UpstreamWWTrace/MapServer/jobs/" + jobInfo.jobId;
+                var mapurl = "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/UpstreamWWBillingTrace/MapServer/jobs/" + jobInfo.jobId;
 
                 //the code snippet assumes the featureLayer is the first layer in the result map service
-                var fLayerUrl = mapurl + "/0";
-                console.log ("Feature Layer URL: " + fLayerUrl);
+               /* var fLayerUrl = mapurl + "/0";
+                console.log ("Feature Layer URL: " + fLayerUrl);*/
+                var fLayerUrl = mapurl + "/1";
+                var fCustomersLayerUrl = mapurl + "/0"
 
-                //create a feature layer
-                //the MODE_ONDEMAND property allows the client to restrictively download features for current web app extent
-                var featurelayer= FeatureLayer(fLayerUrl, {
-                    id: "gpfLayer",
-                    mode: esri.layers.FeatureLayer.MODE_SNAPSHOT,
-                    outFields: ["*"]
-                });
+                    var includeCustomers = false; //Default to False
 
-                //make renderer
+                    console.log ("Feature Layer URL: " + fLayerUrl)
+                    console.log ("Customers Layer URL: " + fCustomersLayerUrl);
+
+                    //Determine if Customers layer should be added
+                    if (dijit.byId("WWCustomersCheck").checked) {
+                        includeCustomers = true;
+                    }
+
+                    //create  feature layers for Main Lines and Customers
+                    //the MODE_ONDEMAND property allows the client to restrictively download features for current web app extent
+                    var featurelayer= FeatureLayer(fLayerUrl, {
+                        id: "gpfLayer",
+                        mode: esri.layers.FeatureLayer.MODE_SNAPSHOT,
+                        outFields: ["*"]
+                    });
+
+                    var gpfWWCustomersLayer= FeatureLayer(fCustomersLayerUrl, {
+                        id: "gpfWWCustomersLayer",
+                        mode: esri.layers.FeatureLayer.MODE_SNAPSHOT,
+                        outFields: ["*"]
+                    });
+
+                    on(this.map, "layers-add-result", lang.hitch (this, function(){
+                        console.log ("LAYERS ADDED")
+                        this.zoomToManyLayers([gpfWWCustomersLayer, featurelayer])
+                    }));
+
+
+                //make renderers
                 var simpleJson = {
                     "type": "simple",
                     "label": "",
@@ -243,9 +276,36 @@ define(["dojo/_base/declare",
                         "width": 4
                     }
                 }
+
+                    //make customers renderer - TODO: Update Symbols
+                    var simplepointsCustJson = {
+                        "type": "simple",
+                        "label": "",
+                        "description": "",
+                        "symbol": {
+                            "type": "esriSMS",
+                            "style": "esriSMSCircle",
+                            "color": [255,153,102,180],
+                            "size": 8,
+                            "outline":
+                            {
+                                "color": [255,153,102,180],
+                                "width": 1
+                            }
+                        }
+                    }
+
+
+                    new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 16,
+                        new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+                            new Color([255,0,0]), 1),
+                        new Color([225,0,0,0.5]));
+
                 var rend = new SimpleRenderer(simpleJson);
+                var custrend = new SimpleRenderer(simplepointsCustJson);
 
                 featurelayer.setRenderer(rend);
+                    gpfWWCustomersLayer.setRenderer(custrend);
 
 
                 //Hide Loading Icon
@@ -261,13 +321,21 @@ define(["dojo/_base/declare",
 
                         this.zoomToLayer(featurelayer);
                         featurelayer.setSelectionSymbol(new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,new Color([0,255,255,.5]), 3));
+
+                        gpfWWCustomersLayer.setSelectionSymbol(new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 16,
+                            new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+                                new Color([0,255,255,.5]), 1),
+                            new Color([0,255,255,.5])));
                     }));
 
 
 
-                this.map.addLayer(featurelayer);
-
-
+                //this.map.addLayer(featurelayer);
+                    if (includeCustomers) {
+                    this.map.addLayers([gpfWWCustomersLayer, featurelayer]);
+                    } else {
+                        this.map.addLayer(featurelayer)
+                    };
 
                  //show button for showing attribute table
                   //  this.MakeWWResultsButton();
@@ -374,8 +442,8 @@ define(["dojo/_base/declare",
                 var fCustomersLayerUrl = mapurl + "/0"
 
                 console.log ("Mains Layer URL: " + fMainsLayerUrl);
-                console.log ("Valves Layer URL: " + fValvesLayerUrl);
-                console.log ("Customers Layer URL: " + fCustomersLayerUrl);
+                    console.log ("Valves Layer URL: " + fValvesLayerUrl);
+                    console.log ("Customers Layer URL: " + fCustomersLayerUrl);
 
 
                 //create  feature layer for Valves and Main Lines
@@ -594,7 +662,7 @@ define(["dojo/_base/declare",
             }
 
             , ClearResults: function(){
-                var layersList = ["gpfLayer", "gpfMainsLayer", "gpfValvesLayer", "gpfCustomersLayer"]
+                var layersList = ["gpfLayer", "gpfMainsLayer", "gpfValvesLayer", "gpfCustomersLayer", "gpfWWCustomersLayer"]
                 //Clear the Feature Layer Result & Graphic
                 this.map.graphics.clear();
 

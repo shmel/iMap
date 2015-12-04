@@ -47,6 +47,12 @@
     background-image: url("../../../../../../assets/fullextent.png") !important;
     background-color: rgba(82, 124, 157, 1) !important;
 }
+
+#tabImages .tabStripButton {
+    background-image: none !important;
+    display: none !important;
+}
+
 .dgrid-load-data {
     background-image: url("../../../../../../assets/loading.gif");
     background-position: center center;

@@ -19,6 +19,7 @@ define(["dojo/_base/declare",
     "../../core/utilities/maphandler",
     "dojo/topic",
     "dijit/_TemplatedMixin",
+    "dijit/_WidgetsInTemplateMixin",
     "dojo/text!./imageviewergrid.html",
     "dojo/json",
     "esri/layers/ArcGISDynamicMapServiceLayer",
@@ -45,7 +46,9 @@ define(["dojo/_base/declare",
     "esri/dijit/HomeButton",
     "dojo/dom",
     "dojo/number",
+    "dojo/dnd/move",
     "dijit/Dialog",
+    "dojox/layout/FloatingPane",
     "dijit/layout/TabContainer",
     "../../core/attributetable/attributetable",
     "dojo/parser",
@@ -67,10 +70,10 @@ define(["dojo/_base/declare",
              language,
              array,
              Deferred,
-             mapHandler, topic, TemplatedMixin, template,
+             mapHandler, topic, TemplatedMixin, WidgetsInTemplateMixin, template,
              json , ArcGISDynamicMapServiceLayer, FeatureLayer ,
              Geoprocessor, Draw, Graphic, SimpleMarkerSymbol, SimpleLineSymbol,
-             SimpleRenderer, Color, BusyButton, Button, ToggleButton, Memory, Trackable, TreeStoreMixin, OnDemandGrid, Tree, Selection, on, query, Map, HomeButton, dom, dojoNum, Dialog, TabContainer, AttributeTable
+             SimpleRenderer, Color, BusyButton, Button, ToggleButton, Memory, Trackable, TreeStoreMixin, OnDemandGrid, Tree, Selection, on, query, Map, HomeButton, dom, dojoNum, move, Dialog, FloatingPane, TabContainer, AttributeTable
         ){
         return declare([WidgetBase, TemplatedMixin],{
             //*** Properties needed for this style of module
@@ -93,6 +96,9 @@ define(["dojo/_base/declare",
             , gridPlansets: null
             , imageData: null
             , _self: null
+            , floaterDivId: null
+            , innerDivId: null
+            , fpImageViewer: null
 
 
             //*** Creates
@@ -101,6 +107,63 @@ define(["dojo/_base/declare",
                 declare.safeMixin(this,args);
                 // mapHandler is a singleton object that you can require above and use to get a reference to the map.
                 this.map = mapHandler.map;
+
+                this.floaterDivId = "imageViewerFloaterDiv"
+                this.innerDivId = "imageViewerInnerDiv"
+                domConstruct.create('div', { id: this.floaterDivId, style: { padding: "0px" , position:"absolute"} }, 'imageViewerContainerDiv'); //Add to overall bordercontainer
+                domConstruct.create('div', { id: this.innerDivId }, this.floaterDivId);
+
+                var ConstrainedFloatingPane = declare([WidgetBase, TemplatedMixin, WidgetsInTemplateMixin, FloatingPane], {
+
+                    postCreate: function() {
+                        this.inherited(arguments);
+                        this.moveable = new move.constrainedMoveable(
+                            this.domNode, {
+                                handle: this.focusNode,
+                                constraints: function() {
+                                    //var coordsBody = dojo.coords(dojo.body());
+                                    // or
+                                    var coordsWindow = {
+                                        l: 0,
+                                        t: 0,
+                                        w: window.innerWidth,
+                                        h: window.innerHeight
+                                    };
+
+                                    return coordsWindow;
+                                },
+                                within: true
+                            }
+                        );
+                    }
+
+                });
+
+                //Create Floating Pane to house the layout UI of the widget. The parentModule property is created to obtain a reference to this module in close button click.
+                fpImageViewer = new ConstrainedFloatingPane({
+                    title: 'Image Viewer',
+                    parentModule: this,
+                    resizable: true,
+                    dockable: false,
+                    closable: false,
+                    style: "position:absolute;top:20px;left:0px;width:750px;height:650px;z-index:100;visibility:hidden;",
+                    id: this.floaterDivId
+                }, dom.byId(this.floaterDivId));
+//                fpImageViewer.startup();
+
+               /* //Create a title bar for Floating Pane
+                var titlePane = query('#floaterAttribute .dojoxFloatingPaneTitle')[0];
+                //Add close button to title pane. dijit.registry is used to obtain a reference to this floating pane's parentModule
+                var closeDiv = domConstruct.create('div', {
+                    id: "closeBtn",
+                    innerHTML: esri.substitute({
+                        close_title: 'Close', //i18n.panel.close.title,
+                        close_alt: 'Close'//i18n.panel.close.label
+                    }, '<a alt=${close_alt} title=${close_title} href="JavaScript:dijit.registry.byId(\'' + this.floaterDivId + '\').parentModule.ToggleTool();"><img  src="assets/close.png"/></a>')
+                }, titlePane);*/
+                //Set the content of the Floating Pane
+                var htmlFragment = '<div id="fpbc" data-dojo-id="fpbc" data-dojo-type="dijit/layout/BorderContainer"></div><div id="tabImages"></div><div id="ExportAll"></div></div>'
+                dom.byId(this.innerDivId).innerHTML = htmlFragment;
             }
 
             //The widget has been added to the DOM, though not visible yet. This is the recommended place to do most of the module's work
@@ -553,7 +616,9 @@ define(["dojo/_base/declare",
                     var imgSvcURL = _self.gpGetImageLayerMapSvcURL + "/jobs/" + jobid
 
 
-                    if (!this.dialogBox) {
+//                    if (!this.fpImageViewer) {
+                        //if (!this.floaterDivId){
+                    //if (dom.byId(this.floaterDivId).style.visibility === 'hidden') {
                         //var imgText = "Img ID / Path:" + img_id + "/" + img_path
                         var imgText = "Path: " + img_path
                         var imgTitle = "Image ID: " + img_id
@@ -567,31 +632,38 @@ define(["dojo/_base/declare",
                         var homeButtonDivName = "HomeButton" + img_id;
                         var pathTextDivName = "ImgPath" + img_id;
 
-                        var htmlFragment = '<div id="tabImages"></div><div id="ExportAll"></div>'
+                            var htmlFragment = '<div id="tabImages"></div><div id="ExportAll"></div>'
 
-                        /*var paneHTML = '<div>'+imgText+'</div>';
-                        paneHTML += '<div id="imgViewerMap" style="width:700px; height:550px; border: 1px solid #A8A8A8;">' +
-                         '<div id="HomeButton"></div></div>';
-                        paneHTML += '<table><tr><td style="padding-right: 20px;"><div><a href="' + testImgURL+ '" target="_blank">Open in New Window</a></div></td>'+'<td style="padding-right: 20px;"><div id="btnExport"></div></td></tr></table>';
-*/
-                        var paneHTML = '<div id="'+ pathTextDivName +'">'+imgText+'</div>';
-                        paneHTML += '<div id="' + mapDivName+ '" style="width:700px; height:550px; border: 1px solid #A8A8A8;">' +
-                            '<div id="'+ homeButtonDivName +'"></div></div>';
-                        paneHTML += '<table><tr>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td></tr></table>';
+                            /*var paneHTML = '<div>'+imgText+'</div>';
+                             paneHTML += '<div id="imgViewerMap" style="width:700px; height:550px; border: 1px solid #A8A8A8;">' +
+                             '<div id="HomeButton"></div></div>';
+                             paneHTML += '<table><tr><td style="padding-right: 20px;"><div><a href="' + testImgURL+ '" target="_blank">Open in New Window</a></div></td>'+'<td style="padding-right: 20px;"><div id="btnExport"></div></td></tr></table>';
+                             */
+                            var paneHTML = '<div id="'+ pathTextDivName +'">'+imgText+'</div>';
+                            paneHTML += '<div id="' + mapDivName+ '" style="width:700px; height:550px; border: 1px solid #A8A8A8;">' +
+                                '<div id="'+ homeButtonDivName +'"></div></div>';
+                            paneHTML += '<table><tr>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td></tr></table>';
 
 
-                        /*var htmlFragment = '<div id="tabImages"><div>'+imgText+'</div>';
-                        htmlFragment += '<div id="imgViewerMap" style="width:700px; height:600px; border: 1px solid #A8A8A8;">' +
-                            '<div id="HomeButton"></div></div>';
-                        htmlFragment += '<table><tr><td style="padding-right: 20px;"><div><a href="' + testImgURL+ '" target="_blank">Open in New Window</a></div></td>'+'<td style="padding-right: 20px;"><div id="btnExport"></div></td></tr></table></div>';*/
+                            /*var htmlFragment = '<div id="tabImages"><div>'+imgText+'</div>';
+                             htmlFragment += '<div id="imgViewerMap" style="width:700px; height:600px; border: 1px solid #A8A8A8;">' +
+                             '<div id="HomeButton"></div></div>';
+                             htmlFragment += '<table><tr><td style="padding-right: 20px;"><div><a href="' + testImgURL+ '" target="_blank">Open in New Window</a></div></td>'+'<td style="padding-right: 20px;"><div id="btnExport"></div></td></tr></table></div>';*/
 
-                        // CREATE DIALOG
+
+                        //Set Content of Floating Pane
+                        dom.byId(this.innerDivId).innerHTML = htmlFragment;
+
+                       /* // CREATE DIALOG
                         this.dialogBox = new dijit.Dialog({
                             title: "View Plan Documents",
                             content: htmlFragment
-                        });
+                        });*/
 
-                        on (this.dialogBox, "hide", function(){
+
+
+                        //TODO: Update for On Hide for Floating Pane
+                        /*on (this.dialogBox, "hide", function(){
                             console.log ("Dialog Closed")
                             tabs = tabContImages.getChildren();
 
@@ -600,7 +672,7 @@ define(["dojo/_base/declare",
                                 tabContImages.removeChild(tabs[i]);
                             };
 
-/*                            //Destroy the Tab Container
+                            //Destroy the Tab Container
                             tabContImages.destroyRecursive();
 
                             console.debug(registry._hash);
@@ -612,16 +684,13 @@ define(["dojo/_base/declare",
                             }, "tabImages");
 
 
-                            console.debug(registry._hash);*/
+                            console.debug(registry._hash);
 
-                        });
+                        });*/
 
                         document.body.style.cursor = "default";
 
-                        //TODO Add Export All Button for Exporting All Images In Tabs
-                        //TODO Currently Commented Out
-
-                        var exportAllButton = new BusyButton(
+                           var exportAllButton = new BusyButton(
                             {label: "Export All Images to PDF",
                             busyLabel: "Exporting...",
                             id: "ExportAllBusy"})
@@ -656,10 +725,18 @@ define(["dojo/_base/declare",
                         }));
 
 
+
+
                         //CREATE TAB CONTAINER
                         var tabContImages = new TabContainer({
-                            style: "height: 650px; width: 750px;"
+                            style: "height: 650px; width: 750px"
                         }, "tabImages");
+
+                            fpImageViewer.startup();
+
+                            //TODO - Look atr Attribute Table.css to update css
+
+                            tabContImages.startup();
 
                         //ADD TAB
                         var pane = new ContentPane({
@@ -670,6 +747,7 @@ define(["dojo/_base/declare",
                             style: "background-color: #FFFFFF"
                         });
                         tabContImages.addChild(pane);
+                            tabContImages.layout();
 
 
                         //CREATE EXPORT BUTTON
@@ -686,17 +764,27 @@ define(["dojo/_base/declare",
                             this.exportSingleImage(img_path, img_id)
                         }));
 
-
+                            fpImageViewer.startup();
                         // DISPLAY DIALOG
-                        this.dialogBox.show();
+                        //this.dialogBox.show();
+                        //registry.byId(this.floaterDivId).show();
 
                         // CREATE MAP
-                        this.createImageViewerMap(mapDivName,imgSvcURL,homeButtonDivName );
+                        this.createImageViewerMap(mapDivName,imgSvcURL,homeButtonDivName ); //SJH
+
+                            on(fpImageViewer._resizeHandle, "resize", function(e) {
+                                // Event handler
+                                tabContImages.resize()
+
+                                console.log("test");
+                            });
+
+                        registry.byId(this.floaterDivId).show();
 
                         // Hide Loading Icon
                         loadID = "loadImg" + img_id;
                         var loadIcon = document.getElementById(loadID).style.visibility = "hidden";
-                    }
+                   /* }
                     else {
                         document.body.style.cursor = "default";
 
@@ -759,7 +847,7 @@ define(["dojo/_base/declare",
                         // Hide Loading Icon
                         loadID = "loadImg" + img_id;
                         var loadIcon = document.getElementById(loadID).style.visibility = "hidden";
-                    }
+                    }*/
 
 
                     //For now, Open in Standard ArcGIS JSAPI Viewer
@@ -767,7 +855,9 @@ define(["dojo/_base/declare",
                     //var testImgURL = imgSvcURL + "?f=jsapi"
                     //window.open(testImgURL,'_blank');
 
-                }));
+                }
+        )
+        );
             }
 
             , exportMultipleImages: function (img_paths) {

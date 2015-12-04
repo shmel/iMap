@@ -437,9 +437,9 @@ define(["dojo/_base/declare",
                 var mapurl = "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/WaterIsolation/MapServer/jobs/" + jobInfo.jobId;
 
                 //the code snippet assumes the featureLayer is the first layer in the result map service
-                var fMainsLayerUrl = mapurl + "/2";
+                var fMainsLayerUrl = mapurl + "/0";
                 var fValvesLayerUrl = mapurl + "/3";
-                var fCustomersLayerUrl = mapurl + "/0"
+                var fCustomersLayerUrl = mapurl + "/2"
 
                 console.log ("Mains Layer URL: " + fMainsLayerUrl);
                     console.log ("Valves Layer URL: " + fValvesLayerUrl);

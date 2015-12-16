@@ -619,7 +619,7 @@ define(["dojo/_base/declare",
 
 //                    if (!this.fpImageViewer) {
                         //if (!this.floaterDivId){
-                    //if (dom.byId(this.floaterDivId).style.visibility === 'hidden') {
+                    if (dom.byId(this.floaterDivId).style.visibility === 'hidden') {
                         //var imgText = "Img ID / Path:" + img_id + "/" + img_path
                         var imgText = "Path: " + img_path
                         var imgTitle = "Image ID: " + img_id
@@ -775,7 +775,7 @@ define(["dojo/_base/declare",
                         // CREATE MAP
                         this.createImageViewerMap(mapDivName,imgSvcURL,homeButtonDivName ); //SJH
 
-                            on(fpImageViewer._resizeHandle, "resize", function(e) {
+                    /*        on(fpImageViewer._resizeHandle, "resize", function(e) {
                                 // Event handler
                                 //tabContImages.resize();
                                 //tabContImages.layout();
@@ -784,9 +784,9 @@ define(["dojo/_base/declare",
 
 
                                 console.log("test");
-                            });
+                            });*/
 
-                            on(registry.getElementById(""))
+                           // on(registry.getElementById(""))
 
 
 
@@ -795,7 +795,7 @@ define(["dojo/_base/declare",
                         // Hide Loading Icon
                         loadID = "loadImg" + img_id;
                         var loadIcon = document.getElementById(loadID).style.visibility = "hidden";
-                   /* }
+                    }
                     else {
                         document.body.style.cursor = "default";
 
@@ -818,7 +818,8 @@ define(["dojo/_base/declare",
                         paneHTML += '<table><tr>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td></tr></table>';
 
                         // DISPLAY DIALOG
-                        this.dialogBox.show();
+                       // this.dialogBox.show();
+                        fpImageViewer.startup();
 
                         //Find TAB CONTAINER
                         var tabContImages = dijit.byId("tabImages")
@@ -848,7 +849,8 @@ define(["dojo/_base/declare",
                             this.exportSingleImage(img_path, img_id)
                         }));
 
-                        this.dialogBox.show();
+                        //this.dialogBox.show();
+                        fpImageViewer.startup();
 
 
                         // CREATE MAP
@@ -858,7 +860,7 @@ define(["dojo/_base/declare",
                         // Hide Loading Icon
                         loadID = "loadImg" + img_id;
                         var loadIcon = document.getElementById(loadID).style.visibility = "hidden";
-                    }*/
+                    }
 
 
                     //For now, Open in Standard ArcGIS JSAPI Viewer

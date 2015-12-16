@@ -128,6 +128,7 @@ define(["dojo/_base/declare", "dojox/html/entities", "dojo/_base/lang", "dojo/Ev
                     displaysearch: true,
                     displayscalebar: true,
                     //Drawing toolbar
+                    displaydraw: true,
                     displayinterop: !(environment.TouchEnabled),
 
                     //*** General Settings ***

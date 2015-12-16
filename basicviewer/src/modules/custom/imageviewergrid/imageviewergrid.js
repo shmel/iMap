@@ -111,6 +111,7 @@ define(["dojo/_base/declare",
                 this.floaterDivId = "imageViewerFloaterDiv"
                 this.innerDivId = "imageViewerInnerDiv"
                 domConstruct.create('div', { id: this.floaterDivId, style: { padding: "0px" , position:"absolute"} }, 'imageViewerContainerDiv'); //Add to overall bordercontainer
+                domConstruct.create('border')
                 domConstruct.create('div', { id: this.innerDivId }, this.floaterDivId);
 
                 var ConstrainedFloatingPane = declare([WidgetBase, TemplatedMixin, WidgetsInTemplateMixin, FloatingPane], {
@@ -162,7 +163,7 @@ define(["dojo/_base/declare",
                     }, '<a alt=${close_alt} title=${close_title} href="JavaScript:dijit.registry.byId(\'' + this.floaterDivId + '\').parentModule.ToggleTool();"><img  src="assets/close.png"/></a>')
                 }, titlePane);*/
                 //Set the content of the Floating Pane
-                var htmlFragment = '<div id="fpbc" data-dojo-id="fpbc" data-dojo-type="dijit/layout/BorderContainer"></div><div id="tabImages"></div><div id="ExportAll"></div></div>'
+                var htmlFragment = '<div id="fpbc" data-dojo-id="fpbc" data-dojo-type="dijit/layout/BorderContainer"><div id="tabImages"><div id="ExportAll"></div></div></div>'
                 dom.byId(this.innerDivId).innerHTML = htmlFragment;
             }
 
@@ -736,6 +737,8 @@ define(["dojo/_base/declare",
 
                             //TODO - Look atr Attribute Table.css to update css
 
+                            //on(tabContImages, 'resize', console.log("test resize tab comtainer"))
+
                             tabContImages.startup();
 
                         //ADD TAB
@@ -774,10 +777,18 @@ define(["dojo/_base/declare",
 
                             on(fpImageViewer._resizeHandle, "resize", function(e) {
                                 // Event handler
-                                tabContImages.resize()
+                                //tabContImages.resize();
+                                //tabContImages.layout();
+
+
+
 
                                 console.log("test");
                             });
+
+                            on(registry.getElementById(""))
+
+
 
                         registry.byId(this.floaterDivId).show();
 
@@ -910,7 +921,7 @@ define(["dojo/_base/declare",
             , createImageViewerMap: function (srcNodeRef, imgLayerURL, homeDIVName){
                 var map = new esri.Map(srcNodeRef,{
                     slider: true,
-                    autoResize:false
+                    autoResize:true
                 });
 
                 //Add Image Layer

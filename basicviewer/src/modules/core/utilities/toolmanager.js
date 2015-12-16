@@ -99,6 +99,21 @@ define(["dojo/_base/declare", "../utilities/environment", "dojo/_base/lang", "do
                     this._CreateToolButton(widgetParams, btnId, btnTitle, btnIconClass, modulePath, true);
                 }
 
+                //This is the draw tool with options in a floating pane -
+                if (this._AppConfig.displaydraw === 'true' || this._AppConfig.displaydraw == true) {
+                    //*** Give button a unique btnId, set title, iconClass as appropriate
+                    var btnId = 'tglbtnDraw';
+                    var btnTitle = 'Draw';
+                    var btnIconClass = 'esriDrawIcon';
+                    //*** Constructor parameters object you want passed into your module
+                    //*** Provide a unique ID for the parent div of the floating panel (if applicable)
+                    var widgetParams = { floaterDivId: 'floaterDraw' };
+                    //*** The relative path to your module
+                    var modulePath = "../draw/draw";
+
+                    this._CreateToolButton(widgetParams, btnId, btnTitle, btnIconClass, modulePath, true);
+                }
+
                 //*** This is the location tool (GPS), created as a module. Use this as a pattern for new tools, if no floating pane needed.
                 if (this._AppConfig.displaylocation === "true" || this._AppConfig.displaylocation == true) {
                     //*** Give button a unique btnId, set title, iconClass as appropriate

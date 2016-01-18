@@ -756,7 +756,7 @@ define(["dojo/_base/declare",
 
 
                         //Add ContentPane (Top) for Path
-                        pathHTML = '<div>'+imgText+'</div>'
+                        pathHTML = '<div id="'+ pathTextDivName +'">'+imgText+'</div>';
 
                         //Add ContentPane (Center) for Map
                         //mapHTML = '<div id="' + mapDivName+ '" style="width:99%; height:99%; border: 1px solid #A8A8A8;">' +
@@ -895,7 +895,7 @@ define(["dojo/_base/declare",
                         //NEW!!
 
                         //Add ContentPane (Top) for Path
-                        pathHTML = '<div>'+imgText+'</div>'
+                        pathHTML = '<div id="'+ pathTextDivName +'">'+imgText+'</div>';
 
                         //Add ContentPane (Center) for Map
                         //mapHTML = '<div id="' + mapDivName+ '" style="width:99%; height:99%; border: 1px solid #A8A8A8;">' +

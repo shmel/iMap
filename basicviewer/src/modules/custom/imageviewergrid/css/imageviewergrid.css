@@ -11,6 +11,20 @@
     background-color: #FFFFFF;
     margin: 5px;
 }
+.dojoxFloatingCloseIcon {
+    background: url('../../../../../../assets/close.png') no-repeat center center;
+    float: right;
+    padding-right: 22px;
+}
+
+#imageViewerInnerDiv {
+    padding: 2px;
+}
+
+.InnerContentPane {
+    padding: 0px !important;
+    border: 0px !important;
+}
 
 .dgrid-row-highlight {
     color: #ff0000; !important;
@@ -52,6 +66,16 @@
     background-image: none !important;
     display: none !important;
 }
+
+.TabPane {
+    padding: 0px; !important
+    border: solid;
+    border-color: #999999;
+    border-radius: 5px;
+    border-width: 2px;
+}
+
+
 
 .dgrid-load-data {
     background-image: url("../../../../../../assets/loading.gif");

@@ -99,6 +99,7 @@ define(["dojo/_base/declare",
             , floaterDivId: null
             , innerDivId: null
             , fpImageViewer: null
+            , imageViewerContainerDiv: null
 
 
             //*** Creates
@@ -110,10 +111,12 @@ define(["dojo/_base/declare",
 
                 this.floaterDivId = "imageViewerFloaterDiv"
                 this.innerDivId = "imageViewerInnerDiv"
-                domConstruct.create('div', { id: this.floaterDivId, style: { padding: "0px" , position:"absolute"} }, 'imageViewerContainerDiv'); //Add to overall bordercontainer
-                domConstruct.create('border')
-                domConstruct.create('div', { id: this.innerDivId }, this.floaterDivId);
+                this.imageViewerContainerDiv = "imageViewerContainerDiv"
 
+                domConstruct.create('div', { id: this.floaterDivId, style: { padding: "0px" , position:"absolute"} }, 'imageViewerContainerDiv'); //Add to overall bordercontainer
+             /*   domConstruct.create('border')
+                domConstruct.create('div', { id: this.innerDivId }, this.floaterDivId);
+*/
                 var ConstrainedFloatingPane = declare([WidgetBase, TemplatedMixin, WidgetsInTemplateMixin, FloatingPane], {
 
                     postCreate: function() {
@@ -136,6 +139,39 @@ define(["dojo/_base/declare",
                                 within: true
                             }
                         );
+                        this.close = function () {
+
+                            //console.log ("Imageviewer Closed")
+
+                            //Clear out Existing Tab Container
+                           var tabContImages = dijit.byId("tabImages")
+                            //console.log ("Imageviewer Closed")
+                            tabs = tabContImages.getChildren();
+
+                            for(var i = 0; i < tabs.length; i++)
+                            {
+                                tabContImages.removeChild(tabs[i]);
+                            };
+
+                            //Destroy the Tab Container
+                           // tabContImages.destroyRecursive();
+
+                          /*  console.debug(registry._hash);
+
+                            //CREATE TAB CONTAINER
+                            tabContImages = new TabContainer({
+                                style: "height: 650px; width: 750px;",
+                                id: "tabImages"
+                            }, "tabImages");*/
+
+                            //Set HTML in CP1
+                           // cp1 = registry.byId("cp1")
+                           // cp1.setContent = '<div id="tabImages"></div>'
+
+
+                            this.domNode.style.display = "none";
+                            this.domNode.style.visibility = "hidden";
+                        }
                     }
 
                 });
@@ -146,25 +182,40 @@ define(["dojo/_base/declare",
                     parentModule: this,
                     resizable: true,
                     dockable: false,
-                    closable: false,
+                    closable: true,
                     style: "position:absolute;top:20px;left:0px;width:750px;height:650px;z-index:100;visibility:hidden;",
-                    id: this.floaterDivId
+                    id: this.innerDivId
                 }, dom.byId(this.floaterDivId));
 //                fpImageViewer.startup();
 
-               /* //Create a title bar for Floating Pane
-                var titlePane = query('#floaterAttribute .dojoxFloatingPaneTitle')[0];
-                //Add close button to title pane. dijit.registry is used to obtain a reference to this floating pane's parentModule
-                var closeDiv = domConstruct.create('div', {
-                    id: "closeBtn",
-                    innerHTML: esri.substitute({
-                        close_title: 'Close', //i18n.panel.close.title,
-                        close_alt: 'Close'//i18n.panel.close.label
-                    }, '<a alt=${close_alt} title=${close_title} href="JavaScript:dijit.registry.byId(\'' + this.floaterDivId + '\').parentModule.ToggleTool();"><img  src="assets/close.png"/></a>')
-                }, titlePane);*/
-                //Set the content of the Floating Pane
-                var htmlFragment = '<div id="fpbc" data-dojo-id="fpbc" data-dojo-type="dijit/layout/BorderContainer"><div id="tabImages"><div id="ExportAll"></div></div></div>'
-                dom.byId(this.innerDivId).innerHTML = htmlFragment;
+                var htmlFragment = '<div id= "fpBorderContainer" dojoType="dijit.layout.BorderContainer"></div>'
+
+                fpImageViewer.setContent(htmlFragment);
+
+                var bottomHtmlFragment = '<div id="ExportAll"></div>'
+                var topHtmlFragment = '<div id="tabImages"></div>'
+
+                fpBorderContainer =  registry.byId("fpBorderContainer")
+
+
+                var cp1 = new ContentPane({
+                    region: "center",
+                    style: "width: 100%;",
+                    content: topHtmlFragment,
+                    id: "cp1"
+                });
+
+                var cp2 = new ContentPane({
+                    region: "bottom",
+                    style: "width: 100%",
+                    content: bottomHtmlFragment,
+                    id: "cp2"
+                });
+
+                fpBorderContainer.addChild(cp1)
+                fpBorderContainer.addChild(cp2)
+                domClass.add(cp1.domNode, "InnerContentPane");
+
             }
 
             //The widget has been added to the DOM, though not visible yet. This is the recommended place to do most of the module's work
@@ -197,6 +248,7 @@ define(["dojo/_base/declare",
                             '<li>Export Individual Images - Added 07/17/2015</li>' +
                             '<li>View multiple images in a preview window at once - Added 07/24/2015</li>' +
                             '<li>Export Multiple Images - Added 8/7/2015</li>' +
+                            '<li>Resizable Viewer Window - Added 1/16/2016</li>' +
                             '<li>Improved Image Viewing in separate, movable window</li>' +
                             '<li>Select Features view associated images</li>' +
                             '</ul></div></div><br><br>';
@@ -619,7 +671,9 @@ define(["dojo/_base/declare",
 
 //                    if (!this.fpImageViewer) {
                         //if (!this.floaterDivId){
-                    if (dom.byId(this.floaterDivId).style.visibility === 'hidden') {
+                    //if (dom.byId(this.innerDivId).style.visibility === 'hidden') {
+
+                    if ((!registry.byId("tabImages"))){
                         //var imgText = "Img ID / Path:" + img_id + "/" + img_path
                         var imgText = "Path: " + img_path
                         var imgTitle = "Image ID: " + img_id
@@ -632,113 +686,57 @@ define(["dojo/_base/declare",
                         var btnExportDivName = "btnExport" + img_id;
                         var homeButtonDivName = "HomeButton" + img_id;
                         var pathTextDivName = "ImgPath" + img_id;
+                        var mapBCName = "mapBorderContainer" + img_id;
 
-                            var htmlFragment = '<div id="tabImages"></div><div id="ExportAll"></div>'
-
-                            /*var paneHTML = '<div>'+imgText+'</div>';
-                             paneHTML += '<div id="imgViewerMap" style="width:700px; height:550px; border: 1px solid #A8A8A8;">' +
-                             '<div id="HomeButton"></div></div>';
-                             paneHTML += '<table><tr><td style="padding-right: 20px;"><div><a href="' + testImgURL+ '" target="_blank">Open in New Window</a></div></td>'+'<td style="padding-right: 20px;"><div id="btnExport"></div></td></tr></table>';
-                             */
-                            var paneHTML = '<div id="'+ pathTextDivName +'">'+imgText+'</div>';
-                            paneHTML += '<div id="' + mapDivName+ '" style="width:700px; height:550px; border: 1px solid #A8A8A8;">' +
-                                '<div id="'+ homeButtonDivName +'"></div></div>';
-                            paneHTML += '<table><tr>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td></tr></table>';
-
-
-                            /*var htmlFragment = '<div id="tabImages"><div>'+imgText+'</div>';
-                             htmlFragment += '<div id="imgViewerMap" style="width:700px; height:600px; border: 1px solid #A8A8A8;">' +
-                             '<div id="HomeButton"></div></div>';
-                             htmlFragment += '<table><tr><td style="padding-right: 20px;"><div><a href="' + testImgURL+ '" target="_blank">Open in New Window</a></div></td>'+'<td style="padding-right: 20px;"><div id="btnExport"></div></td></tr></table></div>';*/
-
-
-                        //Set Content of Floating Pane
-                        dom.byId(this.innerDivId).innerHTML = htmlFragment;
-
-                       /* // CREATE DIALOG
-                        this.dialogBox = new dijit.Dialog({
-                            title: "View Plan Documents",
-                            content: htmlFragment
-                        });*/
-
-
-
-                        //TODO: Update for On Hide for Floating Pane
-                        /*on (this.dialogBox, "hide", function(){
-                            console.log ("Dialog Closed")
-                            tabs = tabContImages.getChildren();
-
-                            for(var i = 0; i < tabs.length; i++)
-                            {
-                                tabContImages.removeChild(tabs[i]);
-                            };
-
-                            //Destroy the Tab Container
-                            tabContImages.destroyRecursive();
-
-                            console.debug(registry._hash);
-
-                            //CREATE TAB CONTAINER
-                            tabContImages = new TabContainer({
-                                style: "height: 650px; width: 750px;",
-                                id: "tabImages"
-                            }, "tabImages");
-
-
-                            console.debug(registry._hash);
-
-                        });*/
+                        var paneHTML =  '<div id= "' +mapBCName + '" dojoType="dijit.layout.BorderContainer"></div>'
 
                         document.body.style.cursor = "default";
 
+
+                        //Make the Export All Button if not there
+                       if (!registry.byId("ExportAllBusy")) {
+
                            var exportAllButton = new BusyButton(
-                            {label: "Export All Images to PDF",
-                            busyLabel: "Exporting...",
-                            id: "ExportAllBusy"})
-                            .placeAt("ExportAll");
+                               {label: "Export All Images to PDF",
+                                   busyLabel: "Exporting...",
+                                   id: "ExportAllBusy"})
+                               .placeAt("ExportAll");
 
-                        on(exportAllButton, "click", lang.hitch(this, function(){
-                            //TODO Run GP Process to Output Image to PDF
+                           on(exportAllButton, "click", lang.hitch(this, function () {
 
-                            //For Each Tab open, get the imgID to pass to the function
-                            tabs = tabContImages.getChildren();
+                               //For Each Tab open, get the imgID to pass to the function
+                               tabs = tabContImages.getChildren();
 
-                            var imgPaths = [];
+                               var imgPaths = [];
 
-                            for(var i = 0; i < tabs.length; i++)
-                            {
-                                console.log (tabs[i].id)
+                               for (var i = 0; i < tabs.length; i++) {
+                                   //console.log(tabs[i].id)
 
-                                //Get the Path from the Object with
-                                imgPathDIVId = "ImgPath" + tabs[i].id;
-                                imgPathDIV = document.getElementById(imgPathDIVId)
+                                   //Get the Path from the Object with
+                                   imgPathDIVId = "ImgPath" + tabs[i].id;
+                                   imgPathDIV = document.getElementById(imgPathDIVId)
 
-                                imgPaths [i] = imgPathDIV.innerHTML.replace("Path: ", "")
+                                   imgPaths [i] = imgPathDIV.innerHTML.replace("Path: ", "")
+                                  // console.log(imgPathDIV.innerHTML);
 
+                               }
+                               ;
 
-                                console.log (imgPathDIV.innerHTML);
+                               imgPathStr = imgPaths.join(',');
 
-                            };
-
-                            imgPathStr = imgPaths.join(',');
-
-                            this.exportMultipleImages(imgPathStr)
-                        }));
-
+                               this.exportMultipleImages(imgPathStr)
+                           }));
+                       }
 
 
 
                         //CREATE TAB CONTAINER
                         var tabContImages = new TabContainer({
-                            style: "height: 650px; width: 750px"
+                            style: "height: 100%; width: 100%"
+                            //style: "height: 500px; width: 750px"
                         }, "tabImages");
 
                             fpImageViewer.startup();
-
-                            //TODO - Look atr Attribute Table.css to update css
-
-                            //on(tabContImages, 'resize', console.log("test resize tab comtainer"))
-
                             tabContImages.startup();
 
                         //ADD TAB
@@ -746,12 +744,61 @@ define(["dojo/_base/declare",
                             title: img_id,
                             id: img_id,
                             closable: true,
-                            content: paneHTML,
-                            style: "background-color: #FFFFFF"
+                            content: paneHTML, //Just the Border Container
+                            style: "background-color: #FFFFFF;"
                         });
+
+                        domClass.add(pane.domNode, "TabPane");
+
+
                         tabContImages.addChild(pane);
                             tabContImages.layout();
 
+
+                        //Add ContentPane (Top) for Path
+                        pathHTML = '<div>'+imgText+'</div>'
+
+                        //Add ContentPane (Center) for Map
+                        //mapHTML = '<div id="' + mapDivName+ '" style="width:99%; height:99%; border: 1px solid #A8A8A8;">' +
+                            mapHTML = '<div id="' + mapDivName+ '" style="width:99%; height:99%;">' +
+                            '<div id="'+ homeButtonDivName +'"></div></div></div>';
+
+                        //Add ContentPane (Botton) for Export Button
+                        exportHTML = '<table><tr>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td></tr></table>';
+
+                        var pathCP = new ContentPane({
+                            region: "top",
+                            style: "width: 100%",
+                            content: pathHTML
+                        }) ;
+
+
+                        var mapCP = new ContentPane({
+                            region: "center",
+                            style: "width: 100%",
+                            content: mapHTML
+                        }) ;
+
+
+                        var exportCP = new ContentPane({
+                            region: "bottom",
+                            style: "width: 100%",
+                            content: exportHTML
+                        }) ;
+
+                        var mapBC = registry.byId(mapBCName);
+
+
+                        mapBC.addChild(pathCP);
+                        mapBC.addChild(mapCP);
+                        mapBC.addChild(exportCP);
+
+                        var mapBC = registry.byId(mapBCName);
+                        domClass.add(mapCP.domNode, "TabPane");
+
+                        /*domClass.add(pathCP.domNode, "InnerContentPane");
+                        domClass.add(mapCP.domNode, "InnerContentPane");
+                        domClass.add(exportCP.domNode, "InnerContentPane");*/
 
                         //CREATE EXPORT BUTTON
                         var exportButton = new BusyButton(
@@ -768,6 +815,10 @@ define(["dojo/_base/declare",
                         }));
 
                             fpImageViewer.startup();
+
+                        dom.byId("imageViewerInnerDiv").style.visibility = "visible"
+                        dom.byId("imageViewerInnerDiv").style.hidden = "false"
+
                         // DISPLAY DIALOG
                         //this.dialogBox.show();
                         //registry.byId(this.floaterDivId).show();
@@ -775,22 +826,18 @@ define(["dojo/_base/declare",
                         // CREATE MAP
                         this.createImageViewerMap(mapDivName,imgSvcURL,homeButtonDivName ); //SJH
 
-                    /*        on(fpImageViewer._resizeHandle, "resize", function(e) {
+                            on(fpImageViewer._resizeHandle, "resize", function(e) {
                                 // Event handler
-                                //tabContImages.resize();
+                                tabContImages.resize();
+                                tabContImages.layout();
                                 //tabContImages.layout();
-
-
-
-
-                                console.log("test");
-                            });*/
+                            });
 
                            // on(registry.getElementById(""))
 
 
 
-                        registry.byId(this.floaterDivId).show();
+                        registry.byId(this.innerDivId).show();
 
                         // Hide Loading Icon
                         loadID = "loadImg" + img_id;
@@ -807,15 +854,19 @@ define(["dojo/_base/declare",
                         var btnExportDivName = "btnExport" + img_id;
                         var homeButtonDivName = "HomeButton" + img_id;
                         var pathTextDivName = "ImgPath" + img_id;
+                        var mapBCName = "mapBorderContainer" + img_id;
 
                         //Create the button to link to a new window
-                        var testImgURL = imgSvcURL + "?f=jsapi"
+                        /*var testImgURL = imgSvcURL + "?f=jsapi"
 
 
                         var paneHTML = '<div id="'+ pathTextDivName +'">'+imgText+'</div>';
-                        paneHTML += '<div id="' + mapDivName+ '" style="width:700px; height:550px; border: 1px solid #A8A8A8;">' +
+                        paneHTML += '<div id="' + mapDivName+ '" style="width:100%; height:100%; border: 1px solid #A8A8A8;">' +
                             '<div id="'+ homeButtonDivName +'"></div></div>';
                         paneHTML += '<table><tr>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td></tr></table>';
+*/
+
+                        var paneHTML =  '<div id= "' +mapBCName + '" dojoType="dijit.layout.BorderContainer"></div>'
 
                         // DISPLAY DIALOG
                        // this.dialogBox.show();
@@ -833,9 +884,64 @@ define(["dojo/_base/declare",
                             content: paneHTML,
                             style: "background-color: #FFFFFF"
                         });
+
+                        domClass.add(pane.domNode, "TabPane");
+
                         tabContImages.addChild(pane);
                         tabContImages.layout()
                         tabContImages.selectChild(pane);
+
+
+                        //NEW!!
+
+                        //Add ContentPane (Top) for Path
+                        pathHTML = '<div>'+imgText+'</div>'
+
+                        //Add ContentPane (Center) for Map
+                        //mapHTML = '<div id="' + mapDivName+ '" style="width:99%; height:99%; border: 1px solid #A8A8A8;">' +
+                        mapHTML = '<div id="' + mapDivName+ '" style="width:99%; height:99%;">' +
+                            '<div id="'+ homeButtonDivName +'"></div></div></div>';
+
+                        //Add ContentPane (Botton) for Export Button
+                        exportHTML = '<table><tr>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td></tr></table>';
+
+                        var pathCP = new ContentPane({
+                            region: "top",
+                            style: "width: 100%",
+                            content: pathHTML
+                        }) ;
+
+
+                        var mapCP = new ContentPane({
+                            region: "center",
+                            style: "width: 100%",
+                            content: mapHTML
+                        }) ;
+
+
+                        var exportCP = new ContentPane({
+                            region: "bottom",
+                            style: "width: 100%",
+                            content: exportHTML
+                        }) ;
+
+                        var mapBC = registry.byId(mapBCName);
+
+
+                        mapBC.addChild(pathCP);
+                        mapBC.addChild(mapCP);
+                        mapBC.addChild(exportCP);
+
+                        var mapBC = registry.byId(mapBCName);
+                        domClass.add(mapCP.domNode, "TabPane");
+
+                        mapBC.startup()
+
+                        /*domClass.add(pathCP.domNode, "InnerContentPane");
+                         domClass.add(mapCP.domNode, "InnerContentPane");
+                         domClass.add(exportCP.domNode, "InnerContentPane");*/
+                        // New!!
+
 
                         //CREATE EXPORT BUTTON
                         var exportButton = new BusyButton(
@@ -852,6 +958,11 @@ define(["dojo/_base/declare",
                         //this.dialogBox.show();
                         fpImageViewer.startup();
 
+
+                        dijit.byId("imageViewerInnerDiv").style.visibility = "visible"
+                        dijit.byId("imageViewerInnerDiv").style.hidden = "false"
+
+                        registry.byId(this.innerDivId).show();
 
                         // CREATE MAP
                         var newMap = this.createImageViewerMap(mapDivName,imgSvcURL,homeButtonDivName );
@@ -887,7 +998,7 @@ define(["dojo/_base/declare",
                                     dijit.byId('ExportAllBusy').cancel();
 
                                     var theurl = outputFile.value.url;
-                                    console.log(theurl);
+                                    //console.log(theurl);
                                     window.open(theurl, '_blank');
                                 }
                             )

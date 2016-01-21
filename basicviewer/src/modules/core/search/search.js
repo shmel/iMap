@@ -27,6 +27,8 @@ define(["dojo/_base/declare",
     "esri/layers/FeatureLayer",
     "dijit/form/Button",
     "dojo/on",
+    "dojox/gfx/fx",
+    "dojo/fx",
     "esri/map",
     "esri/tasks/query",
     "esri/tasks/QueryTask",
@@ -34,6 +36,8 @@ define(["dojo/_base/declare",
     "esri/tasks/FindParameters",
     "esri/tasks/FindResult",
     "esri/geometry/Extent",
+    "esri/geometry/Polygon",
+        "esri/SpatialReference",
     "dgrid/OnDemandGrid",
     "dgrid/Selection",
     "dojo/dom",
@@ -56,8 +60,9 @@ define(["dojo/_base/declare",
              language,
              array,
              domStyle, mapHandler, topic, TemplatedMixin, template,
-             Memory, DstoreAdapter, json , FilteringSelect, TextBox, sewersystems, streetsALL, ArcGISDynamicMapServiceLayer, FeatureLayer , Button, on, Map, Query, QueryTask,
-             FindTask, FindParameters, FindResult, Extent,
+             Memory, DstoreAdapter, json , FilteringSelect, TextBox, sewersystems, streetsALL, ArcGISDynamicMapServiceLayer, FeatureLayer , Button, on,
+             gfx, coreFx,Map, Query, QueryTask,
+             FindTask, FindParameters, FindResult, Extent, Polygon, SpatialReference,
              OnDemandGrid, Selection, dom , filestore, dojoNum
         ){
         return declare([WidgetBase, TemplatedMixin],{
@@ -74,6 +79,7 @@ define(["dojo/_base/declare",
             , grid: null
             , GOIDStore: null
             , svcList: null
+
 
 
             //*** Creates
@@ -768,6 +774,9 @@ define(["dojo/_base/declare",
                         // re-center the map to the selected feature
                         this.map.centerAt(result.features[0].geometry.getExtent().getCenter());
                         this.map.setExtent(result.features[0].geometry.getExtent());
+
+                        //Flash the Feature
+                        mapHandler.flashGraphic(result.features[0].geometry);
                     } else {
                         console.log("Feature Layer query returned no features... ", result);
                     }
@@ -804,6 +813,9 @@ define(["dojo/_base/declare",
                         // re-center the map to the selected feature
                         this.map.centerAt(result[0].geometry.getExtent().getCenter());
                         this.map.setExtent(result[0].geometry.getExtent());
+
+                        //Flash the Feature
+                        mapHandler.flashGraphic(result[0].geometry);
                     } else {
                         console.log("Feature Layer query returned no features... ", result);
                     }
@@ -826,14 +838,23 @@ define(["dojo/_base/declare",
                             //Handling for point features
                             if (result[0].geometry.type == "point") {
                                 var pt = result[0].geometry;
-                                var factor = 1; //some factor for converting point to extent
+                                var factor = 0.1; //some factor for converting point to extent
                                 var extent = new Extent(pt.x - factor, pt.y - factor, pt.x + factor, pt.y + factor, pt.spatialReference);
+                                //var polygon = Polygon.fromExtent(extent) //Can't use until 3.11
 
-                                this.map.setExtent(extent.expand(2));
+                                var polygon = new Polygon(new esri.SpatialReference({wkid:4326}));
+                                polygon.addRing([[pt.x - factor,pt.y - factor],[pt.x - factor,pt.y + factor],[pt.x + factor,pt.y + factor],[pt.x + factor,pt.y - factor],[pt.x - factor,pt.y - factor]]);
+
+                                this.map.setExtent(extent.expand(16));
+                                //Flash the Feature
+                                mapHandler.flashGraphic(polygon);
                             }
                             else{
                             this.map.centerAt(result[0].geometry.getExtent().getCenter());
                             this.map.setExtent(result[0].geometry.getExtent());
+
+                                //Flash the Feature
+                                mapHandler.flashGraphic(result[0].geometry);
                             }
                         } else {
                             console.log("Feature Layer query returned no features... ", result);

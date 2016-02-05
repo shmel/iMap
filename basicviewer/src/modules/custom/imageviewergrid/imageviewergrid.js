@@ -34,6 +34,8 @@ define(["dojo/_base/declare",
     "dojox/form/BusyButton",
     "dijit/form/Button",
     "dijit/form/ToggleButton",
+    "dijit/form/Select",
+    "dijit/form/Textarea",
     "dstore/Memory",
     "dstore/Trackable",
     "dstore/Tree",
@@ -73,7 +75,7 @@ define(["dojo/_base/declare",
              mapHandler, topic, TemplatedMixin, WidgetsInTemplateMixin, template,
              json , ArcGISDynamicMapServiceLayer, FeatureLayer ,
              Geoprocessor, Draw, Graphic, SimpleMarkerSymbol, SimpleLineSymbol,
-             SimpleRenderer, Color, BusyButton, Button, ToggleButton, Memory, Trackable, TreeStoreMixin, OnDemandGrid, Tree, Selection, on, query, Map, HomeButton, dom, dojoNum, move, Dialog, FloatingPane, TabContainer, AttributeTable
+             SimpleRenderer, Color, BusyButton, Button, ToggleButton, Select, TextArea, Memory, Trackable, TreeStoreMixin, OnDemandGrid, Tree, Selection, on, query, Map, HomeButton, dom, dojoNum, move, Dialog, FloatingPane, TabContainer, AttributeTable
         ){
         return declare([WidgetBase, TemplatedMixin],{
             //*** Properties needed for this style of module
@@ -91,6 +93,7 @@ define(["dojo/_base/declare",
             , gpGetImageLayerMapSvcURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/GetImageLayer/MapServer"
             , gpExportImageLayerURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportImageLayertoPDF/GPServer/ExportImageLayer"
             , gpExportMultiImageLayerURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportMultiImageLayertoPDF/GPServer/ExportMultiImageLayer"
+            , gpPrintImageLayerURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/PrintSingleMapToPDF/GPServer/PrintSingleMapToPDF"
             , dialogBox: null
             , titlegrid: null
             , gridPlansets: null
@@ -100,6 +103,8 @@ define(["dojo/_base/declare",
             , innerDivId: null
             , fpImageViewer: null
             , imageViewerContainerDiv: null
+            , printDialog: null
+            , imageViewerMaps: null //List of Maps Created in the ImageViewer
 
 
             //*** Creates
@@ -139,7 +144,7 @@ define(["dojo/_base/declare",
                                 within: true
                             }
                         );
-                        this.close = function () {
+                        this.close = lang.hitch (this, function () {
 
                             //console.log ("Imageviewer Closed")
 
@@ -171,7 +176,12 @@ define(["dojo/_base/declare",
 
                             this.domNode.style.display = "none";
                             this.domNode.style.visibility = "hidden";
-                        }
+
+                            //Close the Dialog //TODO - Not recognizing
+
+                            if (this.printDialog) {this.printDialog.hide();}
+
+                        })
                     }
 
                 });
@@ -684,6 +694,7 @@ define(["dojo/_base/declare",
 
                         var mapDivName = "imgViewerMap_" + img_id;
                         var btnExportDivName = "btnExport" + img_id;
+                        var btnPrintDivName = "btnPrint" + img_id;
                         var homeButtonDivName = "HomeButton" + img_id;
                         var pathTextDivName = "ImgPath" + img_id;
                         var mapBCName = "mapBorderContainer" + img_id;
@@ -691,7 +702,6 @@ define(["dojo/_base/declare",
                         var paneHTML =  '<div id= "' +mapBCName + '" dojoType="dijit.layout.BorderContainer"></div>'
 
                         document.body.style.cursor = "default";
-
 
                         //Make the Export All Button if not there
                        if (!registry.byId("ExportAllBusy")) {
@@ -728,7 +738,8 @@ define(["dojo/_base/declare",
                            }));
                        }
 
-
+                        //Create the Maps List
+                        imageViewerMaps = new Array();
 
                         //CREATE TAB CONTAINER
                         var tabContImages = new TabContainer({
@@ -764,7 +775,7 @@ define(["dojo/_base/declare",
                             '<div id="'+ homeButtonDivName +'"></div></div></div>';
 
                         //Add ContentPane (Botton) for Export Button
-                        exportHTML = '<table><tr>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td></tr></table>';
+                        exportHTML = '<table><tr>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td><td style="padding-right: 20px;"><div id="' + btnPrintDivName + '"></div></td></tr></table>';
 
                         var pathCP = new ContentPane({
                             region: "top",
@@ -807,11 +818,21 @@ define(["dojo/_base/declare",
                                 id: btnExportDivName + "Busy"})
                             .placeAt(btnExportDivName);
 
+                        var printButton = new BusyButton(
+                            {label: "Print This Image to Layout PDF",
+                                busyLabel: "Printing...",
+                                id: btnPrintDivName + "Busy"})
+                            .placeAt(btnPrintDivName);
 
 
                         on(exportButton, "click", lang.hitch(this, function(){
                             //Run GP Process to Output Image to PDF
                             this.exportSingleImage(img_path, img_id)
+                        }));
+
+                        on(printButton, "click", lang.hitch(this, function(){
+                            //Run GP Process to Output Image to PDF
+                            this.OpenPrintDialog(img_id) //TODO - Add Parameters
                         }));
 
                             fpImageViewer.startup();
@@ -824,7 +845,7 @@ define(["dojo/_base/declare",
                         //registry.byId(this.floaterDivId).show();
 
                         // CREATE MAP
-                        this.createImageViewerMap(mapDivName,imgSvcURL,homeButtonDivName ); //SJH
+                        this.createImageViewerMap(mapDivName,imgSvcURL,homeButtonDivName, img_id ); //SJH
 
                             on(fpImageViewer._resizeHandle, "resize", function(e) {
                                 // Event handler
@@ -852,6 +873,7 @@ define(["dojo/_base/declare",
                         var imgTitle = "Image ID: " + img_id
                         var mapDivName = "imgViewerMap_" + img_id;
                         var btnExportDivName = "btnExport" + img_id;
+                        var btnPrintDivName = "btnPrint" + img_id;
                         var homeButtonDivName = "HomeButton" + img_id;
                         var pathTextDivName = "ImgPath" + img_id;
                         var mapBCName = "mapBorderContainer" + img_id;
@@ -903,7 +925,7 @@ define(["dojo/_base/declare",
                             '<div id="'+ homeButtonDivName +'"></div></div></div>';
 
                         //Add ContentPane (Botton) for Export Button
-                        exportHTML = '<table><tr>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td></tr></table>';
+                        exportHTML = '<table><tr>'+'<td style="padding-right: 20px;"><div id="' + btnExportDivName + '"></div></td><td style="padding-right: 20px;"><div id="' + btnPrintDivName + '"></div></td></tr></table>';
 
                         var pathCP = new ContentPane({
                             region: "top",
@@ -950,9 +972,20 @@ define(["dojo/_base/declare",
                                 id: btnExportDivName + "Busy"})
                             .placeAt(btnExportDivName);
 
+                        var printButton = new BusyButton(
+                            {label: "Print This Image to Layout PDF",
+                                busyLabel: "Printing...",
+                                id: btnPrintDivName + "Busy"})
+                            .placeAt(btnPrintDivName);
+
                         on(exportButton, "click", lang.hitch(this, function(){
                             //Run GP Process to Output Image to PDF
                             this.exportSingleImage(img_path, img_id)
+                        }));
+
+                        on(printButton, "click", lang.hitch(this, function(){
+                            //Run GP Process to Output Image to PDF
+                            this.OpenPrintDialog(img_id) //TODO - Add Parameters
                         }));
 
                         //this.dialogBox.show();
@@ -965,7 +998,7 @@ define(["dojo/_base/declare",
                         registry.byId(this.innerDivId).show();
 
                         // CREATE MAP
-                        var newMap = this.createImageViewerMap(mapDivName,imgSvcURL,homeButtonDivName );
+                        var newMap = this.createImageViewerMap(mapDivName,imgSvcURL,homeButtonDivName, img_id);
                         newMap.resize();
 
                         // Hide Loading Icon
@@ -1008,6 +1041,25 @@ define(["dojo/_base/declare",
                 }))
             }
             , exportSingleImage: function (img_path, img_id) {
+                //var myObject = {};
+
+
+                //Map Name
+                var mapName= "imgViewerMap_" + img_id;
+                var imgLayerName = "imgLayer" + img_id;
+
+                //Find Map in imageViewerMaps ex: imgViewerMap_002345
+                for (var i = 0; i < imageViewerMaps.length; i++) {
+                    if (imageViewerMaps[i].id == mapName) {
+                        exportMap = imageViewerMaps[i]
+                    }
+                }
+
+                //Get Extent of Map
+                var ivMapExtent = exportMap.extent.toJson();
+
+                var imgLayer = exportMap.getLayer(imgLayerName); //TODO : Compare the imgLayer.FullExtent with the Map Extent. Pass the imgLayer extent if the map extent is not zoomed in.
+
                 //Input an IMGPath, and pass to the GP Service that will generate and export an PDF file to download
                 gpExportImage = new esri.tasks.Geoprocessor(_self.gpExportImageLayerURL);
                 gpExportImage.setOutSpatialReference({wkid:4326});
@@ -1031,14 +1083,17 @@ define(["dojo/_base/declare",
 
                 }))
             }
-            , createImageViewerMap: function (srcNodeRef, imgLayerURL, homeDIVName){
+            , createImageViewerMap: function (srcNodeRef, imgLayerURL, homeDIVName, img_id){
                 var map = new esri.Map(srcNodeRef,{
                     slider: true,
                     autoResize:true
                 });
 
                 //Add Image Layer
-                var imgLayer = new ArcGISDynamicMapServiceLayer(imgLayerURL)
+                var imgLayerName = "imgLayer" + img_id;
+                var imgLayer = new ArcGISDynamicMapServiceLayer(imgLayerURL, {
+                    id: imgLayerName
+                });
                 map.addLayer(imgLayer)
 
 
@@ -1063,8 +1118,186 @@ define(["dojo/_base/declare",
 
                 }));
 
+                //Add to List
+                imageViewerMaps.push (map);
+
                 return map;
             }
+            , OpenPrintDialog: function(img_id){
+                //Opens a Modal Dialog window for the user to select the properties for the print layout
+
+                var selLayoutDIVid = "selLayout"
+                var selOrientDIVid = "selOrient"
+                var txtNotesDIVid = "txtNotes"
+                var buttonPrintDIVid = "btnPrint"
+                var buttonCancelDIVid = "btnCancel"
+
+
+                var printDialogHTML = '<div class="printAreas"> <table> <tr> <td>Layout Size:</td><td><div id="' + selLayoutDIVid + '"></div></td> </tr> ' +
+                    '<tr> <td>Orientation:</td><td><div id="' + selOrientDIVid + '"></div></td> </tr> ' +
+                    '<tr> <td>Notes:</td><td><div id="' + txtNotesDIVid + '"></div></td> </tr> </table></div>' +
+                    '<div class="printAreas"><table style="width: 100%;"> <tr> <td align="center"><div id="' + buttonPrintDIVid + '"></div></td><td align="center"><div id="' + buttonCancelDIVid + '"></div></td> </tr> </table> </div>';
+
+                //Content for Controls
+                var aLayouts = [
+                    { label: '8.5" x 11"', value: '8.5" x 11"'},
+                    { label: '11" x 17"', value: '11" x 17"'},
+                    { label: '24" x 36"', value: '24" x 36"'}
+                ];
+                var aOrients = [
+                    { label: 'Landscape',value: 'Landscape'},
+                    { label: 'Portrait', value: 'Portrait'}
+
+                ];
+
+                if (!this.printDialog) {
+                    // CREATE DIALOG
+                    this.printDialog = new dijit.Dialog({
+                        title: "Print Plans",
+                        content: printDialogHTML,
+                        class: "printDlg"
+                    });
+
+                    this.printDialog.startup();
+
+
+                    on (this.printDialog, "hide", lang.hitch(this, function(){
+                        console.log ("Dialog Closed");
+
+                        this.printDialog.destroyRecursive();
+                        this.printDialog = null;
+                        dijit.byId('btnPrint' + img_id + 'Busy').cancel();
+                    }));
+
+
+                    //Create Objects to go in Dialog
+
+                    //Print Selections
+                    var layoutSelector = new Select({
+                        options: aLayouts
+                    }, selLayoutDIVid).startup();
+
+                    var orientSelector = new Select({
+                        options: aOrients
+                    }, selOrientDIVid).startup();
+
+                    var notesTextBox = new TextArea({
+                        name: "Notes",
+                        maxlength: 200,
+                        value: "" /* no or empty value! */,
+                        placeholder: "(Max 200 Chars.)"
+                    }, txtNotesDIVid);
+
+
+                    var btnCancel = new Button({
+                        label: "Cancel",
+                        class: "printBtn",
+                        onClick:  lang.hitch(this, function (){
+
+                            dijit.byId('btnPrint' + img_id + 'Busy').cancel();
+
+                            //Close the Dialog
+                            this.printDialog.hide();
+                        })
+                    }, buttonCancelDIVid).startup();
+
+                    var btnPrint = new BusyButton({
+                        label: "Print",
+                        class: "printBtn",
+                        style: "width: 60px",
+                        onClick: lang.hitch(this, function() {
+
+                            //Get the Printing Parmeters, Orientation, Notes, Layout
+
+                            var layout = dijit.byId(selLayoutDIVid).value
+                            var orientation = dijit.byId(selOrientDIVid).value
+                            var notes = dijit.byId(txtNotesDIVid).value
+
+                            this.PrintSingleImage(img_path, img_id, orientation, layout, notes);
+
+                            //Close the Dialog
+                            //printDialog.hide();
+                            //PrintSingleImage
+                            //TODO
+
+
+
+                        })
+                    }, buttonPrintDIVid).startup();
+
+
+
+                    // DISPLAY DIALOG
+
+                    this.printDialog.show();
+                }
+                else {
+                    this.printDialog.show();
+                }
+
+            }
+
+            , PrintSingleImage: function (img_path, img_id, orientation, layout, notes) {
+                //Map Name
+                var mapName= "imgViewerMap_" + img_id;
+
+
+                //Find Map in imageViewerMaps ex: imgViewerMap_002345
+                //Map Name
+                var mapName= "imgViewerMap_" + img_id;
+                var imgLayerName = "imgLayer" + img_id;
+
+                //Find Map in imageViewerMaps ex: imgViewerMap_002345
+                for (var i = 0; i < imageViewerMaps.length; i++) {
+                    if (imageViewerMaps[i].id == mapName) {
+                        exportMap = imageViewerMaps[i]
+                    }
+                }
+
+                //Get Extent of Map
+                var ivMapExtent = exportMap.extent.toJson();
+                var ivMapExtentString = JSON.stringify(ivMapExtent);
+
+                var imgLayer = exportMap.getLayer(imgLayerName); //TODO : Compare the imgLayer.FullExtent with the Map Extent. Pass the imgLayer extent if the map extent is not zoomed in.
+
+                //Input an IMGPath, and pass to the GP Service that will generate and export an PDF file to download
+
+                //Parameters for the GP Print Image Service, which formats the Image into a Map Layout with Title Page Info:
+                //Image_Path, Orientation, Layout, Notes, IMG ID, Extent JSON
+
+                gpPrintImage = new esri.tasks.Geoprocessor(_self.gpPrintImageLayerURL);
+                //gpPrintImage.setOutSpatialReference({wkid:4326});
+
+                var params = {
+                    "Image_Path":img_path,
+                    "IMG_Id": img_id,
+                    "Orientation": orientation,
+                    "Layout": layout,
+                    "Extent_JSON": ivMapExtentString,
+                    "Notes": notes
+                };
+                //gp.submitJob(params, lang.hitch(this, this.DisplayWaterValveTrace));
+                gpPrintImage.submitJob(params, lang.hitch (this, function(jobInfo) {
+                    //Wait for the Results
+                    if(jobInfo.jobStatus !== "esriJobFailed"){
+                        gpPrintImage.getResultData(jobInfo.jobId,"OutputPDF", lang.hitch(this, function(outputFile) {
+
+                                    dijit.byId('btnPrint').cancel();
+
+                                    //Close the Dialog
+                                    this.printDialog.hide();
+
+                                    var theurl = outputFile.value.url;
+                                    console.log(theurl);
+                                    window.open(theurl, '_blank');
+                                }
+                            )
+                        );
+                    }
+
+                }))
+            }
+
             , NewFunctionHere: function(){
 
             }

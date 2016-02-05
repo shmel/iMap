@@ -17,6 +17,34 @@
     padding-right: 22px;
 }
 
+/*.dijitDialogPaneContent{
+    background-color: #eaf4ff !important    ;
+}*/
+
+.printAreas {
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-bottom: 5px;
+    padding-right: 5px;
+    height: 25%;
+    border: solid;
+    border-color: #999999;
+    border-radius: 5px;
+    border-width: 2px;
+    background-color: #FFFFFF;
+    margin-bottom: 5px;
+}
+
+.printBtn .dijitButtonNode{
+    width: 60px;
+}
+
+#txtNotes {
+    rows: 10;
+    resize: none;
+    overflow: auto;
+}
+
 #imageViewerInnerDiv {
     padding: 2px;
 }

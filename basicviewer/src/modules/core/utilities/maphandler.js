@@ -148,7 +148,7 @@ define(["dojo/_base/declare", "dojo/_base/lang", "dojox/gfx/fx", "dojo/fx", "esr
 
             }*/
 
-            , flashGraphic: function(inGeometry){
+            , flashGeometry: function(inGeometry){
 
                 var graphicFlash;
                 var flashSymbol;

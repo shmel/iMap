@@ -776,7 +776,7 @@ define(["dojo/_base/declare",
                         this.map.setExtent(result.features[0].geometry.getExtent());
 
                         //Flash the Feature
-                        mapHandler.flashGraphic(result.features[0].geometry);
+                        mapHandler.flashGeometry(result.features[0].geometry);
                     } else {
                         console.log("Feature Layer query returned no features... ", result);
                     }
@@ -815,7 +815,7 @@ define(["dojo/_base/declare",
                         this.map.setExtent(result[0].geometry.getExtent());
 
                         //Flash the Feature
-                        mapHandler.flashGraphic(result[0].geometry);
+                        mapHandler.flashGeometry(result[0].geometry);
                     } else {
                         console.log("Feature Layer query returned no features... ", result);
                     }
@@ -847,14 +847,14 @@ define(["dojo/_base/declare",
 
                                 this.map.setExtent(extent.expand(16));
                                 //Flash the Feature
-                                mapHandler.flashGraphic(polygon);
+                                mapHandler.flashGeometry(polygon);
                             }
                             else{
                             this.map.centerAt(result[0].geometry.getExtent().getCenter());
                             this.map.setExtent(result[0].geometry.getExtent());
 
                                 //Flash the Feature
-                                mapHandler.flashGraphic(result[0].geometry);
+                                mapHandler.flashGeometry(result[0].geometry);
                             }
                         } else {
                             console.log("Feature Layer query returned no features... ", result);

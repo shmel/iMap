@@ -1086,7 +1086,8 @@ define(["dojo/_base/declare",
             , createImageViewerMap: function (srcNodeRef, imgLayerURL, homeDIVName, img_id){
                 var map = new esri.Map(srcNodeRef,{
                     slider: true,
-                    autoResize:true
+                    autoResize:true,
+                    logo: false
                 });
 
                 //Add Image Layer

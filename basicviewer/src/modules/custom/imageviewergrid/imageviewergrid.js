@@ -3,8 +3,10 @@
  */
 define(["dojo/_base/declare",
     "dojo/dom-construct",
+    "dojo/dom-attr",
     "dijit/_WidgetBase",
     "dojo/on",
+    "dojo/promise/all",
     "dijit/registry",
     "dojo/ready",
     "dojo/_base/lang",
@@ -25,10 +27,14 @@ define(["dojo/_base/declare",
     "esri/layers/ArcGISDynamicMapServiceLayer",
     "esri/layers/FeatureLayer",
     "esri/tasks/Geoprocessor",
+    "esri/tasks/QueryTask",
+    "esri/tasks/FeatureSet",
+    "esri/tasks/query",
     "esri/toolbars/draw",
     "esri/graphic",
     "esri/symbols/SimpleMarkerSymbol",
     "esri/symbols/SimpleLineSymbol",
+    "esri/symbols/SimpleFillSymbol",
     "esri/renderers/SimpleRenderer",
     "dojo/_base/Color",
     "dojox/form/BusyButton",
@@ -59,8 +65,10 @@ define(["dojo/_base/declare",
 
     function(declare,
              domConstruct,
+             domAttr,
              WidgetBase,
              dojoOn,
+             all,
              registry,
              ready,
              lang,
@@ -74,7 +82,7 @@ define(["dojo/_base/declare",
              Deferred,
              mapHandler, topic, TemplatedMixin, WidgetsInTemplateMixin, template,
              json , ArcGISDynamicMapServiceLayer, FeatureLayer ,
-             Geoprocessor, Draw, Graphic, SimpleMarkerSymbol, SimpleLineSymbol,
+             Geoprocessor, QueryTask,FeatureSet, Query, Draw, Graphic, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol,
              SimpleRenderer, Color, BusyButton, Button, ToggleButton, Select, TextArea, Memory, Trackable, TreeStoreMixin, OnDemandGrid, Tree, Selection, on, query, Map, HomeButton, dom, dojoNum, move, Dialog, FloatingPane, TabContainer, AttributeTable
         ){
         return declare([WidgetBase, TemplatedMixin],{
@@ -94,6 +102,8 @@ define(["dojo/_base/declare",
             , gpExportImageLayerURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportImageLayertoPDF/GPServer/ExportImageLayer"
             , gpExportMultiImageLayerURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/ExportMultiImageLayertoPDF/GPServer/ExportMultiImageLayer"
             , gpPrintImageLayerURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/PrintSingleMapToPDF/GPServer/PrintSingleMapToPDF"
+            , gpFetchPlanPackageURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/FetchPlanPackageFiles/GPServer/PlanPackageFetch"
+            , gpCountPlanPackageURL: "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/CountPlanPackagingFiles/GPServer/PlanPackageCount"
             , dialogBox: null
             , titlegrid: null
             , gridPlansets: null
@@ -105,7 +115,9 @@ define(["dojo/_base/declare",
             , imageViewerContainerDiv: null
             , printDialog: null
             , imageViewerMaps: null //List of Maps Created in the ImageViewer
-
+            , svcList : null
+            , svcLayerList: null
+            , currentPoly: null //Global Var for holding drawn geometry
 
             //*** Creates
             , constructor: function(args) {
@@ -239,7 +251,21 @@ define(["dojo/_base/declare",
             , startup: function () {
                 this.map.infoWindow.domNode;
 
+                this.toolbar = new Draw(this.map);
+                this.toolbar.on("draw-end", lang.hitch(this,this.GetFeatures));
+
                 _self = this;
+
+                //Each Service has a list of Layers to search - Excludes Group Layers
+                this.svcLayerList = ["0,1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,19,20,21,22,23,24,25,26,27",
+                    "0", "0,1,2,3,4,5,6,7,8",
+                    "0,1,2,3,4,5,6,8,9,10,12,13,14,15,16,17,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35"];
+
+                this.svcList = ["http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Dev_Utilities_Water/MapServer/",
+                    "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Dev_Utilities_LateralPts/MapServer/",
+                    "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Dev_Utilities_Reclaimed/MapServer/",
+                    "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/Charles_Dev_Utilities_Wastewater/MapServer/"
+                ];
 
                 var aboutButton = new Button(
                     {label: "About"})
@@ -292,7 +318,7 @@ define(["dojo/_base/declare",
                 //when the link is clicked register a function that will run
                 on(link, "click", this.GetPlansets);
 
-
+                //TODO - Update Link to Plansets in the Popups - Only to Features that have a UTIL ID
                 //TODO - Leverage PopUp Events to Add Planset Link
                 //https://developers.arcgis.com/javascript/jsapi/popup-amd.html#features
                 //https://developers.arcgis.com/javascript/jsapi/infowindow-amd.html
@@ -322,8 +348,65 @@ define(["dojo/_base/declare",
 
                         }
                 }))*/
-                //TODO
+                //TODO - Update Link to Plansets in the Popups - Only to Features that have a UTIL ID
 
+                //TODO  - Plan Packaging Tools
+                // Controls for Plan Packaging
+                // Draw Tool for Polygon
+                //todo: iconClass="myIcon" in HTML,.myIcon in CSS (http://stackoverflow.com/questions/10986807/how-to-add-custom-image-to-a-button-dojo-1-7)
+                var drawPolygon = new BusyButton({
+                    busyLabel: "Drawing...",
+                    name: "drawPolyButton",
+                    id: "drawPolyButton",
+                    type: "button",
+                    label: "Draw Polygon",
+                    style: "width: 100px; height:100%; line-height:100%; text-align: left",
+                    onClick: lang.hitch(this,  function(){
+                        //TODO: Implement Code to Count Features
+                        dojo.byId("txtPlanPackageStatus").innerHTML = ""
+
+                        //Disable Popups
+                        mapHandler.DisableMapPopups();
+
+                        esri.bundle.toolbars.draw.addPoint = "Click to place the origin point of the trace";
+
+                        this.toolbar.activate(Draw.FREEHAND_POLYGON);
+                    })                      //End On Click for Trace Button
+                }, "buttonDrawPoly");
+
+                // Clear Polygon Drawing
+                var clearGraphics = new Button({
+                    name: "clearGraphicsButton",
+                    type: "button",
+                    label: "Clear Polygon",
+                    style: "width: 100px; height:100%; line-height:100%; text-align: left",
+                    onClick: lang.hitch(this,  function(){
+                        this.map.graphics.clear();
+                        dojo.byId("txtPlanPackageStatus").innerHTML = "";
+                        dijit.byId("drawPolyButton").cancel;
+                        dijit.byId("drawPolyButton").setAttribute('disabled', false);
+                        dijit.byId("reqPlanPackage").cancel;
+                        dijit.byId("reqPlanPackage").setAttribute('disabled', true);
+                    })
+                }, "buttonClearPoly");
+
+
+                // Request Plan Package Button
+                var requestPlanPackage = new BusyButton({
+                    busyLabel: "Requesting...",
+                    name: "reqPlanPackage",
+                    id: "reqPlanPackage",
+                    type: "button",
+                    disabled: true, //Disabled until there is a count
+                    label: "Request Plan Package",
+                    style: "width: 100px; height:100%; line-height:100%; text-align: left",
+                    onClick: lang.hitch(this,this.FetchPlanPackage)
+                }, "buttonRequestPlanPackage");
+
+
+
+                // Status Text - Update in Functions
+                // dojo.byId("txtPlanPackageStatus")
 
                 var dEmptyPlanSetStore =  new (declare([Memory, Trackable, TreeStoreMixin]))({
                     idProperty: "FOLDER",
@@ -337,6 +420,9 @@ define(["dojo/_base/declare",
                     data: { identifier: 'column',
                         items: []}
                 });
+
+
+
 
 
 
@@ -1298,10 +1384,208 @@ define(["dojo/_base/declare",
 
                 }))
             }
+            , GetFeatures: function(e){
 
-            , NewFunctionHere: function(){
+                //TODO: This is the action upon completing a polygon
+                //document.body.style.cursor = "wait";
+                var inPolygon = e.geometry
+
+                this.currentPoly = inPolygon
+
+                console.log("Polygon Complete")
+
+                polySymbolJSON =  {
+                    "type": "esriSFS",
+                        "style": "esriSFSNull",
+                        "outline":
+                    {
+                        "color": [255, 102, 102, 180],
+                        "width": 4
+                    }
+                }
+
+                this.map.graphics.clear();
+
+                var polySymbol = new SimpleFillSymbol(polySymbolJSON);
+
+                var graphic = new esri.Graphic(e.geometry,polySymbol);
+                this.map.graphics.add(graphic);
+
+                this.toolbar.deactivate();
+
+                //mapHandler.HideLoadingIcon();
+                mapHandler.EnableMapPopups();
+
+                dijit.byId("drawPolyButton").setLabel("Counting...");
+
+                //Make Feature Set to Pass as Variable
+                var features= [];
+                features.push(graphic);
+                var featureSet = new esri.tasks.FeatureSet();
+                featureSet.features = features;
+
+                gpFolders = new esri.tasks.Geoprocessor(_self.gpCountPlanPackageURL);
+                gpFolders.setOutSpatialReference({wkid:26985});
+
+                var params = {"Input_Polygon":featureSet};
+                //gp.submitJob(params, lang.hitch(this, this.DisplayWaterValveTrace));
+                gpFolders.submitJob(params, lang.hitch (this, function(results) {
+                    //Return Result
+                    var jobid = results.jobId;
+
+                    gpFolders.getResultData(jobid, "outputJSON", lang.hitch(this, function(jsonresult){
+                            //Json Result
+                            var countData = jsonresult.value; //{"page_count":14,"planset_count":6}
+
+                            //Use the Count Data
+                            dojo.byId("txtPlanPackageStatus").innerHTML = "Planset Count: " + countData[0].planset_count + "   Total Pages: " + countData[0].page_count
+
+                            //Enable Request Button
+                            dijit.byId("reqPlanPackage").setAttribute('disabled', false);
+                            dijit.byId("drawPolyButton").cancel();
+                        }
+                    ))}))
+
+//Keeping this Code because 68 Asynchronous Processes is awesome.
+/*                //Use the Geometry to query against each Map Service in svcList
+                //Make an Array of QueryTask Results
+
+                qryResults = [];
+                dijit.byId("drawPolyButton").setLabel("Counting...");
+                //Loop Through Map Service URLS
+                for (msURL = 0; msURL < this.svcList.length; msURL ++) {
+                    //Loop Through Layers in Service
+                    svcLayerArray = this.svcLayerList[msURL].split(",");
+                    for (layerid = 0; layerid < svcLayerArray.length; layerid++ ) {
+                        var qCount = new QueryTask(this.svcList[msURL] + "/" + svcLayerArray[layerid])  //TODO: Parse svcLayerList this.svcLayerList [0])
+                        var qry = new Query();
+                        qry.geometry = inPolygon;
+                        qry.where = "1=1"
+
+
+                        qryCountResults = qCount.executeForCount(qry)
+
+                        //Add to Array
+
+                        qryResults.push(qryCountResults);
+                    }
+
+                }
+                promises = all(qryResults);
+                promises.then(function (results) {
+                    console.log ("Handle the Query Results")
+                    var fcount = 0;
+                     for (i = 0; i < results.length; i++) {
+                         fcount = fcount + results[i];
+                     }
+                    dojo.byId("txtPlanPackageStatus").innerHTML = "Feature Count: " + fcount
+
+                    //Enable Request Button
+                   dijit.byId("reqPlanPackage").setAttribute('disabled', false);
+
+                   console.log( "Features Count:" + fcount)
+                    dijit.byId("drawPolyButton").cancel();
+                });*/
+
+
+               /* //Try an Identify Task - Too Slow!
+                var idQry = new IdentifyTask(this.svcList[0]);
+                var idParams = new IdentifyParameters()
+                idParams.layerIds = [9,10,11] //[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]//this.svcLayerList[0];
+                idParams.tolerance = 3;
+                idParams.returnGeometry = true;
+                idParams.layerOption = IdentifyParameters.LAYER_OPTION_ALL;
+                idParams.mapExtent = this.map.extent;
+                idParams.geometry = inPolygon;
+
+                idQry.execute(idParams, function(response){
+                    console.log("Features Found:" + response.length)
+                });*/
+
+
+
+
+
+
 
             }
+            , FetchPlanPackage: function() {
+                //DO IT!!
+                dijit.byId("reqPlanPackage").setLabel("Packaging...");
 
+                polySymbolJSON =  {
+                    "type": "esriSFS",
+                    "style": "esriSFSNull",
+                    "outline":
+                    {
+                        "color": [255, 102, 102, 180],
+                        "width": 4
+                    }
+                }
+
+                //this.map.graphics.clear();
+
+                var polySymbol = new SimpleFillSymbol(polySymbolJSON);
+
+                var graphic = new esri.Graphic(this.currentPoly,polySymbol);
+                //this.map.graphics.add(graphic);
+
+
+                //Pass the Geometry to the GP Service
+                var features = [];
+                features.push(graphic);
+                var featureSet = new esri.tasks.FeatureSet();
+                featureSet.features = features;
+
+
+                var oMapExtent = this.map.extent.toJson();
+                var oMapExtentString = JSON.stringify(oMapExtent);
+
+                gpPlanPackage = new esri.tasks.Geoprocessor(_self.gpFetchPlanPackageURL);
+                gpPlanPackage.setOutSpatialReference({wkid: 26985});
+
+                var params = {"Input_Polygon": featureSet, "Extent_JSON": oMapExtentString};
+                //gp.submitJob(params, lang.hitch(this, this.DisplayWaterValveTrace));
+                gpPlanPackage.submitJob(params, lang.hitch(this, function (jobInfo) {
+                    //Wait for the Results
+                    if (jobInfo.jobStatus !== "esriJobFailed") {
+                        //Get PDF URL
+                        var pdfURL = "";
+                        var batFileURL = "";
+                        var csvFileURL = "";
+                        gpPlanPackage.getResultData(jobInfo.jobId, "Output_Map_PDF", lang.hitch(this, function (outputFile) {
+                            pdfURL = outputFile.value.url;
+                                    //console.log(theurl);
+                                    //window.open(theurl, '_blank');
+
+                            gpPlanPackage.getResultData(jobInfo.jobId, "BATfile", lang.hitch(this, function (outputFile) {
+                                batFileURL = outputFile.value.url;
+
+                                gpPlanPackage.getResultData(jobInfo.jobId, "CSVFile", lang.hitch(this, function (outputFile) {
+                                    csvFileURL = outputFile.value.url;
+
+                                    //Update HTML Results
+                                    dojo.byId("txtPlanPackageStatus").innerHTML = "Click on the links below to download the Plan Package Files:" + "<br>" +
+                                        "<a href='" + pdfURL + "' target='_blank'>" + "Overview Map" + "</a>" + "<br>" +
+                                        "<a href='" + batFileURL + "' target='_blank'>" + "Copy Plansets File" + "</a>" + "<br>" +
+                                        "<a href='" + csvFileURL + "' target='_blank'>" + "Plansets List" + "</a>"
+                                }));
+
+                            }));
+                        }));
+
+
+
+
+
+
+
+
+                        //Reset Controls
+                        dijit.byId("reqPlanPackage").setAttribute('disabled', false);
+                        dijit.byId("reqPlanPackage").cancel();
+                    }
+                }))
+            }
         });
     });

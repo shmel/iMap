@@ -1,22 +1,4 @@
 <div id="ImageViewerGridDiv">
-    <div class ="ImageViewerGridPartDiv" id="planPackage">
-        <h1>Plan Packaging</h1>
-        Plan Packaging. In Progress. <br>
-        <div id="aboutPPButton"></div><br>
-        <table>
-            <tr>
-                <td><div id="buttonDrawPoly"></div></td>
-                <td><div id="buttonClearPoly"></div></td>
-            </tr>
-            <tr>
-                <td><div id="buttonRequestPlanPackage"></div></td>
-            </tr>
-            <tr>
-                <td><div id="txtPlanPackageStatus"></div></td>
-            </tr>
-        </table>
-
-    </div>
     <div class ="ImageViewerGridPartDiv">
         <h1>Image Viewer Lookup</h1>
         Click on the <label style="font-weight: bold;">View Plan Set Documents</label> link in the popup for a feature to query the images for the feature <br>
@@ -62,6 +44,29 @@
         <div class="ErrorMsg" id="msgValveTraceWarning" style="visibility:hidden;">The trace returned no result.</div>
         <br>
         <br>-->
+    </div>
+    <div class ="ImageViewerGridPartDiv" id="planPackage">
+        <h1 style="display: inline;">Plan Packaging</h1>
+        <div>
+            <table>
+                <tr>
+                    <td style="width:50%;"><div id="buttonDrawPoly"></div></td>
+                    <td style="width:50%;"><div id="buttonClearPoly"></div></td>
+                </tr>
+                <tr>
+                    <td><div class ="ImageViewerFileDest">File Destination for Plansets: <div id="destPathTextInput"></div></div></td>
+                </tr>
+                <tr>
+                    <td style="width:50%;"><div id="buttonRequestPlanPackage"></div></td>
+                    <td style="width:50%;"><div id="buttonCountPlanPackage"></div></td>
+                </tr>
+                <br>
+                <tr>
+                    <td style="width:100%;"><div id="txtPlanPackageStatus"></div></td>
+                </tr>
+            </table>
+        </div>
+
     </div>
 
 </div>

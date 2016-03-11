@@ -42,6 +42,7 @@ define(["dojo/_base/declare",
     "dijit/form/ToggleButton",
     "dijit/form/Select",
     "dijit/form/Textarea",
+    "dijit/form/TextBox",
     "dstore/Memory",
     "dstore/Trackable",
     "dstore/Tree",
@@ -83,7 +84,7 @@ define(["dojo/_base/declare",
              mapHandler, topic, TemplatedMixin, WidgetsInTemplateMixin, template,
              json , ArcGISDynamicMapServiceLayer, FeatureLayer ,
              Geoprocessor, QueryTask,FeatureSet, Query, Draw, Graphic, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol,
-             SimpleRenderer, Color, BusyButton, Button, ToggleButton, Select, TextArea, Memory, Trackable, TreeStoreMixin, OnDemandGrid, Tree, Selection, on, query, Map, HomeButton, dom, dojoNum, move, Dialog, FloatingPane, TabContainer, AttributeTable
+             SimpleRenderer, Color, BusyButton, Button, ToggleButton, Select, TextArea,TextBox, Memory, Trackable, TreeStoreMixin, OnDemandGrid, Tree, Selection, on, query, Map, HomeButton, dom, dojoNum, move, Dialog, FloatingPane, TabContainer, AttributeTable
         ){
         return declare([WidgetBase, TemplatedMixin],{
             //*** Properties needed for this style of module
@@ -252,7 +253,7 @@ define(["dojo/_base/declare",
                 this.map.infoWindow.domNode;
 
                 this.toolbar = new Draw(this.map);
-                this.toolbar.on("draw-end", lang.hitch(this,this.GetFeatures));
+                this.toolbar.on("draw-end", lang.hitch(this,this.DrawPolygon));
 
                 _self = this;
 
@@ -387,6 +388,8 @@ define(["dojo/_base/declare",
                         dijit.byId("drawPolyButton").setAttribute('disabled', false);
                         dijit.byId("reqPlanPackage").cancel;
                         dijit.byId("reqPlanPackage").setAttribute('disabled', true);
+                        dijit.byId("countPlanPackage").cancel;
+                        dijit.byId("countPlanPackage").setAttribute('disabled', true);
                     })
                 }, "buttonClearPoly");
 
@@ -402,6 +405,26 @@ define(["dojo/_base/declare",
                     style: "width: 100px; height:100%; line-height:100%; text-align: left",
                     onClick: lang.hitch(this,this.FetchPlanPackage)
                 }, "buttonRequestPlanPackage");
+
+                //Count Plan Package Button
+                var countPlanPackage = new BusyButton({
+                    busyLabel: "Requesting...",
+                    name: "countPlanPackage",
+                    id: "countPlanPackage",
+                    type: "button",
+                    disabled: true, //Disabled until there is a count
+                    label: "Count Plansets",
+                    style: "width: 100px; height:100%; line-height:100%; text-align: left",
+                    onClick: lang.hitch(this,this.CountPlansets)
+                }, "buttonCountPlanPackage");
+
+
+                var destFileTextBox = new dijit.form.TextBox({
+                    name: "destFile",
+                    value: "" /* no or empty value! */,
+                    placeHolder: "Optional",
+                    id: "destFile"
+                }, "destPathTextInput");
 
 
 
@@ -1384,8 +1407,8 @@ define(["dojo/_base/declare",
 
                 }))
             }
-            , GetFeatures: function(e){
 
+            , DrawPolygon: function(e){
                 //TODO: This is the action upon completing a polygon
                 //document.body.style.cursor = "wait";
                 var inPolygon = e.geometry
@@ -1396,8 +1419,8 @@ define(["dojo/_base/declare",
 
                 polySymbolJSON =  {
                     "type": "esriSFS",
-                        "style": "esriSFSNull",
-                        "outline":
+                    "style": "esriSFSNull",
+                    "outline":
                     {
                         "color": [255, 102, 102, 180],
                         "width": 4
@@ -1416,7 +1439,31 @@ define(["dojo/_base/declare",
                 //mapHandler.HideLoadingIcon();
                 mapHandler.EnableMapPopups();
 
-                dijit.byId("drawPolyButton").setLabel("Counting...");
+                dijit.byId("reqPlanPackage").setAttribute('disabled', false);
+                dijit.byId("countPlanPackage").setAttribute('disabled', false);
+                //dijit.byId("countPlanPackage").cancel();
+                dijit.byId("drawPolyButton").cancel();
+            }
+            , CountPlansets: function(){
+                //document.body.style.cursor = "wait";
+                polySymbolJSON =  {
+                    "type": "esriSFS",
+                    "style": "esriSFSNull",
+                    "outline":
+                    {
+                        "color": [255, 102, 102, 180],
+                        "width": 4
+                    }
+                }
+
+                //this.map.graphics.clear();
+
+                var polySymbol = new SimpleFillSymbol(polySymbolJSON);
+
+                var graphic = new esri.Graphic(this.currentPoly,polySymbol);
+                //this.map.graphics.add(graphic);
+
+                dijit.byId("countPlanPackage").setLabel("Counting...");
 
                 //Make Feature Set to Pass as Variable
                 var features= [];
@@ -1442,6 +1489,7 @@ define(["dojo/_base/declare",
 
                             //Enable Request Button
                             dijit.byId("reqPlanPackage").setAttribute('disabled', false);
+                            dijit.byId("countPlanPackage").cancel();
                             dijit.byId("drawPolyButton").cancel();
                         }
                     ))}))
@@ -1513,6 +1561,10 @@ define(["dojo/_base/declare",
                 //DO IT!!
                 dijit.byId("reqPlanPackage").setLabel("Packaging...");
 
+                //Get Destination Path, if indicated
+                var destPath = '"' +  dijit.byId("destFile").value + '"';
+
+
                 polySymbolJSON =  {
                     "type": "esriSFS",
                     "style": "esriSFSNull",
@@ -1544,7 +1596,7 @@ define(["dojo/_base/declare",
                 gpPlanPackage = new esri.tasks.Geoprocessor(_self.gpFetchPlanPackageURL);
                 gpPlanPackage.setOutSpatialReference({wkid: 26985});
 
-                var params = {"Input_Polygon": featureSet, "Extent_JSON": oMapExtentString};
+                var params = {"Input_Polygon": featureSet, "Extent_JSON": oMapExtentString, "Destination_Path": destPath};
                 //gp.submitJob(params, lang.hitch(this, this.DisplayWaterValveTrace));
                 gpPlanPackage.submitJob(params, lang.hitch(this, function (jobInfo) {
                     //Wait for the Results
@@ -1574,16 +1626,15 @@ define(["dojo/_base/declare",
                             }));
                         }));
 
-
-
-
-
-
-
-
                         //Reset Controls
                         dijit.byId("reqPlanPackage").setAttribute('disabled', false);
                         dijit.byId("reqPlanPackage").cancel();
+                    }
+                    else if (jobInfo.jobStatus == "esriJobFailed") {
+                        console.log("Job Failed")
+                        //Update HTML Results
+                        dojo.byId("txtPlanPackageStatus").innerHTML = "The Plan Packaging job has failed <br>" +
+                            "Error Message: " + jobInfo.messages[jobInfo.messages.count - 1]
                     }
                 }))
             }

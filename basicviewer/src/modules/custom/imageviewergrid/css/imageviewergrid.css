@@ -11,6 +11,11 @@
     background-color: #FFFFFF;
     margin: 5px;
 }
+
+.ImageViewerFileDest{
+    padding-left: 2px;
+    padding-bottom: 6px;
+}
 .dojoxFloatingCloseIcon {
     background: url('../../../../../../assets/close.png') no-repeat center center;
     float: right;

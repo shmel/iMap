@@ -1484,8 +1484,10 @@ define(["dojo/_base/declare",
                             //Json Result
                             var countData = jsonresult.value; //{"page_count":14,"planset_count":6}
 
-                            //Use the Count Data
-                            dojo.byId("txtPlanPackageStatus").innerHTML = "Planset Count: " + countData[0].planset_count + "   Total Pages: " + countData[0].page_count
+                            if (countData !== "") {
+                                //Use the Count Data
+                                dojo.byId("txtPlanPackageStatus").innerHTML = "Planset Count: " + countData[0].planset_count + "   Total Pages: " + countData[0].page_count
+                            } else dojo.byId("txtPlanPackageStatus").innerHTML = "No Plansets or Associated Features were found in this location."
 
                             //Enable Request Button
                             dijit.byId("reqPlanPackage").setAttribute('disabled', false);

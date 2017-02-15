@@ -40,7 +40,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                 },
                 {
                     "color": "rgb(170, 2,230)",
-                    "tooltip": "In Process, Valve Not Found",
+                    "tooltip": "Exercise Complete, Repair Required",
                     "index": "2"
                 },
                 {
@@ -100,7 +100,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         selector: "date"
                     });
                     this._clearLayer(featureLayer);
-                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT < date '" + convertEnd + "'");
+                    this._queryMap("VEP_STARTED_ON > date '" + convertStart + "' AND VEP_STARTED_ON < date '" + convertEnd + "'");
                 }));
                 var lastWeek = new Button ({
                     label: "Last Week",
@@ -126,7 +126,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         selector: "date"
                     });
                     this._clearLayer(featureLayer);
-                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT < date '" + convertEnd + "'");
+                    this._queryMap("VEP_STARTED_ON > date '" + convertStart + "' AND VEP_STARTED_ON < date '" + convertEnd + "'");
                 }));
                 var submit = new Button ({
                     label: "Submit",
@@ -147,7 +147,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         selector: "date"
                     });
                     this._clearLayer(featureLayer);
-                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT < date '" + convertEnd + "'");
+                    this._queryMap("VEP_STARTED_ON > date '" + convertStart + "' AND VEP_STARTED_ON < date '" + convertEnd + "'");
                 }));
                 var Original = new Button ({
                     label: "Lifetime",
@@ -181,14 +181,14 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                     "whereClause" : "",
                     "color" : null
                 };
-                conjugator.whereClause = "VEP_LAST_EDIT > date '" + conjugator.State_Date + "' AND VEP_LAST_EDIT < date '" + conjugator.End_Date + "' AND VEP_STATUS = " + conjugator.Valve_Status;
+                conjugator.whereClause = "VEP_STARTED_ON > date '" + conjugator.State_Date + "' AND VEP_STARTED_ON < date '" + conjugator.End_Date + "' AND VEP_STATUS = " + conjugator.Valve_Status;
             }
             , //private function to which passes query as whereClause then creates the pie chart and legend to view
             _queryMap: function(whereClause) {
                 var countDiv = dom.byId("completedCountDiv");
                 var randomMath = Math.random();
                 var queryTest = new Query();
-                var testQueryTask = new QueryTask("http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/water_vep_valves_fs/MapServer/0/query");
+                var testQueryTask = new QueryTask("https://maps.charlescountymd.gov/arcgis/rest/services/DPWUtilities/WaterVEPValvesStatus/MapServer/0/query");
                 var stats = new StatisticDefinition();
                 stats.statisticType = "count";
                 stats.onStatisticField = "OBJECTID";
@@ -302,7 +302,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                                     conjugator.whereClause = "VEP_STATUS = " + conjugator.Valve_Status;
                                 }
                                 else {
-                                    conjugator.whereClause = "VEP_LAST_EDIT > date '" + conjugator.State_Date + "' AND VEP_LAST_EDIT <= date '" + conjugator.End_Date + "' AND VEP_STATUS = " + conjugator.Valve_Status;
+                                    conjugator.whereClause = "VEP_STARTED_ON > date '" + conjugator.State_Date + "' AND VEP_STARTED_ON <= date '" + conjugator.End_Date + "' AND VEP_STATUS = " + conjugator.Valve_Status;
                                 }
                                 this._displayFMainsLayer(colorSlice);
                             }
@@ -346,7 +346,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
             , //private function display features
             _displayFMainsLayer: function(colorSlice) {
                 document.body.style.cursor = "default";
-                var FLayerURL = "http://prod1.spatialsys.com/arcgis/rest/services/CharlesUtilities/water_vep_valves_fs/MapServer/0";
+                var FLayerURL = "https://maps.charlescountymd.gov/arcgis/rest/services/DPWUtilities/WaterVEPValvesStatus/MapServer/0";
                 featureLayer = new FeatureLayer(FLayerURL, {
                     id: "FLayer",
                     mode: FeatureLayer.MODE_SNAPSHOT

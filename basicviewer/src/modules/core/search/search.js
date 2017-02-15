@@ -158,6 +158,7 @@ define(["dojo/_base/declare",
                     placeHolder: "Select Pump Station",
                     store: SewerSystemStore,
                     maxHeight: 200,
+                    autoComplete: false,
                     onChange: lang.hitch(this, function(val){
                         SelectedSewerVal   = val
 
@@ -228,6 +229,7 @@ define(["dojo/_base/declare",
                     placeHolder: "Select or Type Street Name",
                     store: StreetsALLStore,
                     maxHeight: 200,
+                    autoComplete: false,
                     onChange: lang.hitch(this, function(val){
                         SelectedStreetALLID   = val     ;
                         SelectedStreetALLVal = StreetALLSearchSelect.get("displayedValue")    ;

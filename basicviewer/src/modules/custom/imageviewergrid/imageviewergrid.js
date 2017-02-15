@@ -139,7 +139,7 @@ define(["dojo/_base/declare",
 
                     postCreate: function() {
                         this.inherited(arguments);
-                        this.moveable = new move.constrainedMoveable(
+                   /*     this.moveable = new move.constrainedMoveable(
                             this.domNode, {
                                 handle: this.focusNode,
                                 constraints: function() {
@@ -156,7 +156,7 @@ define(["dojo/_base/declare",
                                 },
                                 within: true
                             }
-                        );
+                        );*/
                         this.close = lang.hitch (this, function () {
 
                             //console.log ("Imageviewer Closed")
@@ -200,19 +200,29 @@ define(["dojo/_base/declare",
                 });
 
                 //Create Floating Pane to house the layout UI of the widget. The parentModule property is created to obtain a reference to this module in close button click.
+             /*   fpImageViewer = new ConstrainedFloatingPane({
+                    title: 'Image Viewer',
+                    parentModule: this,
+                    resizable: true,
+                    dockable: true,
+                    closable: false,
+                    style: "position:absolute;top:20px;left:0px;width:750px;height:650px;z-index:100;visibility:hidden;",
+                    id: this.innerDivId
+                }, dom.byId(this.floaterDivId));
+*/
+
                 fpImageViewer = new ConstrainedFloatingPane({
                     title: 'Image Viewer',
                     parentModule: this,
                     resizable: true,
                     dockable: false,
                     closable: true,
-                    style: "position:absolute;top:20px;left:0px;width:750px;height:650px;z-index:100;visibility:hidden;",
+                    style: "position:absolute;top:20px;left:0px;width:750px;height:650px;visibility:hidden;z-index:999 !important",
                     id: this.innerDivId
                 }, dom.byId(this.floaterDivId));
 //                fpImageViewer.startup();
 
                 var htmlFragment = '<div id= "fpBorderContainer" dojoType="dijit.layout.BorderContainer"></div>'
-
                 fpImageViewer.setContent(htmlFragment);
 
                 var bottomHtmlFragment = '<div id="ExportAll"></div>'
@@ -220,6 +230,25 @@ define(["dojo/_base/declare",
 
                 fpBorderContainer =  registry.byId("fpBorderContainer")
 
+                on(fpImageViewer.closeNode, "touchend", function () {
+                    //alert("touch close")
+                    fpImageViewer.close();
+                   // alert("Close!"+ this.innerDivId)
+                });
+
+                on(fpImageViewer.titleNode, "touchend", function () {
+                    alert("touch titlebar 33")
+                    //fpImageViewer.close();
+                   // alert("touch titlebar")
+                });
+
+                on(fpImageViewer,'show', function () {
+                    fpImageViewer.bringToTop();
+                });
+
+                on(fpImageViewer,'focus', function () {
+                    fpImageViewer.bringToTop();
+                });
 
                 var cp1 = new ContentPane({
                     region: "center",
@@ -1272,7 +1301,7 @@ define(["dojo/_base/declare",
 
 
                     on (this.printDialog, "hide", lang.hitch(this, function(){
-                        console.log ("Dialog Closed");
+                        console.log ("Dialog closed");
 
                         this.printDialog.destroyRecursive();
                         this.printDialog = null;

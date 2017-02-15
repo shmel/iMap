@@ -93,7 +93,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         selector: "date"
                     });
                     this._clearLayer(featureLayer);
-                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT <= date'" + convertEnd + "'");
+                    this._queryMap("VEP_STARTED_ON > date '" + convertStart + "' AND VEP_STARTED_ON <= date'" + convertEnd + "'");
                 }));
                 var lastWeek = new Button ({
                     label: "Last Week",
@@ -119,7 +119,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         selector: "date"
                     });
                     this._clearLayer(featureLayer);
-                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart + "' AND VEP_LAST_EDIT <= date'" + convertEnd + "'");
+                    this._queryMap("VEP_STARTED_ON > date '" + convertStart + "' AND VEP_STARTED_ON <= date'" + convertEnd + "'");
                 }));
                 var submit = new Button ({
                     label: "Submit",
@@ -137,7 +137,7 @@ define(["dojo/_base/declare", "dojo/dom-construct", "dojo/on", "dojo/text!./temp
                         selector: "date"
                     });
                     this._clearLayer(featureLayer);
-                    this._queryMap("VEP_LAST_EDIT > date '" + convertStart +"' AND VEP_LAST_EDIT <= date'" + convertEnd + "'");
+                    this._queryMap("VEP_STARTED_ON > date '" + convertStart +"' AND VEP_STARTED_ON <= date'" + convertEnd + "'");
                 }));
                 var Original = new Button ({
                     label: "Lifetime",

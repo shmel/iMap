@@ -71,7 +71,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dojo/_base/lang", "dojo/topi
 
                 var ssaCharlesOrtholayer = new BasemapLayer({
                     //url:"https://prod1.spatialsys.com/arcgis/rest/services/CharlesStormWater/Basemap/MapServer"
-                    url:"https://prod1.spatialsys.com/arcgis/rest/services/Charles/Orthos_2011/MapServer"
+                    url:"https://maps.charlescountymd.gov/arcgis/rest/services/Basemaps/OrthosZoom2/MapServer"
                 });
 
                 var mdImapbasemap = new esri.dijit.Basemap({
@@ -82,6 +82,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dojo/_base/lang", "dojo/topi
 
                 basemapGallery.add(ssaCharlesbasemap);
                 basemapGallery.add(mdImapbasemap);
+
 
 
                 cp.set('content', basemapGallery.domNode);

@@ -129,6 +129,19 @@ define(["dojo/_base/declare", "../utilities/environment", "dojo/_base/lang", "do
 
                     this._CreateToolButton(widgetParams, btnId, btnTitle, btnIconClass, modulePath, false);
                 }
+
+                //**** Infor Integration into Popup InfoWindow
+                if (this._AppConfig.displayInforIntegration === "true" || this._AppConfig.displaylocation == true) {
+                    //*** Constructor parameters object you want passed into your module
+                    //*** Provide a unique ID for the parent div of the floating panel (if applicable)
+                    var widgetParams = { map: mapHandler.map };
+                    //var parentDivId = 'floaterIO';//floaterDivId
+                    //*** The relative path to your module
+                    var modulePath = "../../custom/inforIntegration/inforIntegration";
+
+                    this._AddTool(widgetParams, modulePath, true);
+                }
+
             }
 
             // Creates a toolbar button, and wires up a click handler to request your module and load it on first click only.
@@ -156,6 +169,18 @@ define(["dojo/_base/declare", "../utilities/environment", "dojo/_base/lang", "do
                     }));
                 }));
             }
+
+            // Creates a toolbar button, and wires up a click handler to request your module and load it on first click only.
+            , _AddTool: function (widgetParams, modulePath, startupDijit) {
+                //*** Set the relative location to the module
+                    require([modulePath], lang.hitch(this, function(customDijit) {
+                        var theDijit = new customDijit(widgetParams);
+                        if (startupDijit)
+                            theDijit.startup();
+                        try { document.body.style.cursor = "auto"; } catch (e) {}
+                    }));
+            }
+
 
             , _addPrint: function (PrintDijit) {
                 var layoutOptions ={

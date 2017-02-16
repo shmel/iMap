@@ -142,6 +142,13 @@ define(["dojo/_base/declare",
             }
             , SubmitWorkOrder: function(evt) {
 
+                function Get(yourUrl) {
+                    var Httpreq = new XMLHttpRequest(); // a new request
+                    Httpreq.open("GET", yourUrl, false);
+                    Httpreq.send(null);
+                    return Httpreq.responseText;
+                }
+
                 //Check if there is a GISOBJID!!
                 var feature = mapHandler.map.infoWindow.getSelectedFeature();
 
@@ -154,7 +161,23 @@ define(["dojo/_base/declare",
 
                 gisobjid = feature.attributes.GISOBJID
                 systemCode = feature.attributes.SYSTEMCODE
-                subType = feature.attributes.SUBTYPE
+                subTypeID = feature.attributes.SUBTYPE
+
+              //  Get the Array of subTypes for the layer
+                subTypes = JSON.parse(feature._layer._json).types;
+                subType = "";
+                for (var i in subTypes) {
+                    if (subTypes[i].id == subTypeID) { subType = subTypes[i].name };
+                }
+                
+
+                //layerURL = feature._layer.url + "?f=json";
+                //layerJSON = JSON.parse(Get(layerURL));
+
+             //   console.log(layerJSON)
+
+
+
 
                 //  { "GISOBJID":"226496", "SystemCode":"C-MW", "SubTypeCode":"Cleanout", "Description":"New Test WorkOrder" }
 
@@ -163,6 +186,8 @@ define(["dojo/_base/declare",
 
                 ///window.alert("GISOBJID" + gisobjid)
             }
+
+
 
             , OpenSubmitDialog: function(gisobjid){
                 //Opens a Modal Dialog window for the user to select the properties for the Infor Integratio

@@ -12,6 +12,52 @@
     margin-bottom: 5px;
 }
 
+.waitAreaHidden {
+    visibility: hidden;	
+	padding-top: 5px;
+    padding-left: 5px;
+    padding-bottom: 5px;
+    padding-right: 5px;
+    height: 38%;
+    border: solid;
+    border-color: #999999;
+    border-radius: 5px;
+    border-width: 2px;
+    background-color: #FFFFFF;
+    margin-bottom: 5px;	
+	background-color: #FFFFFF;
+    margin-bottom: 5px;
+    position: absolute;
+    width: 92%;
+    background: white;
+    z-index: 100;
+}
+
+.waitArea {
+	padding-top: 5px;
+    padding-left: 5px;
+    padding-bottom: 5px;
+    padding-right: 5px;
+    height: 38%;
+    border: solid;
+    border-color: #999999;
+    border-radius: 5px;
+    border-width: 2px;
+    background-color: #FFFFFF;
+    margin-bottom: 5px;	
+	background-color: #FFFFFF;
+    margin-bottom: 5px;
+    position: absolute;
+    width: 92%;
+    background: white;
+    z-index: 100;
+}
+
+.selInforClass {
+    
+
+}
+
 .submitAreasHidden {
     visibility: hidden;
     height: 0px;

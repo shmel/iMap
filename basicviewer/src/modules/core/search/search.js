@@ -268,7 +268,7 @@ define(["dojo/_base/declare",
                             var random = (new Date()).getTime(); //Fix for 10.1 Bug NIM086349
                             query.where = "STREET = '" + SelectedStreetALLVal + "'" + " AND " + random + "=" + random;
                             query.outFields = ["OBJECTID", "STREET", "ADDRESS_RANGE", "LCITY", "l_zip" ];
-                            query.orderByFields = ["LCITY ASC"];
+                            query.orderByFields = ["ADDRESS_RANGE ASC"];
                             query.returnGeometry  = false;
 
                             qt.execute(query, lang.hitch(this, function(results){
@@ -840,7 +840,7 @@ define(["dojo/_base/declare",
                             //Handling for point features
                             if (result[0].geometry.type == "point") {
                                 var pt = result[0].geometry;
-                                var factor = 0.1; //some factor for converting point to extent
+                                var factor = 2; //some factor for converting point to extent
                                 var extent = new Extent(pt.x - factor, pt.y - factor, pt.x + factor, pt.y + factor, pt.spatialReference);
                                 //var polygon = Polygon.fromExtent(extent) //Can't use until 3.11
 

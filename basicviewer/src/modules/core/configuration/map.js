@@ -152,6 +152,13 @@ define(["dojo/_base/declare", "dojo/_base/lang", "dojo/on", "dojo/Evented", "../
                             mapHandler._clickListener = response.clickEventListener;
                             this._Map = response.map;
 
+                            //mapHandler._clickListener.addCallback(lang.hitch(this, function (response) {
+                            //    on(map.infoWindow, "show", function () {
+                            //            console.log("TEST INFOWINDOW")
+                            //        })
+                            //    }));
+                            
+
                             mapHandler.HideLoadingIcononStartup();
 
                             //if an extent was specified using url params go to that extent now
@@ -164,6 +171,13 @@ define(["dojo/_base/declare", "dojo/_base/lang", "dojo/on", "dojo/Evented", "../
 
                             else
                                 dojo.connect(this._Map, "onLoad", this._FinishMapElements);
+
+                            ////dojo.connect(this._Map.infoWindow, "selection-change", function (e) {
+                            //    dojo.connect(this._Map.infoWindow, "onSelectionChange", function (e) {
+                            //    //this_.Map
+                            //    console.log("test info")
+
+                            //})
                         }));
 
                         mapDeferred.addErrback(function (error) {
